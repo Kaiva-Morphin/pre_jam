@@ -1,0 +1,17 @@
+[package]
+name = "debug_utils"
+authors = ["kaiva-morphin <kaivamorphin@gmail.com>"]
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+debug_overlay = []
+
+[dependencies]
+anyhow.workspace = true
+bevy-inspector-egui.workspace = true
+bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "parallel", "simd-stable"] }
+lazy_static.workspace = true
+bevy.workspace = true
+bevy_tailwind.workspace = true
