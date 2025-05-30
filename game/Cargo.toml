@@ -13,3 +13,11 @@ pixel_utils.workspace = true
 bevy = {workspace = true, default-features = false, features = ["bevy_asset", "bevy_color", "bevy_core_pipeline", "bevy_gizmos", "bevy_input_focus", "bevy_log", "bevy_render", "bevy_sprite", "bevy_state", "bevy_text", "bevy_ui", "bevy_window", "bevy_winit", "custom_cursor", "hdr","multi_threaded", "png", "std", "sysinfo_plugin"]}
 bevy_tailwind.workspace = true
 utils = { version = "0.1.0", path = "../libs/utils" }
+
+[[bin]]
+name = "game"
+path = "src/main.rs"
+
+[[bin]]
+name = "shaders"
+path = "src/shaders.rs"
