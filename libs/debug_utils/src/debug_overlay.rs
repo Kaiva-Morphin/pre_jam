@@ -4,22 +4,51 @@ use bevy::{diagnostic::{DiagnosticPath, DiagnosticsStore}, prelude::*, text::Fon
 
 
 #[macro_export]
-macro_rules! overlay_set {
-    ($name:ident, $value:ident) => {
-        #[cfg(feature = "debug_overlay")]
-        {
-            overlay            
-        }
-    }
+macro_rules! overlay_text {
+    ($events:ident ; $anchor:ident ; $layer:expr ; $key:ident : $( $text:expr ,( $( $arg:tt )* ) );+ $(;)? ) => {
+        $events.write(DebugOverlayEvent::Set {
+            key: stringify!($key).to_string(),
+            val: $crate::debug_overlay::DebugRecord {
+                record_type: $crate::debug_overlay::DebugRecordType::Text {
+                    text: vec![
+                        $(
+                            $crate::overlay_text!(@parse_text $text ,( $( $arg )* )),
+                        )+
+                    ],
+                },
+                anchor: $crate::debug_overlay::OverlayAnchor::$anchor,
+                layer: $layer,
+            }
+        });
+    };
+
+    ($events:ident ; $anchor:ident ; $key:ident : $( $text:expr ,( $( $arg:tt )* ) );+ $(;)? ) => {
+        overlay_text!($events ; $anchor ; 0 ; $key : $( $text ,( $( $arg )* ) );+ );
+    };
+
+    ($events:ident ; $key:ident : $( $text:expr ,( $( $arg:tt )* ) );+ $(;)? ) => {
+        overlay_text!($events ; $crate::debug_overlay::OverlayAnchor::BottomRight ; 0 ; $key : $( $text ,( $( $arg )* ) );+ );
+    };
+
+    (@parse_text $text:expr ,( $r:literal , $g:literal , $b:literal , $a:literal )) => {
+        (bevy::prelude::Color::srgba_u8($r, $g, $b, $a), $text)
+    };
+    (@parse_text $text:expr ,( $r:literal , $g:literal , $b:literal )) => {
+        (bevy::prelude::Color::srgba_u8($r, $g, $b, 255), $text)
+    };
+    (@parse_text $text:expr ,( $c:literal )) => {
+        (bevy::prelude::Color::srgba_u8($c, $c, $c, 255), $text)
+    };
+    (@parse_text $text:expr) => {
+        (bevy::prelude::Color::srgba_u8(255, 255, 255, 255), $text)
+    };
 }
 
 #[macro_export]
 macro_rules! overlay {
     () => {
         #[cfg(feature = "debug_overlay")]
-        {
-            overlay: bevy::prelude::EventWriter<$crate::debug_overlay::DebugOverlayEvent>
-        }
+        mut overlay_events: bevy::prelude::EventWriter<DebugOverlayEvent>,
     };
 }
 
@@ -50,13 +79,24 @@ impl Plugin for DebugOverlayPlugin {
         {
             let sd = self.supress_default;
             _app
+                .add_plugins(
+                    // bevy::diagnostic::DiagnosticsPlugin::default(),
+                    bevy::diagnostic::FrameTimeDiagnosticsPlugin::default()
+                )
                 .insert_resource(DebugOverlay::enabled(self.enabled))
                 .add_systems(PreStartup, 
-                    move |cmd: Commands, asset_server: Res<AssetServer>, overlay: ResMut<DebugOverlay>, events: EventWriter<DebugOverlayEvent>| init(sd, cmd, asset_server, overlay, events));
+                    (move |
+                    cmd: Commands,
+                    asset_server: Res<AssetServer>,
+                    overlay: ResMut<DebugOverlay>,
+                    events: EventWriter<DebugOverlayEvent>,
+                    pc: Single<Entity, With<pixel_utils::camera::PixelCamera>>,
+                    | init(sd, cmd, asset_server, overlay, events, pc))
+                    .after(pixel_utils::camera::setup_camera));
             if self.supress_default {
-                _app.add_systems(PreUpdate, debug_overlay_tick);
+                _app.add_systems(PreUpdate, (resize_overlay, debug_overlay_tick));
             } else {
-                _app.add_systems(PreUpdate, (default_sustem_tick, debug_overlay_tick).chain());
+                _app.add_systems(PreUpdate, (resize_overlay, (default_sustem_tick, debug_overlay_tick).chain()));
             }
             _app.add_event::<DebugOverlayEvent>();
         }
@@ -103,6 +143,8 @@ impl OverlayAnchor {
     pub fn justify_content(&self) -> JustifyContent {
         if self.is_bottom() {
             JustifyContent::End
+        } else if self.is_center_vertical() {
+            JustifyContent::Center
         } else {
             JustifyContent::Start
         }
@@ -125,7 +167,7 @@ impl OverlayAnchor {
     }
 
     fn align_items(&self) -> AlignItems {
-        if self.is_bottom() {
+        if self.is_right() {
             AlignItems::End
         } else if self.is_center_horizontal() {
             AlignItems::Center
@@ -136,7 +178,7 @@ impl OverlayAnchor {
     fn align_self(&self) -> AlignSelf {
         if self.is_bottom() {
             AlignSelf::End
-        } else if self.is_center_horizontal() {
+        } else if self.is_center_vertical() {
             AlignSelf::Center
         } else {
             AlignSelf::Start
@@ -167,7 +209,6 @@ pub fn default_sustem_tick(
         error_once!("Cant find DiagnosticsStore! make shure ure are add FrameTimeDiagnosticsPlugin!");
         return;
     };
-
     let fps = diagnostics_store.get(&DiagnosticPath::const_new("fps"));
     if let Some(fps) = fps {
         let smoothed = fps.smoothed().unwrap_or(0.);
@@ -187,6 +228,7 @@ pub fn default_sustem_tick(
                 Color::srgba(0.1, 0., 0., 1.)
             }
         };
+
         events.write(DebugOverlayEvent::Set {
             key: "FPS_AVG".to_string(),
             val: DebugRecord {
@@ -194,7 +236,7 @@ pub fn default_sustem_tick(
                     text: vec![
                         (Color::srgba(0.5, 0.5, 0.5, 1.), format!("avg. ")),
                         (get_fps_color(avg), format!("{:.1}", avg)),
-                        (Color::srgba(0.9, 0.9, 0.9, 1.), format!(" fps")),
+                        (Color::srgba(0.8, 0.8, 0.8, 1.), format!(" fps")),
                     ]
                 },
                 anchor: OverlayAnchor::BottomRight,
@@ -207,7 +249,33 @@ pub fn default_sustem_tick(
                 record_type: DebugRecordType::Text {
                     text: vec![
                         (get_fps_color(smoothed), format!("{:.1}", smoothed)),
-                        (Color::srgba(0.9, 0.9, 0.9, 1.), format!(" fps")),
+                        (Color::srgba(0.8, 0.8, 0.8, 1.), format!(" fps")),
+                    ]
+                },
+                anchor: OverlayAnchor::BottomRight,
+                layer: 0
+            }
+        });
+    }
+}
+
+pub fn resize_overlay(
+    inputs: Res<ButtonInput<KeyCode>>,
+    mut events: EventWriter<DebugOverlayEvent>,
+    mut overlay: ResMut<DebugOverlay>,
+) {
+    if inputs.pressed(KeyCode::ControlLeft)
+    && inputs.pressed(KeyCode::ShiftLeft) {
+        let d = inputs.just_pressed(KeyCode::Equal) as i32 - 
+        inputs.just_pressed(KeyCode::Minus) as i32;
+        overlay.text_font.font_size += 1.0 * d as f32;
+        events.write(DebugOverlayEvent::Set {
+            key: "OVERLAY_SIZE".to_string(),
+            val: DebugRecord {
+                record_type: DebugRecordType::Text {
+                    text: vec![
+                        (Color::srgba(0.5, 0.5, 0.5, 1.), format!("Font size: ")),
+                        (Color::srgba(0.5, 0.5, 0.5, 1.), overlay.text_font.font_size.to_string()),
                     ]
                 },
                 anchor: OverlayAnchor::BottomRight,
@@ -218,18 +286,11 @@ pub fn default_sustem_tick(
 }
 
 pub fn debug_overlay_tick(
-    inputs: Res<ButtonInput<KeyCode>>,
     mut events: EventReader<DebugOverlayEvent>,
-    mut root: Single<&mut Transform, With<DebugOverlayRoot>>,
     mut overlay: ResMut<DebugOverlay>,
     mut cmd: Commands,
 ){
-    if inputs.pressed(KeyCode::ControlLeft)
-    && inputs.pressed(KeyCode::ShiftLeft) {
-        let d = inputs.just_pressed(KeyCode::Equal) as i32 - 
-        inputs.just_pressed(KeyCode::Minus) as i32;
-        root.scale += 0.1 * d as f32;
-    }
+    
     for e in events.read() {
         match e {
             DebugOverlayEvent::Set{key, val} => {
@@ -264,33 +325,80 @@ pub enum DebugRecordType {
 }
 
 impl DebugRecordType {
-    fn to_node_bundle(&self, cmd: &mut Commands, font: Handle<Font>) -> Entity {
+    fn to_node_bundle(&self, cmd: &mut Commands, font: &TextFont) -> (Entity, Vec<Entity>) {
         match self {
             DebugRecordType::Text { text } => {
-                cmd.spawn((
-                    TextFont { font: font.clone(), font_smoothing: FontSmoothing::None, ..default() },
+                let mut children = vec![];
+                let e = cmd.spawn((
+                    font.clone(),
                     Text::default(),
                 )).with_children(|cmd|{
                     for (color, text) in text {
-                        cmd.spawn((
-                            TextFont { font: font.clone(), font_smoothing: FontSmoothing::None, ..default() },
+                        let c = cmd.spawn((
+                            font.clone(),
                             TextSpan::new(text.clone()),
                             TextColor::from(*color),
-                        ));
+                        )).id();
+                        children.push(c);
                     }
-                }).id()
+                }).id();
+                (e, children)
             }
             _ => unimplemented!()
         }
     } 
-    fn update(&mut self, cmd: &mut Commands, record: &Self, entity: Entity) {
+    fn update(&mut self, cmd: &mut Commands, record: &Self, entity: Entity, children: &mut Vec<Entity>, font: &TextFont) {
         match self {
-            DebugRecordType::Text { text } => {
-                let DebugRecordType::Text{text: new_text} = record else {warn!("Wrong record type passed!");return};
-                let diff = text.len() as i32 - new_text.len() as i32;
-                if diff >= 0 {
-                    // cmd.entity(entity).chil
+            DebugRecordType::Text { text: _stored } => {
+                // TODO: USE ANOTHER METHOD; MAYBE JUST REPLACE
+                let DebugRecordType::Text{text: to_add} = record else {warn!("Wrong record type passed!");return};
+                let mut to_add = to_add.into_iter();
+                let mut nc = vec![];
+                for e in children.iter() {
+                    if let Some((c, t)) = to_add.next() {
+                        cmd.entity(*e).insert((
+                            font.clone(),
+                            TextSpan::new(t.clone()),
+                            TextColor::from(c.clone()),
+                        ));
+                        nc.push(*e);
+                    } else {
+                        cmd.entity(*e).despawn();
+                    }
                 }
+                *children = nc;
+
+                while let Some((c, t)) = to_add.next() {
+                    let e = cmd.spawn((
+                        font.clone(),
+                        TextSpan::new(t.clone()),
+                        TextColor::from(c.clone()),
+                    )).id();
+                    cmd.entity(entity).add_child(e);
+                    children.push(e);
+                }
+
+
+
+
+                // // let diff = text.len() as i32 - new_text.len() as i32;
+                // // if diff != 0 {warn!("Text length diff: {}", diff);return};
+
+
+
+
+                // let mut to_add = vec![];
+                // for (color, text) in new_text.iter() {
+                //     to_add.push(cmd.spawn((
+                //             TextFont { font: font.clone(), font_smoothing: FontSmoothing::None, ..default() },
+                //         TextSpan::new(text.clone()),
+                //         TextColor::from(*color),
+                //     )).id());
+                // }
+                // cmd.entity(entity).replace_children(&to_add);
+                
+                    
+                // *text = new_text.clone();
             }
             _ => unimplemented!()
         }
@@ -299,14 +407,15 @@ impl DebugRecordType {
 
 #[derive(Clone)]
 pub struct DebugRecord {
-    record_type: DebugRecordType,
-    anchor: OverlayAnchor,
-    layer: i8,
+    pub record_type: DebugRecordType,
+    pub anchor: OverlayAnchor,
+    pub layer: i8,
 }
 
 pub struct StoredDebugRecord {
     record: DebugRecord,
     entity: Entity,
+    children: Vec<Entity>,
 }
 
 
@@ -319,9 +428,15 @@ pub fn init(
     mut cmd: Commands,
     asset_server: Res<AssetServer>,
     mut overlay: ResMut<DebugOverlay>,
-    mut events: EventWriter<DebugOverlayEvent>,
+    mut overlay_events: bevy::prelude::EventWriter<DebugOverlayEvent>,
+    pc: Single<Entity, With<pixel_utils::camera::PixelCamera>>,
 ){
-    overlay.font = asset_server.load("fonts/orp_regular.ttf");
+    overlay.text_font = TextFont{
+        font: asset_server.load("fonts/orp_regular.ttf"),
+        font_smoothing: FontSmoothing::None,
+        font_size: 12.0,
+        ..default()
+    };
     overlay.root = cmd.spawn((
         Node {
             width: Val::Percent(100.),
@@ -330,12 +445,14 @@ pub fn init(
             position_type: PositionType::Absolute,
             ..default()
         },
+        UiTargetCamera(*pc),
+        bevy::render::view::RenderLayers::layer(0),
         DebugOverlayRoot,
         Name::new("DebugRoot")
     )).id();
-    
+
     if !supress_default {
-        events.write(DebugOverlayEvent::Set {
+        overlay_events.write(DebugOverlayEvent::Set {
             key: "PKGINFO".to_string(),
             val: DebugRecord {
                 record_type: DebugRecordType::Text {
@@ -347,7 +464,7 @@ pub fn init(
                 layer: 0
             }
         });
-        events.write(DebugOverlayEvent::Set {
+        overlay_events.write(DebugOverlayEvent::Set {
             key: "FPS_AVG".to_string(),
             val: DebugRecord {
                 record_type: DebugRecordType::Text {
@@ -359,7 +476,7 @@ pub fn init(
                 layer: 0
             }
         });
-        events.write(DebugOverlayEvent::Set {
+        overlay_events.write(DebugOverlayEvent::Set {
             key: "FPS_SM".to_string(),
             val: DebugRecord {
                 record_type: DebugRecordType::Text {
@@ -401,7 +518,7 @@ pub struct DebugOverlay{
     visible: bool,
     records: HashMap<String, StoredDebugRecord>,
     enabled_layers: HashSet<i8>,
-    font: Handle<Font>,
+    text_font: TextFont,
     bg_color: Color,
 }
 
@@ -409,7 +526,7 @@ impl Default for DebugOverlay {
     fn default() -> Self {
         Self {
             root: Entity::PLACEHOLDER,
-            font: Handle::default(),
+            text_font: Default::default(),
             layers: BTreeMap::new(),
             visible: false,
             records: HashMap::new(),
@@ -459,37 +576,24 @@ impl DebugOverlay {
     fn record_create_or_update(&mut self, cmd: &mut Commands, key: &str, record: &DebugRecord) {
         let anchor = *self.anchor_create_or_get(cmd, record.layer, record.anchor.clone());
         if let Some(stored_record) = self.records.get_mut(key) {
-            stored_record.record.record_type.update(cmd, &record.record_type, stored_record.entity);
+            stored_record.record.record_type.update(cmd, &record.record_type, stored_record.entity, &mut stored_record.children, &self.text_font);
         } else {
-            let e = record.record_type.to_node_bundle(cmd, self.font.clone());
+            let (e, c) = record.record_type.to_node_bundle(cmd, &self.text_font);
             let e = cmd.entity(e).insert(
                 BackgroundColor(self.bg_color.clone()),
             ).id();
             cmd.entity(anchor).add_child(e);
-            StoredDebugRecord {
+            let s = StoredDebugRecord {
                 record: record.clone(),
                 entity: e,
+                children: c
             };
-            self.records.insert(key.to_owned(), StoredDebugRecord{record: record.clone(), entity: e});
+            self.records.insert(key.to_owned(), s);
         };
-
-
-        // let v = self.records.entry(key.to_owned()).or_insert_with(|| {
-        //         let e = cmd.spawn(record.record_type.to_node_bundle()).id();
-        //         cmd.entity(anchor).add_child(e);
-        //         StoredDebugRecord {
-        //             record: record.clone(),
-        //             entity: e,
-        //         }
-        //     }
-        // );
-        // v
     }
 
     fn set(&mut self, cmd: &mut Commands, key: &str, val: &DebugRecord){
-        // let DebugRecord{layer, record_type: record, anchor} = val;
         self.record_create_or_update(cmd, key, val);
-        // let record;
     }
 }
 

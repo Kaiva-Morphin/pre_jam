@@ -63,7 +63,7 @@ impl MovingPlatform {
         }
     }
     pub fn tick(&mut self, dt: f32, current_position: &Vec3) -> Vec2 {
-        let to_travel = self.speed * dt;
+        let to_travel = self.speed; //  * dt
         let to_travel_sq = to_travel * to_travel;
         let curr = current_position.truncate();
         let next_index = self.get_index(self.index + 1);
@@ -81,7 +81,7 @@ impl MovingPlatform {
             vec * to_travel
         };
         self.velocity = v;
-        v
+        v * 60.
     }
 }
 
@@ -94,7 +94,7 @@ pub fn update_platforms(
     for (mut t, mut vel, mut platform, mut controller) in transforms.iter_mut(){
         let translation = platform.tick(dt, &t.translation);
         // controller.translation = Some(translation);
-        vel.linvel = translation * 100.0;
+        vel.linvel = translation;
         // t.translation += translation.extend(0.);
     }
 }

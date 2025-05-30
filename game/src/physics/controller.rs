@@ -10,6 +10,8 @@ use bevy::prelude::*;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use debug_utils::debug_overlay::DebugOverlayEvent;
+use debug_utils::overlay_text;
 use pixel_utils::camera::PixelCamera;
 use utils::wrap;
 
@@ -101,7 +103,7 @@ pub fn init_scene(
                 vec2(225.0, 100.0),
                 vec2(225.0, 0.0),
             ],
-            25.0, 
+            2.0, 
             MovingPlatformMode::Loop
         ),
     ));
@@ -147,11 +149,11 @@ pub fn tick_controllers(
 
 }
 
-
 pub fn update_controllers(
     mut player: Single<(&mut Velocity, &mut Controller, Option<&GravityOverride>), With<Player>>,
     keyboard: Res<ButtonInput<KeyCode>>,
     global_gravity: Res<GlobalGravity>,
+    mut overlay_events: EventWriter<DebugOverlayEvent>,
 ){
     let mut raw_direction = Vec2::ZERO;
     keyboard.pressed(KeyCode::KeyA).then(|| raw_direction.x -= 1.0);
@@ -160,7 +162,15 @@ pub fn update_controllers(
     keyboard.pressed(KeyCode::KeyW).then(|| raw_direction.y += 1.0);
 
     let direction = raw_direction.normalize_or_zero();
+
+    overlay_text!(overlay_events;TopCenter;PLAYER_INPUTS:
+        "Plyer inputs ->".to_string(),(100);
+        format!("{:?}", direction),(255, 100, 100);
+    );
+
+
     let (player_vel, controller, grav_override) = &mut *player;
+
     if direction != Vec2::ZERO {
         player_vel.linvel = direction * 100.0;
     }

@@ -1904,6 +1904,7 @@ dependencies = [
  "bevy_rapier2d",
  "bevy_tailwind",
  "lazy_static",
+ "pixel_utils",
 ]
 
 [[package]]
@@ -3623,7 +3624,6 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_rapier2d",
  "bevy_tailwind",
- "debug_utils",
  "lazy_static",
 ]
 

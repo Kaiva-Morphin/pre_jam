@@ -15,3 +15,4 @@ bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render
 lazy_static.workspace = true
 bevy.workspace = true
 bevy_tailwind.workspace = true
+pixel_utils.workspace = true
