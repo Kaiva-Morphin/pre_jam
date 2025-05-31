@@ -27,7 +27,6 @@ pub struct CameraFocus {
 
 
 
-
 wrap!(pub ZoomTarget(pub f32));
 
 impl Default for ZoomTarget {
@@ -79,9 +78,6 @@ pub fn camera_controller(
         } else {
             **mode = CameraMode::Following;
         }
-        // **target_zoom = 1.0;
-        // projection.scale = 1.0;
-        // return;
     }
     let mut m_dt = Vec3::ZERO;
     for event in mouse_wheel_events.read() {

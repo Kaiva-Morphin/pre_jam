@@ -1,6 +1,6 @@
 use std::ops::DerefMut;
 
-use bevy::{color::palettes::css::GRAY, core_pipeline::{bloom::{Bloom, BloomCompositeMode}, tonemapping::{DebandDither, Tonemapping}}, prelude::*, render::{camera::RenderTarget, render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}, view::RenderLayers}, window::WindowResized};
+use bevy::{color::palettes::css::GRAY, core_pipeline::{bloom::{Bloom, BloomCompositeMode}, tonemapping::{DebandDither, Tonemapping}}, input::keyboard::{self, KeyboardInput}, prelude::*, render::{camera::RenderTarget, render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}, view::RenderLayers}, window::WindowResized};
 
 
 pub struct PixelCameraPlugin;
@@ -130,6 +130,23 @@ impl ViewportSize {
 
 }
 
+// fn true_pixel_switch(
+//     mut settings : ResMut<PixelCameraSettings>,
+//     mut projection: Single<&mut Projection, With<RenderCamera>>,
+//     keyboard: Res<ButtonInput<KeyCode>>,
+//     window: Single<Window>
+// ){
+//     let Projection::Orthographic(projection) = &mut **projection else {
+//         return;
+//     };
+//     if keyboard.just_pressed(KeyCode::F4){
+//         settings.true_pixel = !settings.true_pixel;
+//         resize();
+//     }
+// }
+
+// fn resize(&mut proj: OrthographicProjection){}
+
 fn fit_canvas(
     mut resize_events: EventReader<WindowResized>,
     mut projection: Single<&mut Projection, With<RenderCamera>>,
@@ -138,7 +155,7 @@ fn fit_canvas(
     // canvas: Single<&Sprite, With<PixelCanvas>>,
     // mut viewport : ResMut<ViewportSize>,
 ){
-    let PixelCameraSettings {true_pixel} = *settings;
+    let true_pixel = settings.true_pixel;
     let Projection::Orthographic(projection) = &mut **projection else {
         return;
     };
@@ -149,6 +166,7 @@ fn fit_canvas(
         if true_pixel {
             scale = scale.floor();
         }
+        projection.scale = 1. / scale;
         // let Some(canvas) = images.get_mut(&canvas.image) else {continue;};
         // let size = Extent3d {
         //     width: viewport.current.x,
@@ -156,6 +174,5 @@ fn fit_canvas(
         //     ..default()
         // };
         // canvas.resize(size);
-        projection.scale = 1. / scale;
     }
 } 
