@@ -271,7 +271,7 @@ pub fn update_buffer(
         let screen = Vec2::new(TARGET_WIDTH as f32, TARGET_HEIGHT as f32);
         let player_pos = extractor.player_pos * Vec2::new(1.,-1.,) / screen * 2. + Vec2::new(0.5,0.5,);
         let player_vel = extractor.player_vel * Vec2::new(1.,-1.,) / screen * 2.;
-        println!("pos: {:?} vel: {:?}", player_pos, player_vel);
+        info!("pos: {:?} vel: {:?}", player_pos, player_vel);
         render_queue.write_buffer(
             &player_pos_buffer.buffer,
             0,
