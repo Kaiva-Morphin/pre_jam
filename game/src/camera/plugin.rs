@@ -27,7 +27,6 @@ pub struct CameraFocus {
 
 
 
-
 wrap!(pub ZoomTarget(pub f32));
 
 impl Default for ZoomTarget {

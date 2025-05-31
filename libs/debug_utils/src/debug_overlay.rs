@@ -264,6 +264,9 @@ pub fn resize_overlay(
     mut events: EventWriter<DebugOverlayEvent>,
     mut overlay: ResMut<DebugOverlay>,
 ) {
+    if inputs.pressed(KeyCode::F3) {
+        overlay.visible = !overlay.visible;
+    }
     if inputs.pressed(KeyCode::ControlLeft)
     && inputs.pressed(KeyCode::ShiftLeft) {
         let d = inputs.just_pressed(KeyCode::Equal) as i32 - 
@@ -290,7 +293,7 @@ pub fn debug_overlay_tick(
     mut overlay: ResMut<DebugOverlay>,
     mut cmd: Commands,
 ){
-    
+    if !overlay.visible {return;}
     for e in events.read() {
         match e {
             DebugOverlayEvent::Set{key, val} => {
