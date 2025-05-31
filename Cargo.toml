@@ -1,5 +1,5 @@
 [workspace]
-members = ["libs/pixel_utils", "game", "libs/debug_utils", "libs/utils"]
+members = ["libs/pixel_utils", "game", "libs/debug_utils", "libs/utils", "libs/shaders"]
 resolver = "2"
 
 
