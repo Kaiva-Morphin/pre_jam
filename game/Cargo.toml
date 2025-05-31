@@ -3,15 +3,13 @@ name = "game"
 version = "0.0.1-infdev"
 edition = "2024"
 
+
 [dependencies]
-anyhow.workspace = true
 bevy-inspector-egui.workspace = true
-bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "parallel", "simd-stable"] }
+bevy_rapier2d.workspace = true 
 debug_utils = {workspace = true, features = ["debug_overlay"] }
-lazy_static.workspace = true
 pixel_utils.workspace = true
-bevy = {workspace = true, default-features = false, features = ["bevy_asset", "bevy_color", "bevy_core_pipeline", "bevy_gizmos", "bevy_input_focus", "bevy_log", "bevy_render", "bevy_sprite", "bevy_state", "bevy_text", "bevy_ui", "bevy_window", "bevy_winit", "custom_cursor", "hdr","multi_threaded", "png", "std", "sysinfo_plugin"]}
-bevy_tailwind.workspace = true
+bevy = {workspace = true, features = ["dynamic_linking"]}
 utils = { version = "0.1.0", path = "../libs/utils" }
 shaders = { version = "0.1.0", path = "../libs/shaders" }
 
@@ -22,3 +20,11 @@ path = "src/main.rs"
 [[bin]]
 name = "shaders"
 path = "src/shaders.rs"
+
+[[bin]]
+name = "clear"
+path = "src/clear.rs"
+
+[[bin]]
+name = "tiled"
+path = "src/tiled.rs"

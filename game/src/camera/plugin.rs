@@ -100,7 +100,6 @@ pub fn camera_controller(
             camera_transform.translation = camera_transform.translation.exp_decay(target, CAMERA_FOLLOW_SPEED, dt);
         } 
         CameraMode::Free => {
-            
             m_dt.z = 0.0;
             camera_transform.translation += m_dt * target_scale * CAMERA_SPEED;
         }
