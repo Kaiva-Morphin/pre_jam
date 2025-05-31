@@ -1,5 +1,5 @@
 @group(2) @binding(1) var<uniform> screen_size: vec2<f32>;
-@group(2) @binding(2) var<uniform> player_pos: vec2<f32>;
+@group(2) @binding(2) var<uniform> player_pos: vec2<f32>; // this doesnt fetch
 @group(2) @binding(3) var buffer_texture: texture_2d<f32>;
 @group(2) @binding(4) var buffer_texture_sampler: sampler;
 @group(2) @binding(5) var debug_texture: texture_2d<f32>;

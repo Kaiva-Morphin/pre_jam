@@ -10,7 +10,7 @@ use bevy::{
         }, renderer::{RenderContext, RenderDevice, RenderQueue}, texture::GpuImage, Render, RenderApp, RenderSet
     }};
 use pixel_utils::camera::{TARGET_HEIGHT, TARGET_WIDTH};
-use crate::components::*;
+use crate::{components::*, VelocityEmmiter};
 
 const SHADER_ASSET_PATH: &str = "shaders/velocity_buffer.wgsl";
 
@@ -46,7 +46,7 @@ pub fn setup(
     mut materials: ResMut<Assets<VelocityBufferMaterial>>,
     mut images: ResMut<Assets<Image>>,
     mut buffer_handles: ResMut<VelocityBufferHandles>,
-    player_pos: Single<&Transform, With<PlayerController>>,
+    player_pos: Single<&Transform, With<VelocityEmmiter>>,
 ) {
     println!("{} {}", TARGET_WIDTH, TARGET_HEIGHT);
     let buffer_handle = generate_empty_buffer(TARGET_WIDTH as usize, TARGET_HEIGHT as usize, &mut images);
@@ -67,49 +67,6 @@ pub fn setup(
         Name::new("Depth Buffer")
     ));
 }
-
-// --------------------------
-
-#[derive(Component)]
-pub struct PlayerController;
-
-pub fn spawn_player(
-    mut commands: Commands,
-) {
-    commands.spawn((
-        Name::new("Player"),
-        Transform::IDENTITY,
-        PlayerController,
-    ));
-}
-
-pub fn player_controller(
-    keyboard: Res<ButtonInput<KeyCode>>,
-    mut player: Single<&mut Transform, With<PlayerController>>,
-    mut materials: ResMut<Assets<VelocityBufferMaterial>>,
-    custom_handle: Res<VelocityBufferHandles>,
-) {
-    let input_dir = vec2(
-        keyboard.pressed(KeyCode::KeyD) as i32 as f32 - keyboard.pressed(KeyCode::KeyA) as i32 as f32,
-        keyboard.pressed(KeyCode::KeyW) as i32 as f32 - keyboard.pressed(KeyCode::KeyS) as i32 as f32
-    );
-    player.translation += 1. * input_dir.extend(0.);
-    let handle = custom_handle.material_handle.clone();
-    if let Some(material) = materials.get_mut(&handle) {
-        material.player_pos = player.translation.xy() * Vec2::new(1., -1.);
-    }
-}
-
-pub fn draw(
-    mut gizmos: Gizmos,
-    govno: Single<&Transform, With<Mesh2d>>,
-    govno2: Single<&Transform, With<PlayerController>>,
-) {
-    gizmos.axes_2d(**govno, 20.);
-    gizmos.rect_2d(Isometry2d::from_translation(govno2.translation.xy()), Vec2::splat(10.), RED);
-}
-
-// --------------------------
 
 pub fn generate_empty_buffer(width: usize, height: usize, asset_server: &mut ResMut<Assets<Image>>,) -> Handle<Image> {
     let mut buffer = Vec::with_capacity(width * height * 4);
@@ -250,7 +207,7 @@ fn prepare_bind_group(
 }
 
 pub fn extract_player_pos(
-    player_pos: Single<&Transform, With<PlayerController>>,
+    player_pos: Single<&Transform, With<VelocityEmmiter>>,
     extractor: Option<ResMut<Extractor>>,
 ) {
     if let Some(mut extractor) = extractor {
