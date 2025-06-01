@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-anyhow.workspace = true
 bevy-inspector-egui.workspace = true
-bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "parallel", "simd-stable"] }
-lazy_static.workspace = true
-bevy = {workspace = true, default-features = false, features = ["bevy_asset", "bevy_color", "bevy_core_pipeline", "bevy_gizmos", "bevy_input_focus", "bevy_log", "bevy_render", "bevy_sprite", "bevy_state", "bevy_text", "bevy_ui", "bevy_window", "bevy_winit", "custom_cursor", "hdr","multi_threaded", "png", "std", "sysinfo_plugin"]}
-bevy_tailwind.workspace = true
+bevy = {workspace = true, features = ["web"]}
+bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
+
+
+
+[target.x86_64-pc-windows-msvc]
+features = "bevy/dynamic_linking"

@@ -1,18 +1,17 @@
 [workspace]
-members = ["libs/pixel_utils", "game", "libs/debug_utils", "libs/utils", "libs/shaders"]
+members = ["libs/pixel_utils", "game", "libs/debug_utils", "libs/utils", "libs/shaders", "libs/bevy_ecs_tiled"]
 resolver = "2"
 
 
 [workspace.dependencies]
-anyhow = "1.0.98"
-bevy = {version="0.16.0", default-features = false, features = ["bevy_asset", "bevy_color", "bevy_core_pipeline", "bevy_gizmos", "bevy_input_focus", "bevy_log", "bevy_render", "bevy_sprite", "bevy_state", "bevy_text", "bevy_ui", "bevy_window", "bevy_winit", "custom_cursor", "hdr","multi_threaded", "png", "std", "sysinfo_plugin", "tonemapping_luts", "bevy_pbr"]}
+bevy = {version="0.16.1", features = ["web"]}
+bevy_rapier2d = { version = "0.30.0", features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
 bevy-inspector-egui = "0.31.0"
-bevy_rapier2d = { version = "0.30.0", features = ["serde-serialize", "debug-render-2d", "parallel", "simd-stable"] }
-lazy_static = "1.5.0"
-tracing = "0.1.41"
 debug_utils = { path = "libs/debug_utils" }
 pixel_utils = { path = "libs/pixel_utils" }
 bevy_tailwind = "0.3.0"
+
+
 
 [profile.dev]
 opt-level = 1
@@ -31,3 +30,6 @@ lto = "thin"
 inherits = "release"
 opt-level = "s"
 strip = "debuginfo"
+
+
+

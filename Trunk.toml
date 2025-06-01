@@ -1,8 +1,0 @@
-[build]
-target = "web/index.html"
-dist = "target/trunk"
-public_url = "./"
-
-[serve]
-no_spa = true
-# open = true

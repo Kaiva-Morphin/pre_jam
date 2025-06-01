@@ -9,7 +9,7 @@ use bevy::{
             binding_types::{storage_buffer_sized, texture_storage_2d}, BindGroupEntries, BindGroupLayoutEntries, BufferDescriptor, BufferUsages, CachedPipelineState, ComputePassDescriptor, ComputePipelineDescriptor, PipelineCache, PipelineCacheError, ShaderStages, StorageTextureAccess, TextureFormat, TextureUsages
         }, renderer::{RenderContext, RenderDevice, RenderQueue}, texture::GpuImage, Render, RenderApp, RenderSet
     }};
-use pixel_utils::camera::{TARGET_HEIGHT, TARGET_WIDTH};
+use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 use crate::{components::*, VelocityEmmiter};
 
 const SHADER_ASSET_PATH: &str = "shaders/velocity_buffer.wgsl";

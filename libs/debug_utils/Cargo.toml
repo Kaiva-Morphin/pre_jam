@@ -9,10 +9,10 @@ default = []
 debug_overlay = []
 
 [dependencies]
-anyhow.workspace = true
 bevy-inspector-egui.workspace = true
-bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "parallel", "simd-stable"] }
-lazy_static.workspace = true
-bevy.workspace = true
-bevy_tailwind.workspace = true
-pixel_utils.workspace = true
+bevy = {workspace = true, features = ["web"]}
+bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
+
+
+[target.x86_64-pc-windows-msvc]
+features = "bevy/dynamic_linking"

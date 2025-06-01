@@ -77,25 +77,16 @@ impl Plugin for DebugOverlayPlugin {
     fn build(&self, _app: &mut App) {
         #[cfg(feature = "debug_overlay")]
         {
-            let sd = self.supress_default;
             _app
                 .add_plugins(
-                    // bevy::diagnostic::DiagnosticsPlugin::default(),
                     bevy::diagnostic::FrameTimeDiagnosticsPlugin::default()
                 )
                 .insert_resource(DebugOverlay::enabled(self.enabled))
-                .add_systems(PreStartup, 
-                    (move |
-                    cmd: Commands,
-                    asset_server: Res<AssetServer>,
-                    overlay: ResMut<DebugOverlay>,
-                    events: EventWriter<DebugOverlayEvent>,
-                    pc: Single<Entity, With<pixel_utils::camera::PixelCamera>>,
-                    | init(sd, cmd, asset_server, overlay, events, pc))
-                    .after(pixel_utils::camera::setup_camera));
+                .add_systems(PreStartup, init);
             if self.supress_default {
                 _app.add_systems(PreUpdate, (resize_overlay, debug_overlay_tick));
             } else {
+                _app.add_systems(PreStartup, init_default_sustems);
                 _app.add_systems(PreUpdate, (resize_overlay, (default_sustem_tick, debug_overlay_tick).chain()));
             }
             _app.add_event::<DebugOverlayEvent>();
@@ -263,9 +254,14 @@ pub fn resize_overlay(
     inputs: Res<ButtonInput<KeyCode>>,
     mut events: EventWriter<DebugOverlayEvent>,
     mut overlay: ResMut<DebugOverlay>,
+    mut r: Single<&mut Node, With<DebugOverlayRoot>>,
 ) {
-    if inputs.pressed(KeyCode::F3) {
+    if inputs.just_pressed(KeyCode::F3) {
         overlay.visible = !overlay.visible;
+        match overlay.visible {
+            true => r.display = Display::Flex,
+            false => r.display = Display::None
+        }
     }
     if inputs.pressed(KeyCode::ControlLeft)
     && inputs.pressed(KeyCode::ShiftLeft) {
@@ -422,17 +418,13 @@ pub struct StoredDebugRecord {
 }
 
 
-
 #[derive(Component)]
 pub struct DebugOverlayRoot;
 
 pub fn init(
-    supress_default: bool,
     mut cmd: Commands,
     asset_server: Res<AssetServer>,
     mut overlay: ResMut<DebugOverlay>,
-    mut overlay_events: bevy::prelude::EventWriter<DebugOverlayEvent>,
-    pc: Single<Entity, With<pixel_utils::camera::PixelCamera>>,
 ){
     overlay.text_font = TextFont{
         font: asset_server.load("fonts/orp_regular.ttf"),
@@ -446,52 +438,54 @@ pub fn init(
             height: Val::Percent(100.),
             justify_content: JustifyContent::SpaceBetween,
             position_type: PositionType::Absolute,
+            display: if overlay.visible {Display::Flex} else {Display::None},
             ..default()
         },
-        UiTargetCamera(*pc),
         bevy::render::view::RenderLayers::layer(0),
         DebugOverlayRoot,
         Name::new("DebugRoot")
     )).id();
+}
 
-    if !supress_default {
-        overlay_events.write(DebugOverlayEvent::Set {
-            key: "PKGINFO".to_string(),
-            val: DebugRecord {
-                record_type: DebugRecordType::Text {
-                    text: vec![
-                        (Color::srgba(0.5, 0.5, 0.5, 1.), format!("{} v{}", NAME, VERSION)),
-                    ]
-                },
-                anchor: OverlayAnchor::BottomRight,
-                layer: 0
-            }
-        });
-        overlay_events.write(DebugOverlayEvent::Set {
-            key: "FPS_AVG".to_string(),
-            val: DebugRecord {
-                record_type: DebugRecordType::Text {
-                    text: vec![
-                        (Color::srgba(0.5, 0.5, 0.5, 1.), format!("avg. 0 fps")),
-                    ]
-                },
-                anchor: OverlayAnchor::BottomRight,
-                layer: 0
-            }
-        });
-        overlay_events.write(DebugOverlayEvent::Set {
-            key: "FPS_SM".to_string(),
-            val: DebugRecord {
-                record_type: DebugRecordType::Text {
-                    text: vec![
-                        (Color::srgba(0.5, 0.5, 0.5, 1.), format!("0 fps")),
-                    ]
-                },
-                anchor: OverlayAnchor::BottomRight,
-                layer: 0
-            }
-        });
-    }
+pub fn init_default_sustems(
+    mut overlay_events: bevy::prelude::EventWriter<DebugOverlayEvent>,
+){
+    overlay_events.write(DebugOverlayEvent::Set {
+        key: "PKGINFO".to_string(),
+        val: DebugRecord {
+            record_type: DebugRecordType::Text {
+                text: vec![
+                    (Color::srgba(0.5, 0.5, 0.5, 1.), format!("{} v{}", NAME, VERSION)),
+                ]
+            },
+            anchor: OverlayAnchor::BottomRight,
+            layer: 0
+        }
+    });
+    overlay_events.write(DebugOverlayEvent::Set {
+        key: "FPS_AVG".to_string(),
+        val: DebugRecord {
+            record_type: DebugRecordType::Text {
+                text: vec![
+                    (Color::srgba(0.5, 0.5, 0.5, 1.), format!("avg. 0 fps")),
+                ]
+            },
+            anchor: OverlayAnchor::BottomRight,
+            layer: 0
+        }
+    });
+    overlay_events.write(DebugOverlayEvent::Set {
+        key: "FPS_SM".to_string(),
+        val: DebugRecord {
+            record_type: DebugRecordType::Text {
+                text: vec![
+                    (Color::srgba(0.5, 0.5, 0.5, 1.), format!("0 fps")),
+                ]
+            },
+            anchor: OverlayAnchor::BottomRight,
+            layer: 0
+        }
+    });
 }
 
 
