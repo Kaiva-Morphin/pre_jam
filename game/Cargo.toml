@@ -37,3 +37,7 @@ path = "src/clear.rs"
 name = "tiled"
 path = "src/tiled.rs"
 
+[[bin]]
+name = "ui"
+path = "src/ui.rs"
+

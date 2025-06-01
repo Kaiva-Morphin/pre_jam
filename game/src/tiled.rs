@@ -9,11 +9,13 @@ use core::CorePlugin;
 use crate::camera::plugin::CameraFocus;
 use crate::physics::controller::{Controller, ControllersPlugin};
 use crate::physics::scene::{spawn_player, Player};
+
 use bevy_ecs_tilemap::TilemapPlugin;
 mod core;
 mod camera;
 mod utils;
 mod physics;
+mod interactions;
 
 fn main() {
     let mut app = App::new();
@@ -58,7 +60,7 @@ pub fn start(
     ));
 
     cmd.spawn((
-        TiledMapHandle(asset_server.load("tilemaps/test/main.tmx")),
+        TiledMapHandle(asset_server.load("tilemaps/v1.0/map.tmx")),
         TilemapAnchor::Center,
         TiledPhysicsSettings::<TiledPhysicsRapierBackend>::default(),
     ));
