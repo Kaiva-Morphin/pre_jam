@@ -6,12 +6,20 @@ edition = "2024"
 
 [dependencies]
 bevy-inspector-egui.workspace = true
-bevy_rapier2d.workspace = true 
 debug_utils = {workspace = true, features = ["debug_overlay"] }
 pixel_utils.workspace = true
-bevy = {workspace = true, features = ["dynamic_linking"]}
 utils = { version = "0.1.0", path = "../libs/utils" }
 shaders = { version = "0.1.0", path = "../libs/shaders" }
+bevy_ecs_tilemap = "0.16.0"
+bevy = {workspace = true, features = ["web"]}
+bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
+bevy_ecs_tiled = { version = "0.7.0", path = "../libs/bevy_ecs_tiled", features = ["wasm", "rapier", "physics", "rapier_debug"] }
+
+
+[target.x86_64-pc-windows-msvc]
+features = "bevy/dynamic_linking"
+
+
 
 [[bin]]
 name = "game"
@@ -28,3 +36,4 @@ path = "src/clear.rs"
 [[bin]]
 name = "tiled"
 path = "src/tiled.rs"
+

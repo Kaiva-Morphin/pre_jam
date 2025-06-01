@@ -28,6 +28,10 @@ impl Plugin for CorePlugin {
                         }),
                         ..default()
                     })
+                    .set(AssetPlugin {
+                        meta_check: bevy::asset::AssetMetaCheck::Never,
+                        ..default()
+                    })
                     .set(ImagePlugin::default_nearest()),
                 RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(12.0),
                 EguiPlugin { enable_multipass_for_primary_context: true },
