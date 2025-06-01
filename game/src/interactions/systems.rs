@@ -24,6 +24,7 @@ pub fn interact(
     interaction_types: Query<&InteractionTypes>,
     mut in_interaction_array: ResMut<InInteractionArray>
 ) {
+    // println!("{:?}", in_interaction_array);
     if in_interaction_array.in_any_interaction {
         if keyboard.just_released(KeyCode::KeyE) {
             in_interaction_array.in_any_interaction = false;
@@ -31,16 +32,6 @@ pub fn interact(
             // TODO: add "press E again to exit sign"
         } else {
             return;
-        }
-    }
-    if keyboard.just_released(KeyCode::KeyE) && !scroll_selector.current_displayed.is_none() {
-        let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
-        let interaction_type = interaction_types.get(current_entity).unwrap().clone();
-        in_interaction_array.in_any_interaction = true;
-        match interaction_type {
-            InteractionTypes::ChainReactionDisplay => {
-                in_interaction_array.in_interaction[0] = true;
-            }
         }
     }
     let mut mouse_scroll_delta = 0.;
@@ -80,7 +71,7 @@ pub fn interact(
             }
             CollisionEvent::Stopped(reciever_entity, sender_entity, _) => {
                 let (mut in_interaction, interactable_transform) = interactable.get_mut(*sender_entity).unwrap();
-                in_interaction.data = true;
+                in_interaction.data = false;
                 if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == *sender_entity) {
                     scroll_selector.selection_options.remove(index);
                     if let Some(current_displayed) = scroll_selector.current_displayed {
@@ -108,24 +99,36 @@ pub fn interact(
             scroll_selector.current_displayed = Some(e_key_entity.clone());
         }
     }
+    if keyboard.just_released(KeyCode::KeyE) && !scroll_selector.current_displayed.is_none() {
+        let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
+        let interaction_type = interaction_types.get(current_entity).unwrap().clone();
+        in_interaction_array.in_any_interaction = true;
+        match interaction_type {
+            InteractionTypes::ChainReactionDisplay => {
+                in_interaction_array.in_interaction[0] = true;
+            }
+        }
+    }
 }
 
 pub fn update_interactables(
     mut material_assets: ResMut<Assets<InteractableMaterial>>,
     material_handles: Query<(&MeshMaterial2d<InteractableMaterial>, &InInteraction)>,
-    mut e_keys: Single<&mut Sprite, With<EKey>>,
+    mut e_keys: Query<&mut Sprite, With<EKey>>,
     time: Res<Time>,
     mut key_timer: ResMut<KeyTimer>,
 ) {
     for (material_handle, in_interaction) in material_handles {
         if in_interaction.data {
-            let atlas = e_keys.texture_atlas.as_mut().unwrap();
-            key_timer.timer.tick(Duration::from_secs_f32((time.dt() * 5.).ease_out_quad()));
-            if key_timer.timer.finished() {
-                atlas.index = (atlas.index + 1) % KEYS_ATLAS_SIZE as usize;
-            }
-            if let Some(material) = material_assets.get_mut(material_handle) {
-                material.time = time.elapsed_secs();
+            if let Ok(mut e_keys) = e_keys.single_mut() {
+                let atlas = e_keys.texture_atlas.as_mut().unwrap();
+                key_timer.timer.tick(Duration::from_secs_f32((time.dt() * 5.).ease_out_quad()));
+                if key_timer.timer.finished() {
+                    atlas.index = (atlas.index + 1) % KEYS_ATLAS_SIZE as usize;
+                }
+                if let Some(material) = material_assets.get_mut(material_handle) {
+                    material.time = time.elapsed_secs();
+                }
             }
         } else {
             if let Some(material) = material_assets.get_mut(material_handle) {

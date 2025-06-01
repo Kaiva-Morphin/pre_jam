@@ -1,14 +1,36 @@
 use bevy::{prelude::*, sprite::Material2dPlugin};
+use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt}};
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, Group, Sensor};
 use shaders::components::*;
 
 use crate::interactions::{chain_reaction_display::{ChainGraphMaterial, ChainGraphMaterialHandle}, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}};
+
+#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+pub enum LoadingStates {
+    #[default]
+    AssetLoading,
+    Next,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct SpriteAssets {
+    #[asset(path = "pixel/grass.png")]
+    pub grass_sprite: Handle<Image>,
+    #[asset(path = "keys/e.png")]
+    pub key_e_sprite: Handle<Image>,
+}
 
 pub struct SpritePreloadPlugin;
 
 impl Plugin for SpritePreloadPlugin {
     fn build(&self, app: &mut App) {
         app
+        .init_state::<LoadingStates>()
+        .add_loading_state(
+            LoadingState::new(LoadingStates::AssetLoading)
+                .continue_to_state(LoadingStates::Next)
+                .load_collection::<SpriteAssets>(),
+        )
         .add_plugins((
             Material2dPlugin::<VelocityBufferMaterial>::default(),
             Material2dPlugin::<GrassMaterial>::default(),
@@ -18,8 +40,7 @@ impl Plugin for SpritePreloadPlugin {
         .insert_resource(VelocityBufferHandles::default())
         .insert_resource(TextureAtlasHandes::default())
         .add_event::<SpritePreloadEvent>()
-        .add_systems(PreStartup, preload_sprites)
-        .add_systems(Startup, create_atlas)
+        .add_systems(OnEnter(LoadingStates::Next), (preload_sprites, create_atlas))
         .add_systems(Update, spawn_sprites);
     }
 
@@ -65,12 +86,11 @@ pub fn preload_sprites(
     asset_server: ResMut<AssetServer>,
     mut writer: EventWriter<SpritePreloadEvent>,
     mut texture_atlas_handles: ResMut<TextureAtlasHandes>,
+    sprite_assets: Res<SpriteAssets>,
 ) {
-    let sprite_handle = asset_server.load("pixel/grass.png");
-    let e_handle = asset_server.load("keys/e.png");
-    texture_atlas_handles.image_handle = e_handle;
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_handle.clone(), pos: Vec2::new(-40., 10.) }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_handle.clone(), pos: Vec2::new(40., 10.) }));
+    texture_atlas_handles.image_handle = sprite_assets.key_e_sprite.clone();
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_assets.grass_sprite.clone(), pos: Vec2::new(-40., 10.) }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_assets.grass_sprite.clone(), pos: Vec2::new(40., 10.) }));
 }
 
 pub fn spawn_sprites(

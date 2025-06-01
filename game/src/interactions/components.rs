@@ -59,7 +59,7 @@ pub enum InteractionTypes {
     ChainReactionDisplay,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct InInteractionArray {
     pub in_interaction: [bool; 1],
     pub in_any_interaction: bool,
