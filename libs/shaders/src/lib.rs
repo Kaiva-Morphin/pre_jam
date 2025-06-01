@@ -3,7 +3,7 @@ use components::*;
 use compute::*;
 
 pub mod compute;
-mod components;
+pub mod components;
 
 pub struct ShaderPlugin;
 
@@ -11,13 +11,9 @@ impl Plugin for ShaderPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             ComputePlugin,
-            Material2dPlugin::<VelocityBufferMaterial>::default(),
-            Material2dPlugin::<GrassMaterial>::default(),
         ))
-        .add_event::<SpritePreloadEvent>()
-        .add_systems(Startup, (setup, preload_sprites))
-        .add_systems(Update, (extract_player_pos, spawn_sprites))
-        .insert_resource(VelocityBufferHandles::default())
+        // .add_systems(Startup, (setup, preload_sprites))
+        // .add_systems(Update, (extract, spawn_sprites))
         .insert_resource(Extractor::default())
         ;
     }

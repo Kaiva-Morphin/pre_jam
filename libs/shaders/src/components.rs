@@ -1,4 +1,6 @@
-use bevy::{prelude::*, render::{extract_resource::ExtractResource, render_graph::RenderLabel, render_resource::{AsBindGroup, BindGroup, BindGroupLayout, Buffer, CachedComputePipelineId, ShaderRef}}, sprite::Material2d};
+use std::collections::HashMap;
+
+use bevy::{prelude::*, render::{extract_resource::ExtractResource, render_graph::RenderLabel, render_resource::{AsBindGroup, BindGroup, BindGroupLayout, Buffer, CachedComputePipelineId, ShaderRef}}, sprite::{AlphaMode2d, Material2d}};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, RenderLabel)]
 pub struct ComputeLabel;
@@ -88,6 +90,8 @@ pub struct GrassMaterial {
     #[texture(4)]
     #[sampler(5)]
     pub velbuf_handle: Handle<Image>,
+    #[uniform(6)]
+    pub time: f32,
 }
 
 const GRASS_MATERIAL_PATH: &str = "shaders/touch_grass.wgsl";
@@ -96,9 +100,7 @@ impl Material2d for GrassMaterial {
     fn fragment_shader() -> ShaderRef {
         GRASS_MATERIAL_PATH.into()
     }
-}
-
-#[derive(Event)]
-pub enum SpritePreloadEvent {
-    Grass(Handle<Image>),
+    fn alpha_mode(&self) -> AlphaMode2d {
+        AlphaMode2d::Blend
+    }
 }

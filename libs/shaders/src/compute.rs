@@ -206,7 +206,7 @@ fn prepare_bind_group(
     commands.insert_resource(ComputeImageBindGroups {bind_groups: vec![bind_group_velbuf]});
 }
 
-pub fn extract_player_pos(
+pub fn extract(
     player_pos: Single<&Transform, With<VelocityEmmiter>>,
     extractor: Option<ResMut<Extractor>>,
 ) {
@@ -271,7 +271,7 @@ pub fn update_buffer(
         let screen = Vec2::new(TARGET_WIDTH as f32, TARGET_HEIGHT as f32);
         let player_pos = extractor.player_pos * Vec2::new(1.,-1.,) / screen * 2. + Vec2::new(0.5,0.5,);
         let player_vel = extractor.player_vel * Vec2::new(1.,-1.,) / screen * 2.;
-        info!("pos: {:?} vel: {:?}", player_pos, player_vel);
+        // info!("pos: {:?} vel: {:?}", player_pos, player_vel);
         render_queue.write_buffer(
             &player_pos_buffer.buffer,
             0,
@@ -285,42 +285,14 @@ pub fn update_buffer(
     );
 }
 
-pub fn preload_sprites(
-    asset_server: ResMut<AssetServer>,
-    mut writer: EventWriter<SpritePreloadEvent>,
+pub fn write_time(
+    time: Res<Time>,
+    mut grass_material_assets: ResMut<Assets<GrassMaterial>>,
+    grass_material_handles: Query<&MeshMaterial2d<GrassMaterial>>,
 ) {
-    let sprite_handle = asset_server.load("pixel/test.png");
-    writer.write(SpritePreloadEvent::Grass(sprite_handle));
-}
-
-pub fn spawn_sprites(
-    mut commands: Commands,
-    image_assets: ResMut<Assets<Image>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<GrassMaterial>>,
-    buffer_handles: Res<VelocityBufferHandles>,
-    mut reader: EventReader<SpritePreloadEvent>,
-) {
-    for event in reader.read() {
-        match event {
-            SpritePreloadEvent::Grass(sprite_handle) => {
-                let image = image_assets.get(sprite_handle).unwrap();
-                let width = image.width();
-                let height = image.height();
-                let pos = Vec2::new(0., 100.);
-                let material = GrassMaterial {
-                    pos,
-                    sprite_handle: sprite_handle.clone(),
-                    velbuf_handle: buffer_handles.buffer_handle.clone(),
-                };
-                let handle = materials.add(material);
-                commands.spawn((
-                    Mesh2d(meshes.add(Rectangle::new((width / 2) as f32, (height / 2) as f32))),
-                    MeshMaterial2d(handle),
-                    Transform::from_xyz(pos.x, pos.y, 0.0),
-                    Name::new("Grass"),
-                ));
-            }
+    for grass_material_handle in grass_material_handles.iter() {
+        if let Some(grass_material) = grass_material_assets.get_mut(grass_material_handle) {
+            grass_material.time = time.elapsed_secs();
         }
     }
 }

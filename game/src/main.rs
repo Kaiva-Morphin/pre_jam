@@ -9,6 +9,7 @@ mod core;
 mod camera;
 mod utils;
 mod physics;
+mod interactions;
 
 fn main() {
     App::new()
