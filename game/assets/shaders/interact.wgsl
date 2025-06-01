@@ -26,7 +26,7 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
     );
 
     // Glow color (e.g., animated)
-    let glow = vec3<f32>(1.0, 1.0, 0.0) * abs(sin(time));
+    let glow = vec3<f32>(1.0, 1.0, 0.0) * abs(sin(time * 2.0));
 
     // Output
     if (is_outer_edge) {

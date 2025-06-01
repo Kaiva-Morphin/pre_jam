@@ -14,6 +14,7 @@ mod core;
 mod camera;
 mod utils;
 mod physics;
+mod interactions;
 
 fn main() {
     let mut app = App::new();

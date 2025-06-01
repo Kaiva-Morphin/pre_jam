@@ -1,13 +1,13 @@
 use std::time::Duration;
 
-use bevy::{input::mouse::{MouseMotion, MouseWheel}, prelude::*};
+use bevy::{input::mouse::{MouseMotion, MouseWheel}, platform::collections::HashMap, prelude::*};
 use bevy_rapier2d::prelude::CollisionEvent;
 use shaders::VelocityEmmiter;
-use utils::WrappedDelta;
+use utils::{Easings, WrappedDelta};
 
 use crate::utils::{custom_material_loader::{TextureAtlasHandes, KEYS_ATLAS_SIZE}, mouse::CursorPosition};
 
-use super::components::{EKey, InInteraction, InteractGlowEvent, InteractableKeyLink, InteractableMaterial, KeyTimer};
+use super::components::{EKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector};
 
 pub fn interact(
     mut commands: Commands,
@@ -17,36 +17,100 @@ pub fn interact(
     mut collision_events: EventReader<CollisionEvent>,
     mut player_query: Single<(Entity, &VelocityEmmiter)>,
     mut writer: EventWriter<InteractGlowEvent>,
-    mut in_interaction: Query<&mut InInteraction>,
+    mut interactable: Query<(&mut InInteraction, &Transform)>,
     texture_atlas_handles: Res<TextureAtlasHandes>,
-    mut link: Query<&mut InteractableKeyLink>,
+    mut scroll_selector: ResMut<ScrollSelector>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    interaction_types: Query<&InteractionTypes>,
+    mut in_interaction_array: ResMut<InInteractionArray>
 ) {
+    if in_interaction_array.in_any_interaction {
+        if keyboard.just_released(KeyCode::KeyE) {
+            in_interaction_array.in_any_interaction = false;
+            //exit
+            // TODO: add "press E again to exit sign"
+        } else {
+            return;
+        }
+    }
+    if keyboard.just_released(KeyCode::KeyE) && !scroll_selector.current_displayed.is_none() {
+        let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
+        let interaction_type = interaction_types.get(current_entity).unwrap().clone();
+        in_interaction_array.in_any_interaction = true;
+        match interaction_type {
+            InteractionTypes::ChainReactionDisplay => {
+                in_interaction_array.in_interaction[0] = true;
+            }
+        }
+    }
+    let mut mouse_scroll_delta = 0.;
+    for event in mouse_wheel_events.read() {
+        let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {0.01};
+        mouse_scroll_delta += v;
+    };
+    if scroll_selector.selection_options.len() > 0 {
+        let new;
+        if mouse_scroll_delta < 0. {
+            if scroll_selector.current_selected == 0 {
+                new = scroll_selector.selection_options.len() - 1;
+            } else {
+                new = (scroll_selector.current_selected - (-mouse_scroll_delta) as usize) % scroll_selector.selection_options.len();
+            }
+        } else {
+            new = (scroll_selector.current_selected + mouse_scroll_delta as usize) % scroll_selector.selection_options.len();
+        }
+        if new != scroll_selector.current_selected {
+            if let Some(current_displayed) = scroll_selector.current_displayed {
+                commands.entity(current_displayed).despawn();
+                scroll_selector.current_displayed = None;
+            }
+            scroll_selector.current_selected = new;
+        }
+    }
+    // println!("{} {:?}", scroll_selector.current_selected, scroll_selector.selection_options);
+    
     for collision_event in collision_events.read() {
         // println!("{:?}", collision_event);
         match collision_event {
             // interactable - sender; sensor - reciever
             CollisionEvent::Started(reciever_entity, sender_entity, _) => {
-            in_interaction.get_mut(*sender_entity).unwrap().data = true;
+                let (mut in_interaction, _) = interactable.get_mut(*sender_entity).unwrap();
+                scroll_selector.selection_options.push(*sender_entity);
+                in_interaction.data = true;
+            }
+            CollisionEvent::Stopped(reciever_entity, sender_entity, _) => {
+                let (mut in_interaction, interactable_transform) = interactable.get_mut(*sender_entity).unwrap();
+                in_interaction.data = true;
+                if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == *sender_entity) {
+                    scroll_selector.selection_options.remove(index);
+                    if let Some(current_displayed) = scroll_selector.current_displayed {
+                        commands.entity(current_displayed).despawn();
+                        scroll_selector.current_displayed = None;
+                        scroll_selector.current_selected = 0;
+                    }
+                }
+            }
+        }
+    }
+    for option_entity in scroll_selector.selection_options.clone() {
+        if scroll_selector.selection_options[scroll_selector.current_selected] == option_entity && scroll_selector.current_displayed.is_none() {
+            // print!("{:?}", option_entity);
+            let interactable_pos = interactable.get_mut(option_entity).unwrap().1.translation;
             let e_key_entity = commands.spawn((
                 Sprite::from_atlas_image(
                     texture_atlas_handles.image_handle.clone(),
                     TextureAtlas::from(texture_atlas_handles.layout_handle.clone()),
                 ),
-                Transform::from_translation(Vec3::new(0., 100., 0.)),
+                Transform::from_translation(interactable_pos + Vec3::Y * 50.),
                 EKey,
                 Name::new("EKey"),
             )).id();
-            link.get_mut(*sender_entity).unwrap().entity = e_key_entity;
-            }
-            CollisionEvent::Stopped(reciever_entity, sender_entity, _) => {
-            in_interaction.get_mut(*sender_entity).unwrap().data = false;
-            commands.entity(link.get(*sender_entity).unwrap().entity).despawn();
-            }
+            scroll_selector.current_displayed = Some(e_key_entity.clone());
         }
     }
 }
 
-pub fn update_iteractables(
+pub fn update_interactables(
     mut material_assets: ResMut<Assets<InteractableMaterial>>,
     material_handles: Query<(&MeshMaterial2d<InteractableMaterial>, &InInteraction)>,
     mut e_keys: Single<&mut Sprite, With<EKey>>,
@@ -56,7 +120,7 @@ pub fn update_iteractables(
     for (material_handle, in_interaction) in material_handles {
         if in_interaction.data {
             let atlas = e_keys.texture_atlas.as_mut().unwrap();
-            key_timer.timer.tick(Duration::from_secs_f32(time.dt()));
+            key_timer.timer.tick(Duration::from_secs_f32((time.dt() * 5.).ease_out_quad()));
             if key_timer.timer.finished() {
                 atlas.index = (atlas.index + 1) % KEYS_ATLAS_SIZE as usize;
             }

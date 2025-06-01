@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 
-const AUDIO_SCALE: f32 = 1. / 100.0;
 
 // pub struct SpacialAudioPlugin;
 
