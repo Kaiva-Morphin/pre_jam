@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-up" width="30" height="20" tilewidth="12" tileheight="12" infinite="1" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" source="tilepack.tsx"/>
+ <layer id="1" name="Слой тайлов 1" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="-32" y="0" width="16" height="16">
+   eJxjYBgFxABGIDbCgokFIhTaPxz1M1KonxQ3UVu/IRALD6D9IKBCgn5BIDbGIg4AZXgCrQ==
+  </chunk>
+   <chunk x="-16" y="0" width="16" height="16">
+   eJxjYBjZwIhCPNLBaPgNbQAAIVIGQQ==
+  </chunk>
+   <chunk x="0" y="0" width="16" height="16">
+   eJxjYBjZwAiKjdHEWSg0V2SE6IeFHzOF9qOrH2n6VSjUjw6I1Q8AI5wCUw==
+  </chunk>
+   <chunk x="-32" y="16" width="16" height="16">
+   eJxjYCAOiBCpjlb6FYHYCAseBaNgFJAPAD+MAUQ=
+  </chunk>
+   <chunk x="-16" y="16" width="16" height="16">
+   eJxjYBhYYEQhHgWjYBSQDwCW1gMh
+  </chunk>
+   <chunk x="0" y="16" width="16" height="16">
+   eJxjYMAORHCIEwuI1W8ExcwU2o+unt76FRkQfgFhZRL1j4JRMBAAAIYbAc4=
+  </chunk>
+  </data>
+ </layer>
+</map>

@@ -96,50 +96,6 @@ pub fn init_scene(
     let v_color: Vec<[f32; 4]> = vec![[0.4, 0.6, 1.0, 1.0]; 4];
     line.insert_attribute(Mesh::ATTRIBUTE_COLOR, v_color);
     line.insert_indices(Indices::U32(vec![0, 1, 2, 3]));
-    cmd.spawn((
-        Mesh2d(meshes.add(line)),
-        MeshMaterial2d(materials.add(Color::from(PURPLE))),
-        // MeshMaterial2d::from(),
-    ));
-
-    let mut star = Mesh::new(
-        PrimitiveTopology::TriangleList,
-        RenderAssetUsages::RENDER_WORLD,
-    );
-
-    // Vertices need to have a position attribute. We will use the following
-    // vertices (I hope you can spot the star in the schema).
-    //
-    //        1
-    //
-    //     10   2
-    // 9      0      3
-    //     8     4
-    //        6
-    //   7        5
-    //
-    // These vertices are specified in 3D space.
-    let mut v_pos = vec![[0.0, 0.0, 0.0]];
-    for i in 0..10 {
-        // The angle between each vertex is 1/10 of a full rotation.
-        let a = i as f32 * std::f32::consts::PI / 5.0;
-        // The radius of inner vertices (even indices) is 100. For outer vertices (odd indices) it's 200.
-        let r = (1 - i % 2) as f32 * 100.0 + 100.0;
-        // Add the vertex position.
-        v_pos.push([r * ops::sin(a), r * ops::cos(a), 0.0]);
-    }
-    star.insert_attribute(Mesh::ATTRIBUTE_POSITION, v_pos);
-
-
-    let mut indices = vec![0, 1, 10];
-    for i in 2..=10 {
-        indices.extend_from_slice(&[0, i, i - 1]);
-    }
-    star.insert_indices(Indices::U32(indices));
-    cmd.spawn((
-        MeshMaterial2d(materials.add(Color::from(PURPLE))),
-        Mesh2d(meshes.add(star)),
-    ));
 }
 
 #[derive(TypePath, Clone, AsBindGroup, Asset)]

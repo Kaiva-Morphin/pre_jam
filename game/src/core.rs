@@ -3,7 +3,8 @@ use std::{collections::BTreeMap, sync::Arc};
 use bevy::{prelude::*, text::FontStyle, window::WindowResolution, winit::{cursor::{CursorIcon, CustomCursor, CustomCursorImage}, WinitWindows}};
 use bevy_inspector_egui::{bevy_egui::{EguiContexts, EguiPlugin, EguiPreUpdateSet}, egui::{self, style::TextCursorStyle, CornerRadius, Stroke, Style, TextStyle, Visuals}};
 use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
-use pixel_utils::camera::PixelCameraPlugin;
+use debug_utils::debug_overlay::DebugOverlayRoot;
+use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
 use crate::{camera::plugin::CameraControllerPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, utils::cursor::CursorPlugin};
 
@@ -18,13 +19,17 @@ impl Plugin for CorePlugin {
                 DefaultPlugins
                     .set(WindowPlugin {
                         primary_window: Some(Window {
-                            resolution: WindowResolution::new(1000., 1000.),
+                            // resolution: WindowResolution::new(1000., 1000.),
                             title: "Game".to_string(),
                             canvas: Some("#bevy".to_owned()),
                             fit_canvas_to_parent: true,
                             prevent_default_event_handling: false,
                             ..default()
                         }),
+                        ..default()
+                    })
+                    .set(AssetPlugin {
+                        meta_check: bevy::asset::AssetMetaCheck::Never,
                         ..default()
                     })
                     .set(ImagePlugin::default_nearest()),
@@ -34,9 +39,10 @@ impl Plugin for CorePlugin {
                 CameraControllerPlugin,
                 PlatformsPlugin,
                 ControllersPlugin,
-                // CursorPlugin,
+                CursorPlugin,
             ))
             .add_systems(Startup, init_egui_font.after(EguiPreUpdateSet::InitContexts))
+            .add_systems(PreStartup, debug_ui_to_camera.after(pixel_utils::camera::setup_camera).after(debug_utils::debug_overlay::init))
         ;
     }
 }
@@ -44,7 +50,13 @@ impl Plugin for CorePlugin {
 
 
 
-
+pub fn debug_ui_to_camera(
+    mut cmd: Commands,
+    pc: Single<Entity, With<PixelCamera>>,
+    root: Single<Entity, With<DebugOverlayRoot>>,
+){
+    cmd.entity(*root).insert(UiTargetCamera(*pc));
+}
 
 
 
