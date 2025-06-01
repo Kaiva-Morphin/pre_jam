@@ -23,7 +23,7 @@ impl Plugin for CorePlugin {
                             title: "Game".to_string(),
                             canvas: Some("#bevy".to_owned()),
                             fit_canvas_to_parent: true,
-                            prevent_default_event_handling: false,
+                            prevent_default_event_handling: true,
                             ..default()
                         }),
                         ..default()
