@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite::Material2dPlugin};
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, Group, Sensor};
 use shaders::components::*;
 
-use crate::interactions::components::{InInteraction, Interactable, InteractableKeyLink, InteractableMaterial, INTERACTABLE_CG, PLAYER_SENSOR_CG};
+use crate::interactions::{chain_reaction_display::{ChainGraphMaterial, ChainGraphMaterialHandle}, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}};
 
 pub struct SpritePreloadPlugin;
 
@@ -13,11 +13,13 @@ impl Plugin for SpritePreloadPlugin {
             Material2dPlugin::<VelocityBufferMaterial>::default(),
             Material2dPlugin::<GrassMaterial>::default(),
             Material2dPlugin::<InteractableMaterial>::default(),
+            Material2dPlugin::<ChainGraphMaterial>::default(),
         ))
         .insert_resource(VelocityBufferHandles::default())
         .insert_resource(TextureAtlasHandes::default())
         .add_event::<SpritePreloadEvent>()
-        .add_systems(Startup, (preload_sprites, create_atlas))
+        .add_systems(PreStartup, preload_sprites)
+        .add_systems(Startup, create_atlas)
         .add_systems(Update, spawn_sprites);
     }
 
@@ -28,7 +30,7 @@ pub struct TextureAtlasHandes {
     pub image_handle: Handle<Image>,
 }
 
-pub const KEYS_ATLAS_COLUMNS: u32 = 2;
+pub const KEYS_ATLAS_COLUMNS: u32 = 3;
 pub const KEYS_ATLAS_ROWS: u32 = 1;
 pub const KEYS_ATLAS_SIZE: u32 = KEYS_ATLAS_COLUMNS * KEYS_ATLAS_ROWS;
 
@@ -37,7 +39,7 @@ pub fn create_atlas(
     mut texture_atlas_handles: ResMut<TextureAtlasHandes>,
 ) {
     let atlas = TextureAtlasLayout::from_grid(
-        UVec2::splat(64),
+        UVec2::new(19, 21),
         KEYS_ATLAS_COLUMNS,
         KEYS_ATLAS_ROWS,
         None,
@@ -56,7 +58,7 @@ pub struct SpritePreloadData {
 pub enum SpritePreloadEvent {
     Grass(SpritePreloadData),
     Interactable(SpritePreloadData),
-    Key(Handle<Image>),
+    ChainGraph(Handle<Image>),
 }
 
 pub fn preload_sprites(
@@ -65,10 +67,10 @@ pub fn preload_sprites(
     mut texture_atlas_handles: ResMut<TextureAtlasHandes>,
 ) {
     let sprite_handle = asset_server.load("pixel/grass.png");
-    let e_handle = asset_server.load("pixel/e.png");
+    let e_handle = asset_server.load("keys/e.png");
     texture_atlas_handles.image_handle = e_handle;
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_handle.clone(), pos: Vec2::new(-50., 10.) }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_handle.clone(), pos: Vec2::new(50., 10.) }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_handle.clone(), pos: Vec2::new(-40., 10.) }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_handle.clone(), pos: Vec2::new(40., 10.) }));
 }
 
 pub fn spawn_sprites(
@@ -79,12 +81,20 @@ pub fn spawn_sprites(
     mut interactable_materials: ResMut<Assets<InteractableMaterial>>,
     buffer_handles: Res<VelocityBufferHandles>,
     mut reader: EventReader<SpritePreloadEvent>,
+    mut chain_graph_material: ResMut<Assets<ChainGraphMaterial>>,
+    mut chain_graph_material_handle: ResMut<ChainGraphMaterialHandle>,
 ) {
     for event in reader.read() {
         match event {
             SpritePreloadEvent::Grass(_) => {
             }
-            SpritePreloadEvent::Key(sprite_handle) => {
+            SpritePreloadEvent::ChainGraph(sprite_handle) => {
+                let material = ChainGraphMaterial {
+                    chain: 0.,
+                    sprite_handle: sprite_handle.clone()
+                };
+                chain_graph_material.add(material);
+                chain_graph_material_handle.handle = sprite_handle.clone();
             }
             SpritePreloadEvent::Interactable(sprite_data) => {
                 let image = image_assets.get(&sprite_data.handle).unwrap();
@@ -109,7 +119,7 @@ pub fn spawn_sprites(
                     ActiveEvents::COLLISION_EVENTS,
                     Sensor,
                     InInteraction {data: false},
-                    InteractableKeyLink {entity: Entity::PLACEHOLDER},
+                    InteractionTypes::ChainReactionDisplay,
                 ));
             }
         }

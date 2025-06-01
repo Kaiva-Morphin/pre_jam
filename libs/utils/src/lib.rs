@@ -111,3 +111,13 @@ impl MoveTowards for f32 {
         }
     }
 }
+
+pub trait Easings {
+    fn ease_out_quad(self) -> f32;
+}
+
+impl Easings for f32 {
+    fn ease_out_quad(self) -> f32 {
+        self * (1.0 - self) * (1.0 - self)
+    }
+}

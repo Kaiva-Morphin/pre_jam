@@ -215,7 +215,7 @@ fn animate_tiled_sprites(
 ) {
     for (mut animation, mut sprite) in sprite_query.iter_mut() {
         animation.timer.tick(time.delta());
-
+        
         if animation.timer.just_finished() {
             if let Some(atlas) = &mut sprite.texture_atlas {
                 atlas.index += 1;

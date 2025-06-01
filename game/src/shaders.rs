@@ -1,3 +1,5 @@
+use bevy::audio::{AudioPlugin, SpatialScale};
+use bevy::color::palettes::css::{BLUE, GREEN, RED};
 use bevy::{prelude::*, window::WindowResolution};
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_rapier2d::plugin::{NoUserData, RapierPhysicsPlugin};
@@ -12,6 +14,7 @@ use physics::controller::ControllersPlugin;
 use pixel_utils::camera::PixelCameraPlugin;
 use shaders::{ShaderPlugin, VelocityEmmiter};
 use utils::custom_material_loader::SpritePreloadPlugin;
+use utils::debree::DebreePlugin;
 use utils::mouse::CursorPositionPlugin;
 
 mod core;
@@ -19,6 +22,8 @@ mod camera;
 mod utils;
 mod physics;
 mod interactions;
+
+const AUDIO_SCALE: f32 = 1. / 100.0;
 
 fn main() {
     App::new()
@@ -35,7 +40,11 @@ fn main() {
                 }),
                 ..default()
             })
-            .set(ImagePlugin::default_nearest()),
+            .set(ImagePlugin::default_nearest())
+            .set(AudioPlugin {
+            default_spatial_scale: SpatialScale::new_2d(AUDIO_SCALE),
+            ..default()
+        }),
         // ShaderPlugin,
         RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(12.0),
         EguiPlugin { enable_multipass_for_primary_context: true },
@@ -44,10 +53,11 @@ fn main() {
         SwitchableEguiInspectorPlugin,
         SwitchableRapierDebugPlugin,
         ControllersPlugin,
-        DebugOverlayPlugin::default(),
+        DebugOverlayPlugin::enabled(),
         InteractionsPlugin,
         CursorPositionPlugin,
         SpritePreloadPlugin,
+        DebreePlugin,
     ))
     .add_systems(Startup, spawn.before(shaders::compute::setup))
     .run();
@@ -57,7 +67,7 @@ pub fn spawn(
     mut commands: Commands,
     assets: Res<AssetServer>,
 ) {
-    const GAP: f32 = 30.;
+    const GAP: f32 = 50.;
     commands.spawn((
         RigidBody::Fixed,
         Collider::cuboid(200., 2.),
@@ -88,23 +98,34 @@ pub fn spawn(
             Group::from_bits(PLAYER_CG).unwrap(),
             Group::from_bits(STRUCTURES_CG).unwrap(),
         ),
-    ))
-    .with_child((
-        Name::new("Player sensor"),
-        Collider::ball(30.),
-        CollisionGroups::new(
-            Group::from_bits(PLAYER_SENSOR_CG).unwrap(),
-            Group::from_bits(INTERACTABLE_CG).unwrap(),
+        SpatialListener::new(-GAP),
+        children![
+        (
+            Name::new("Player sensor"),
+            Collider::ball(30.),
+            CollisionGroups::new(
+                Group::from_bits(PLAYER_SENSOR_CG).unwrap(),
+                Group::from_bits(INTERACTABLE_CG).unwrap(),
+            ),
+            Sensor,
         ),
-        Sensor,
+        // left ear
+        (
+            Sprite::from_color(Color::Srgba(RED), Vec2::splat(20.0)),
+            Transform::from_xyz(-GAP / 2., 0.0, 0.0),
+        ),
+        // right ear
+        (
+            Sprite::from_color(Color::Srgba(BLUE), Vec2::splat(20.0)),
+            Transform::from_xyz(GAP / 2., 0.0, 0.0),
+        )
+        ],
     ))
-    // .with_child((
-    //     SpatialListener::new(GAP);
-    //     children![
-    //         (
-                
-    //         )
-    //     ]
-    // ))
     ;
+    commands.spawn((
+        AudioPlayer::new(assets.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
+        PlaybackSettings::LOOP.with_spatial(true),
+        Transform::from_xyz(50., 0., 0.),
+        Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
+    ));
 }

@@ -40,14 +40,27 @@ pub struct InInteraction {
 }
 
 #[derive(Component)]
-pub struct InteractableKeyLink {
-    pub entity: Entity,
-}
-
-#[derive(Component)]
 pub struct EKey;
 
 #[derive(Resource)]
 pub struct KeyTimer {
     pub timer: Timer
+}
+
+#[derive(Resource, Default)]
+pub struct ScrollSelector {
+    pub current_selected: usize,
+    pub current_displayed: Option<Entity>,
+    pub selection_options: Vec<Entity>,
+}
+
+#[derive(Component, Clone)]
+pub enum InteractionTypes {
+    ChainReactionDisplay,
+}
+
+#[derive(Resource)]
+pub struct InInteractionArray {
+    pub in_interaction: [bool; 1],
+    pub in_any_interaction: bool,
 }
