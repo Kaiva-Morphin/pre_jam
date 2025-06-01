@@ -3,12 +3,19 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "main.tmx",
+    "activeFile": "map.tmx",
+    "automapping.whileDrawing": false,
     "expandedProjectPaths": [
         "."
     ],
     "file.lastUsedOpenFilter": "Все файлы (*)",
     "fileStates": {
+        "": {
+            "scaleInDock": 4
+        },
+        ":/automap-tiles.tsx": {
+            "scaleInDock": 1
+        },
         "R:/prog/bevy_ecs_tiled/assets/maps/orthogonal/finite.tmx": {
             "scale": 2,
             "selectedLayer": 1,
@@ -18,15 +25,53 @@
             }
         },
         "R:/prog/bevy_ecs_tiled/assets/tiles/orthogonal_1.tsx": {
-            "dynamicWrapping": true
+            "dynamicWrapping": true,
+            "scaleInDock": 1
         },
         "main.tmx": {
-            "scale": 8,
+            "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 44.3125,
-                "y": 230.5
+                "x": -108.25,
+                "y": 164.25
             }
+        },
+        "main.tmx#tilemap": {
+            "scaleInDock": 1
+        },
+        "map.tmx": {
+            "scale": 5.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 40.54545454545455,
+                "y": -261.09090909090907
+            }
+        },
+        "rule4.tmx": {
+            "scale": 11,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 29.363636363636367,
+                "y": -8.272727272727266
+            }
+        },
+        "test16.tmx": {
+            "scale": 8,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 45.375,
+                "y": -137.25
+            }
+        },
+        "test16.tmx#tilemap": {
+            "dynamicWrapping": false,
+            "scaleInDock": 4,
+            "scaleInEditor": 8
+        },
+        "test16tiles.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 3,
+            "scaleInEditor": 11
         },
         "tilepack.tsx": {
             "dynamicWrapping": false,
@@ -34,25 +79,36 @@
             "scaleInEditor": 8
         }
     },
-    "last.imagePath": "R:/tiled/starpressure",
+    "last.imagePath": "R:/prog/pre_jam/game/assets/raw",
     "map.fixedSize": false,
     "map.lastUsedFormat": "tmx",
     "map.layerDataFormat": "3",
     "map.renderOrder": "1",
-    "map.tileHeight": 12,
-    "map.tileWidth": 12,
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
     "openFiles": [
+        "test16.tmx",
+        "test16tiles.tsx",
+        "map.tmx",
+        "tilepack.tsx",
         "main.tmx",
-        "tilepack.tsx"
+        "rule4.tmx"
     ],
     "project": "starpressure.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
+        "test16.tmx",
+        "test16tiles.tsx",
+        "rule4.tmx",
+        "main.tmx",
         "tilepack.tsx",
-        "main.tmx"
+        "map.tmx",
+        "R:/prog/bevy_ecs_tiled/assets/maps/orthogonal/finite.tmx"
     ],
+    "tileset.embedInMap": false,
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
-        "height": 12,
-        "width": 12
+        "height": 16,
+        "width": 16
     }
 }

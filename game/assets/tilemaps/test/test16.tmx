@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-up" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="6" nextobjectid="1">
+ <properties>
+  <property name="MatchInOrder" type="bool" value="false"/>
+  <property name="NoOverlappingOutput" type="bool" value="true"/>
+ </properties>
+ <tileset firstgid="1" source="../../../../../bevy_ecs_tiled/assets/tiles/orthogonal_1.tsx"/>
+ <tileset firstgid="8" source="tilepack.tsx"/>
+ <tileset firstgid="72" source="test16tiles.tsx"/>
+ <tileset firstgid="97" source=":/automap-tiles.tsx"/>
+ <layer id="2" name="regions" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFAwl8oHgUjIKBAAB+3wCZ
+  </chunk>
+  </data>
+ </layer>
+ <layer id="1" name="input_prototype" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFAwm8oXgUjIKBAAB54wCX
+  </chunk>
+  </data>
+ </layer>
+ <layer id="3" name="output1_terrain" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFAwnCgTgCyo6m0KwECvWPgpEHAGsJAWs=
+  </chunk>
+  </data>
+ </layer>
+ <layer id="4" name="output2_terrain" width="30" height="20">
+  <data encoding="base64" compression="zlib">
+   <chunk x="0" y="-16" width="16" height="16">
+   eJxjYBgFAwligDh2oB0xCkYsAADRGwC6
+  </chunk>
+  </data>
+ </layer>
+</map>
