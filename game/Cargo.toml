@@ -11,13 +11,9 @@ pixel_utils.workspace = true
 utils = { version = "0.1.0", path = "../libs/utils" }
 shaders = { version = "0.1.0", path = "../libs/shaders" }
 bevy_ecs_tilemap = "0.16.0"
-bevy = { workspace = true, features = ["mp3", "wav", "web"] }
+bevy = { workspace = true, features = ["mp3", "wav", "web", "dynamic_linking"] }
 bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
 bevy_ecs_tiled = { version = "0.7.0", path = "../libs/bevy_ecs_tiled", features = ["wasm", "rapier", "physics", "rapier_debug"] }
-
-
-[target.x86_64-pc-windows-msvc]
-features = "bevy/dynamic_linking"
 
 
 
