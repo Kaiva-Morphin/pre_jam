@@ -24,19 +24,30 @@ pub fn interact(
     interaction_types: Query<&InteractionTypes>,
     mut in_interaction_array: ResMut<InInteractionArray>
 ) {
+    // TODO: stop player in interaction
     // println!("{:?}", in_interaction_array);
     if in_interaction_array.in_any_interaction {
         if keyboard.just_released(KeyCode::KeyE) {
             in_interaction_array.in_any_interaction = false;
+            in_interaction_array.in_interaction = [false];
             //exit
             // TODO: add "press E again to exit sign"
-        } else {
-            return;
+        }
+        return;
+    }
+    if keyboard.just_released(KeyCode::KeyE) && !scroll_selector.current_displayed.is_none() {
+        let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
+        let interaction_type = interaction_types.get(current_entity).unwrap().clone();
+        in_interaction_array.in_any_interaction = true;
+        match interaction_type {
+            InteractionTypes::ChainReactionDisplay => {
+                in_interaction_array.in_interaction[0] = true;
+            }
         }
     }
     let mut mouse_scroll_delta = 0.;
     for event in mouse_wheel_events.read() {
-        let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {0.01};
+        let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {(1. / event.y).abs()};
         mouse_scroll_delta += v;
     };
     if scroll_selector.selection_options.len() > 0 {
@@ -45,7 +56,8 @@ pub fn interact(
             if scroll_selector.current_selected == 0 {
                 new = scroll_selector.selection_options.len() - 1;
             } else {
-                new = (scroll_selector.current_selected - (-mouse_scroll_delta) as usize) % scroll_selector.selection_options.len();
+                // TODO: fix this shit
+                new = (scroll_selector.current_selected - (mouse_scroll_delta as usize).min(scroll_selector.selection_options.len())) % scroll_selector.selection_options.len();
             }
         } else {
             new = (scroll_selector.current_selected + mouse_scroll_delta as usize) % scroll_selector.selection_options.len();
@@ -97,16 +109,6 @@ pub fn interact(
                 Name::new("EKey"),
             )).id();
             scroll_selector.current_displayed = Some(e_key_entity.clone());
-        }
-    }
-    if keyboard.just_released(KeyCode::KeyE) && !scroll_selector.current_displayed.is_none() {
-        let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
-        let interaction_type = interaction_types.get(current_entity).unwrap().clone();
-        in_interaction_array.in_any_interaction = true;
-        match interaction_type {
-            InteractionTypes::ChainReactionDisplay => {
-                in_interaction_array.in_interaction[0] = true;
-            }
         }
     }
 }

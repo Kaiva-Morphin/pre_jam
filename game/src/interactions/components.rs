@@ -9,11 +9,18 @@ pub const STRUCTURES_CG: u32 =    0b0000_0000_0000_1000;
 pub struct Interactable;
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[repr(align(16))]
 pub struct InteractableMaterial {
-    #[uniform(1)]
+    #[uniform(0)]
     pub time: f32,
-    #[texture(2)]
-    #[sampler(3)]
+    #[uniform(0)]
+    pub _webgl2_padding_8b: u32,
+    #[uniform(0)]
+    pub _webgl2_padding_12b: u32,
+    #[uniform(0)]
+    pub _webgl2_padding_16b: u32,
+    #[texture(1)]
+    #[sampler(2)]
     pub sprite_handle: Handle<Image>,
 }
 
@@ -63,4 +70,10 @@ pub enum InteractionTypes {
 pub struct InInteractionArray {
     pub in_interaction: [bool; 1],
     pub in_any_interaction: bool,
+}
+
+#[derive(Resource, Default)]
+pub struct InteractablesImageHandle {
+    pub base_image_handle: Handle<Image>,
+    pub rendered_image_handle: Handle<Image>,
 }

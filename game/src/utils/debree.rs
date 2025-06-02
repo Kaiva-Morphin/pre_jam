@@ -29,6 +29,7 @@ pub fn debree_level_management(
     // causes player to manage chain reaction via hack+deorbit, antennas level and condition
     // debree level is not linearly prop to chain reaction; strategic deorbit can lower chain reaction
     debree_level.base_level = 1.2f32.powf(-10.0 + 0.6 * time.elapsed_secs_wrapped() * (1. / 60.));
+    debree_level.chain_reaction = time.elapsed_secs_wrapped();
     overlay_text!(
         overlay_events;
         TopLeft;

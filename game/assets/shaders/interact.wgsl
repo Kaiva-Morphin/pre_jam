@@ -1,6 +1,12 @@
-@group(2) @binding(1) var<uniform> time: f32;
-@group(2) @binding(2) var sprite_texture: texture_2d<f32>;
-@group(2) @binding(3) var sprite_texture_sampler: sampler;
+struct TimeUniforms {
+    time: f32,
+    _pad1: f32,
+    _pad2: f32,
+    _pad3: f32,
+};
+@group(2) @binding(0) var<uniform> time_uniforms: TimeUniforms;
+@group(2) @binding(1) var sprite_texture: texture_2d<f32>;
+@group(2) @binding(2) var sprite_texture_sampler: sampler;
 
 struct VertexOutput {
     @location(2) uv: vec2<f32>,
@@ -26,7 +32,7 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
     );
 
     // Glow color (e.g., animated)
-    let glow = vec3<f32>(1.0, 1.0, 0.0) * abs(sin(time * 2.0));
+    let glow = vec3<f32>(1.0, 1.0, 0.0) * abs(sin(time_uniforms.time * 2.0));
 
     // Output
     if (is_outer_edge) {

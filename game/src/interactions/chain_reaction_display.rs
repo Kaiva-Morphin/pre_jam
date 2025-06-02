@@ -1,14 +1,27 @@
-use bevy::{prelude::*, render::render_resource::{AsBindGroup, ShaderRef}, sprite::{AlphaMode2d, Material2d}};
+use bevy::{color::palettes::css::RED, prelude::*, render::{camera::RenderTarget, render_resource::{AsBindGroup, ShaderRef}}, sprite::{AlphaMode2d, Material2d}};
+use pixel_utils::camera::PixelCamera;
 
-use super::components::InInteractionArray;
+use crate::utils::debree::DebreeLevel;
+
+use super::components::{InInteractionArray, InteractablesImageHandle};
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[repr(align(16))]
 pub struct ChainGraphMaterial {
-    #[uniform(1)]
+    #[uniform(0)]
     pub chain: f32,
-    #[texture(2)]
-    #[sampler(3)]
+    #[uniform(0)]
+    pub _webgl2_padding_8b: u32,
+    #[uniform(0)]
+    pub _webgl2_padding_12b: u32,
+    #[uniform(0)]
+    pub _webgl2_padding_16b: u32,
+    #[texture(1)]
+    #[sampler(2)]
     pub sprite_handle: Handle<Image>,
+    #[texture(3)]
+    #[sampler(4)]
+    pub base_sprite_handle: Handle<Image>,
 }
 
 const CHAINGRAPH_MATERIAL_PATH: &str = "shaders/chain_graph.wgsl";
@@ -22,37 +35,54 @@ impl Material2d for ChainGraphMaterial {
     }
 }
 
-#[derive(Resource)]
-pub struct ChainGraphMaterialHandle {
-    pub handle: Handle<Image>
-}
-
 pub fn open_display(
     mut commands: Commands,
     in_interaction_array: Res<InInteractionArray>,
-    already_spawned: Local<Option<Entity>>,
-    chain_graph_material_handle: Res<ChainGraphMaterialHandle>,
+    mut already_spawned: Local<Option<Entity>>,
+    interactables_material_handle: Res<InteractablesImageHandle>,
+    pc: Single<Entity, With<PixelCamera>>,
 ) {
+    // println!("{:?} {:?}", in_interaction_array, already_spawned);
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_interaction[0] {
             commands.entity(entity).despawn();
+            *already_spawned = None;
         }
     } else {
         if in_interaction_array.in_interaction[0] {
-            commands.spawn(
+            let entity = commands.spawn((
                 Node {
-                    left: Val::Percent(50.),
-                    right: Val::Percent(50.),
+                    width: Val::Percent(100.),
+                    height: Val::Percent(100.),
+                    align_self: AlignSelf::Center,
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    position_type: PositionType::Absolute,
+                    ..default()
+                },
+                UiTargetCamera(*pc)
+            )).with_child((
+                ImageNode {
+                    image: interactables_material_handle.rendered_image_handle.clone(),
+                    ..default()
+                },
+                Node {
                     width: Val::Percent(50.),
                     height: Val::Percent(50.),
                     ..default()
                 }
-            ).with_child(
-                ImageNode {
-                    image: chain_graph_material_handle.handle.clone(),
-                    ..default()
-                }
-            );
+            )).id();
+            *already_spawned = Some(entity);
         }
+    }
+}
+
+pub fn update_chain(
+    debree_level: Res<DebreeLevel>,
+    material_handles: Single<&MeshMaterial2d<ChainGraphMaterial>>,
+    mut material_assets: ResMut<Assets<ChainGraphMaterial>>,
+) {
+    if let Some(material) = material_assets.get_mut(*material_handles) {
+        material.chain = debree_level.chain_reaction;
     }
 }

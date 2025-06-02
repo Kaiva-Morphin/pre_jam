@@ -3,7 +3,7 @@ use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{confi
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, Group, Sensor};
 use shaders::components::*;
 
-use crate::interactions::{chain_reaction_display::{ChainGraphMaterial, ChainGraphMaterialHandle}, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}};
+use crate::interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractablesImageHandle, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}};
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum LoadingStates {
@@ -18,6 +18,8 @@ pub struct SpriteAssets {
     pub grass_sprite: Handle<Image>,
     #[asset(path = "keys/e.png")]
     pub key_e_sprite: Handle<Image>,
+    #[asset(path = "pixel/ChainGraph.png")]
+    pub chain_graph_sprite: Handle<Image>,
 }
 
 pub struct SpritePreloadPlugin;
@@ -28,12 +30,12 @@ impl Plugin for SpritePreloadPlugin {
         .init_state::<LoadingStates>()
         .add_loading_state(
             LoadingState::new(LoadingStates::AssetLoading)
-                .continue_to_state(LoadingStates::Next)
-                .load_collection::<SpriteAssets>(),
+            .load_collection::<SpriteAssets>()
+            .continue_to_state(LoadingStates::Next)
         )
         .add_plugins((
-            Material2dPlugin::<VelocityBufferMaterial>::default(),
-            Material2dPlugin::<GrassMaterial>::default(),
+            // Material2dPlugin::<VelocityBufferMaterial>::default(),
+            // Material2dPlugin::<GrassMaterial>::default(),
             Material2dPlugin::<InteractableMaterial>::default(),
             Material2dPlugin::<ChainGraphMaterial>::default(),
         ))
@@ -41,7 +43,7 @@ impl Plugin for SpritePreloadPlugin {
         .insert_resource(TextureAtlasHandes::default())
         .add_event::<SpritePreloadEvent>()
         .add_systems(OnEnter(LoadingStates::Next), (preload_sprites, create_atlas))
-        .add_systems(Update, spawn_sprites);
+        .add_systems(Update, (spawn_sprites).run_if(in_state(LoadingStates::Next)));
     }
 
 }
@@ -79,7 +81,6 @@ pub struct SpritePreloadData {
 pub enum SpritePreloadEvent {
     Grass(SpritePreloadData),
     Interactable(SpritePreloadData),
-    ChainGraph(Handle<Image>),
 }
 
 pub fn preload_sprites(
@@ -88,6 +89,7 @@ pub fn preload_sprites(
     mut texture_atlas_handles: ResMut<TextureAtlasHandes>,
     sprite_assets: Res<SpriteAssets>,
 ) {
+    println!("preload sprites");
     texture_atlas_handles.image_handle = sprite_assets.key_e_sprite.clone();
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_assets.grass_sprite.clone(), pos: Vec2::new(-40., 10.) }));
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_assets.grass_sprite.clone(), pos: Vec2::new(40., 10.) }));
@@ -97,24 +99,17 @@ pub fn spawn_sprites(
     mut commands: Commands,
     image_assets: ResMut<Assets<Image>>,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut grass_materials: ResMut<Assets<GrassMaterial>>,
+    // mut grass_materials: ResMut<Assets<GrassMaterial>>,
     mut interactable_materials: ResMut<Assets<InteractableMaterial>>,
     buffer_handles: Res<VelocityBufferHandles>,
     mut reader: EventReader<SpritePreloadEvent>,
     mut chain_graph_material: ResMut<Assets<ChainGraphMaterial>>,
-    mut chain_graph_material_handle: ResMut<ChainGraphMaterialHandle>,
+    mut interactables_material_handle: ResMut<InteractablesImageHandle>,
+    
 ) {
     for event in reader.read() {
         match event {
             SpritePreloadEvent::Grass(_) => {
-            }
-            SpritePreloadEvent::ChainGraph(sprite_handle) => {
-                let material = ChainGraphMaterial {
-                    chain: 0.,
-                    sprite_handle: sprite_handle.clone()
-                };
-                chain_graph_material.add(material);
-                chain_graph_material_handle.handle = sprite_handle.clone();
             }
             SpritePreloadEvent::Interactable(sprite_data) => {
                 let image = image_assets.get(&sprite_data.handle).unwrap();
@@ -122,7 +117,10 @@ pub fn spawn_sprites(
                 let height = image.height();
                 let material = InteractableMaterial {
                     time: 0.,
-                    sprite_handle: sprite_data.handle.clone()
+                    sprite_handle: sprite_data.handle.clone(),
+                    _webgl2_padding_8b: 0,
+                    _webgl2_padding_12b: 0,
+                    _webgl2_padding_16b: 0,
                 };
                 let handle = interactable_materials.add(material);
                 commands.spawn((
