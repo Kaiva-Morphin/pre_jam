@@ -33,14 +33,16 @@ impl Plugin for CorePlugin {
                         ..default()
                     })
                     .set(ImagePlugin::default_nearest()),
-                RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(12.0),
+                RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
                 EguiPlugin { enable_multipass_for_primary_context: true },
                 PixelCameraPlugin,
                 CameraControllerPlugin,
                 PlatformsPlugin,
                 ControllersPlugin,
                 CursorPlugin,
+                bevy_framepace::FramepacePlugin,
             ))
+            .insert_resource(bevy_framepace::FramepaceSettings{limiter: bevy_framepace::Limiter::from_framerate(60.0)})
             .add_systems(Startup, init_egui_font.after(EguiPreUpdateSet::InitContexts))
             .add_systems(PreStartup, debug_ui_to_camera.after(pixel_utils::camera::setup_camera).after(debug_utils::debug_overlay::init))
         ;
@@ -57,9 +59,6 @@ pub fn debug_ui_to_camera(
 ){
     cmd.entity(*root).insert(UiTargetCamera(*pc));
 }
-
-
-
 
 
 pub fn init_egui_font(

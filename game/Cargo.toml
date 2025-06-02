@@ -15,6 +15,7 @@ bevy = { workspace = true, features = ["mp3", "wav", "web", "dynamic_linking"] }
 bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
 bevy_ecs_tiled = { version = "0.7.0", path = "../libs/bevy_ecs_tiled", features = ["wasm", "rapier", "physics", "rapier_debug"] }
 bevy_asset_loader = { version = "0.23.0", features = ["2d", "3d"] }
+bevy_framepace = "0.19.1"
 
 
 

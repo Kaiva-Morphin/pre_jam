@@ -3,6 +3,8 @@ use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use utils::{wrap, ExpDecay, WrappedDelta};
 use pixel_utils::camera::{setup_camera, PixelCamera};
 
+use crate::physics::controller::SpaceWalk;
+
 pub struct CameraControllerPlugin;
 
 impl Plugin for CameraControllerPlugin {
@@ -32,7 +34,7 @@ wrap!(pub ZoomTarget(pub f32));
 
 impl Default for ZoomTarget {
     fn default() -> Self {
-        ZoomTarget(1.0)
+        ZoomTarget(0.0)
     }
 }
 
@@ -56,19 +58,20 @@ pub fn camera_controller(
     to_focus: Query<(&GlobalTransform, &CameraFocus)>,
     mut overlay_events: EventWriter<DebugOverlayEvent>,
     time: Res<Time>,
+    spacewalk: Res<SpaceWalk>,
 ){
     let dt = time.dt();
     let (projection, camera_transform, mode) = &mut *pixel_camera;
     
-    let mut follow: Option<Vec3> = None;
+    let mut follow: Option<&GlobalTransform> = None;
     let mut p = 0;
     for (t, f) in to_focus.iter() {
         if let Some(_) = follow {
             if p < f.priority {continue;}
-            follow = Some(t.translation());
+            follow = Some(t);
             p = f.priority;
         } else {
-            follow = Some(t.translation());
+            follow = Some(t);
             p = f.priority;
         }
     };
@@ -84,7 +87,7 @@ pub fn camera_controller(
     let mut m_dt = Vec3::ZERO;
     for event in mouse_wheel_events.read() {
         overlay_text!(overlay_events;BottomLeft;MOUSE_EVENT:format!("Mouse event {:?}", event),(255, 255, 255););
-        let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {0.01};
+        let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {1.0 / event.y.abs()};
         m_dt.z += v;
     };
     if mouse.pressed(MouseButton::Middle) {
@@ -99,12 +102,21 @@ pub fn camera_controller(
 
     match **mode {
         CameraMode::Following => {
-            let target = follow.unwrap_or(Vec3::ZERO);
-            m_dt.z = 0.0;
-            camera_transform.translation = camera_transform.translation.exp_decay(target, CAMERA_FOLLOW_SPEED, dt);
+            if let Some(target) = follow {
+                m_dt.z = 0.0;
+                
+                if spacewalk.0 {
+                    camera_transform.translation = target.translation();
+                    camera_transform.rotation = target.rotation();  
+                } else {
+                    camera_transform.translation = camera_transform.translation.exp_decay(target.translation(), CAMERA_FOLLOW_SPEED, dt);
+                    camera_transform.rotation = camera_transform.rotation.slerp(target.rotation(), dt * 5.0);
+                }
+            }
         } 
         CameraMode::Free => {
             m_dt.z = 0.0;
+            camera_transform.rotation.z = 0.0;
             camera_transform.translation += m_dt * target_scale * CAMERA_SPEED;
         }
     }

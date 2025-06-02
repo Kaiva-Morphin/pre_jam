@@ -10,7 +10,7 @@ impl Plugin for PixelCameraPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(PreStartup, setup_camera)
-            .add_systems(PreUpdate, fit_canvas)
+            .add_systems(PreUpdate, (true_pixel_switch, fit_canvas).chain())
             .insert_resource(ViewportSize::default())
             .insert_resource(PixelCameraSettings {true_pixel: false});
     }
@@ -19,7 +19,7 @@ impl Plugin for PixelCameraPlugin {
 pub const PIXEL_PERFECT_LAYERS: RenderLayers = RenderLayers::layer(0);
 pub const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 
-pub const SCALE : u32 = 2;
+pub const SCALE : u32 = 1;
 pub const TARGET_WIDTH: u32 = 480 * SCALE;
 pub const TARGET_HEIGHT: u32 = 270 * SCALE;
 
@@ -76,22 +76,22 @@ pub fn setup_camera(
         Camera {
             order: -1,
             target: RenderTarget::Image(image_handle.clone().into()),
-            clear_color: ClearColorConfig::Custom(Srgba::rgb(0.1, 0.1, 0.1).into()),
-            hdr: true,
+            clear_color: ClearColorConfig::Custom(Srgba::rgb(0.0, 0.0, 0.0).into()),
+            // hdr: true,
             msaa_writeback: false,
             ..default()
         },
         Msaa::Off,
         PixelCamera,
         Name::new("PixelCamera"),
-        Tonemapping::TonyMcMapface,
-        DebandDither::Enabled,
+        // Tonemapping::TonyMcMapface,
+        // DebandDither::Enabled,
         Transform::from_scale(Vec3::splat(1.0 / SCALE as f32)),
-        Bloom {
-            composite_mode: BloomCompositeMode::Additive,
-            intensity: 0.1,
-            ..default()
-        },
+        // Bloom {
+        //     composite_mode: BloomCompositeMode::Additive,
+        //     intensity: 0.1,
+        //     ..default()
+        // },
         PIXEL_PERFECT_LAYERS,
     ));
 
@@ -130,22 +130,30 @@ impl ViewportSize {
 
 }
 
-// fn true_pixel_switch(
-//     mut settings : ResMut<PixelCameraSettings>,
-//     mut projection: Single<&mut Projection, With<RenderCamera>>,
-//     keyboard: Res<ButtonInput<KeyCode>>,
-//     window: Single<Window>
-// ){
-//     let Projection::Orthographic(projection) = &mut **projection else {
-//         return;
-//     };
-//     if keyboard.just_pressed(KeyCode::F4){
-//         settings.true_pixel = !settings.true_pixel;
-//         resize();
-//     }
-// }
+fn true_pixel_switch(
+    mut settings : ResMut<PixelCameraSettings>,
+    mut projection: Single<&mut Projection, With<RenderCamera>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    window: Single<&Window>,
+){
+    let Projection::Orthographic(projection) = &mut **projection else {
+        return;
+    };
+    if keyboard.just_pressed(KeyCode::F4){
+        settings.true_pixel = !settings.true_pixel;
+    }
+    resize(projection, window.size(), settings.true_pixel);
+}
 
-// fn resize(&mut proj: OrthographicProjection){}
+fn resize(projection : &mut OrthographicProjection, size : Vec2, true_pixel: bool){
+    let h_scale = size.x / TARGET_WIDTH as f32;
+    let v_scale = size.y / TARGET_HEIGHT as f32;
+    let mut scale = h_scale.min(v_scale);
+    if true_pixel {
+        scale = scale.floor();
+    }
+    projection.scale = 1. / scale;
+}
 
 fn fit_canvas(
     mut resize_events: EventReader<WindowResized>,
@@ -160,19 +168,6 @@ fn fit_canvas(
         return;
     };
     for event in resize_events.read() {
-        let h_scale = event.width / TARGET_WIDTH as f32;
-        let v_scale = event.height / TARGET_HEIGHT as f32;
-        let mut scale = h_scale.min(v_scale);
-        if true_pixel {
-            scale = scale.floor();
-        }
-        projection.scale = 1. / scale;
-        // let Some(canvas) = images.get_mut(&canvas.image) else {continue;};
-        // let size = Extent3d {
-        //     width: viewport.current.x,
-        //     height: viewport.current.y,
-        //     ..default()
-        // };
-        // canvas.resize(size);
+        resize(projection, vec2(event.width, event.height), true_pixel);
     }
 } 

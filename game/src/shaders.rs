@@ -51,7 +51,7 @@ fn main() {
         PixelCameraPlugin,
         CameraControllerPlugin,
         SwitchableEguiInspectorPlugin,
-        SwitchableRapierDebugPlugin,
+        SwitchableRapierDebugPlugin::enabled(),
         ControllersPlugin,
         DebugOverlayPlugin::enabled(),
         InteractionsPlugin,

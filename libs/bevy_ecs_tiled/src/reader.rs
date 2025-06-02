@@ -31,6 +31,7 @@ impl<'a> tiled::ResourceReader for BytesResourceReader<'a, '_> {
                     if let Some(f) = f.to_str() {
                         match f {
                             "tilepack.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/test/tilepack.tsx")))),
+                            "tilemap.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/v1.0/tilemap.tsx")))),
                             _ => {panic!("PLEASE ADD THE TILESET INTO libs/bevy_ecs_tiled/src/reader.rs")}
                         }
                     }
