@@ -1,6 +1,10 @@
 use bevy::audio::{AudioPlugin, SpatialScale};
 use bevy::color::palettes::css::{BLUE, GREEN, RED};
 use bevy::{prelude::*, window::WindowResolution};
+use bevy_ecs_tiled::map::TiledMapHandle;
+use bevy_ecs_tiled::prelude::{TiledPhysicsPlugin, TiledPhysicsRapierBackend, TiledPhysicsSettings, TilemapAnchor};
+use bevy_ecs_tiled::{TiledMapPlugin, TiledMapPluginConfig};
+use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_inspector_egui::bevy_egui::EguiPlugin;
 use bevy_rapier2d::plugin::{NoUserData, RapierPhysicsPlugin};
 use bevy_rapier2d::prelude::*;
@@ -13,6 +17,7 @@ use interactions::InteractionsPlugin;
 use physics::controller::ControllersPlugin;
 use pixel_utils::camera::PixelCameraPlugin;
 use shaders::{ShaderPlugin, VelocityEmmiter};
+use utils::background::StarBackgroundPlugin;
 use utils::custom_material_loader::SpritePreloadPlugin;
 use utils::debree::DebreePlugin;
 use utils::mouse::CursorPositionPlugin;
@@ -46,6 +51,10 @@ fn main() {
             ..default()
         }),
         // ShaderPlugin,
+        (TilemapPlugin,
+        TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: None }),
+        TiledPhysicsPlugin::<TiledPhysicsRapierBackend>::default(),
+        StarBackgroundPlugin,
         RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(12.0),
         EguiPlugin { enable_multipass_for_primary_context: true },
         PixelCameraPlugin,
@@ -53,7 +62,7 @@ fn main() {
         SwitchableEguiInspectorPlugin,
         SwitchableRapierDebugPlugin::enabled(),
         ControllersPlugin,
-        DebugOverlayPlugin::enabled(),
+        DebugOverlayPlugin::enabled(),),
         InteractionsPlugin,
         CursorPositionPlugin,
         SpritePreloadPlugin,
@@ -65,7 +74,7 @@ fn main() {
 
 pub fn spawn(
     mut commands: Commands,
-    assets: Res<AssetServer>,
+    asset_server: Res<AssetServer>,
 ) {
     const GAP: f32 = 50.;
     commands.spawn((
@@ -83,10 +92,11 @@ pub fn spawn(
         GravityScale(0.0),
         Name::new("Player"),
         Collider::capsule(vec2(0.0, 6.0), vec2(0.0, -6.0), 6.0),
-        Sprite::from_image(assets.load("pixel/test.png")),
+        Sprite::from_image(asset_server.load("pixel/test.png")),
         LockedAxes::ROTATION_LOCKED,
         Sleeping::disabled(),
         Ccd::enabled(),),
+        Friction{coefficient: 0.0, combine_rule: CoefficientCombineRule::Min},
         camera::plugin::CameraFocus{priority: 0},
         physics::controller::Controller{
             horisontal_velocity: 0.0,
@@ -123,9 +133,14 @@ pub fn spawn(
     ))
     ;
     commands.spawn((
-        AudioPlayer::new(assets.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
+        AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
         PlaybackSettings::LOOP.with_spatial(true),
         Transform::from_xyz(50., 0., 0.),
         Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
+    ));
+    commands.spawn((
+        TiledMapHandle(asset_server.load("tilemaps/v1.0/map.tmx")),
+        TilemapAnchor::Center,
+        TiledPhysicsSettings::<TiledPhysicsRapierBackend>::default(),
     ));
 }

@@ -112,7 +112,7 @@ pub fn tick_controllers(
         };
         let g = if c.jumping {g * 1.0} else {g};
         let ctx = ctx.clone();
-        let filter = QueryFilter::default().exclude_collider(e);
+        let filter = QueryFilter::default().exclude_collider(e).exclude_sensors();
         let options = ShapeCastOptions {max_time_of_impact: 2.0 / 64.0,
             target_distance: 0.0,
             stop_at_penetration: true,

@@ -1,15 +1,30 @@
-use bevy::{color::palettes::css::RED, prelude::*, render::{camera::RenderTarget, render_resource::{AsBindGroup, ShaderRef}}, sprite::{AlphaMode2d, Material2d}};
+use bevy::{prelude::*, render::render_resource::{AsBindGroup, ShaderRef}, sprite::{AlphaMode2d, Material2d}};
 use pixel_utils::camera::PixelCamera;
 
-use crate::utils::debree::DebreeLevel;
+use super::components::{InInteractionArray, InteractablesImageHandle, InteractionTypes};
 
-use super::{components::{InInteractionArray, InteractablesImageHandle, InteractionTypes}, wave_modulator::WaveGraphMaterial};
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 #[repr(align(16))]
-pub struct ChainGraphMaterial {
+pub struct WaveGraphMaterial {
     #[uniform(0)]
-    pub chain: f32,
+    pub a: f32,
+    #[uniform(0)]
+    pub b: f32,
+    #[uniform(0)]
+    pub c: f32,
+    #[uniform(0)]
+    pub d: f32,
+    #[uniform(0)]
+    pub ra: f32,
+    #[uniform(0)]
+    pub rb: f32,
+    #[uniform(0)]
+    pub rc: f32,
+    #[uniform(0)]
+    pub rd: f32,
+    #[uniform(0)]
+    pub time: f32,
     #[uniform(0)]
     pub _webgl2_padding_8b: u32,
     #[uniform(0)]
@@ -24,18 +39,18 @@ pub struct ChainGraphMaterial {
     pub base_sprite_handle: Handle<Image>,
 }
 
-const CHAINGRAPH_MATERIAL_PATH: &str = "shaders/chain_graph.wgsl";
+const WAVEGRAPH_MATERIAL_PATH: &str = "shaders/wave_graph.wgsl";
 
-impl Material2d for ChainGraphMaterial {
+impl Material2d for WaveGraphMaterial {
     fn fragment_shader() -> ShaderRef {
-        CHAINGRAPH_MATERIAL_PATH.into()
+        WAVEGRAPH_MATERIAL_PATH.into()
     }
     fn alpha_mode(&self) -> AlphaMode2d {
         AlphaMode2d::Blend
     }
 }
 
-pub fn open_chain_graph_display(
+pub fn open_wave_modulator_display(
     mut commands: Commands,
     in_interaction_array: Res<InInteractionArray>,
     mut already_spawned: Local<Option<Entity>>,
@@ -49,7 +64,7 @@ pub fn open_chain_graph_display(
             *already_spawned = None;
         }
     } else {
-        if in_interaction_array.in_interaction == InteractionTypes::ChainReactionDisplay && in_interaction_array.in_any_interaction {
+        if in_interaction_array.in_interaction == InteractionTypes::WaveModulator && in_interaction_array.in_any_interaction {
             let entity = commands.spawn((
                 Node {
                     width: Val::Percent(100.),

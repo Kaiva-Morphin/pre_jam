@@ -61,14 +61,16 @@ pub struct ScrollSelector {
     pub selection_options: Vec<Entity>,
 }
 
-#[derive(Component, Clone)]
+#[derive(Component, Clone, Debug, PartialEq, Default)]
 pub enum InteractionTypes {
+    #[default]
     ChainReactionDisplay,
+    WaveModulator,
 }
 
 #[derive(Resource, Debug)]
 pub struct InInteractionArray {
-    pub in_interaction: [bool; 1],
+    pub in_interaction: InteractionTypes,
     pub in_any_interaction: bool,
 }
 

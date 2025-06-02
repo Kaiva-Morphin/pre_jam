@@ -1,17 +1,19 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use chain_reaction_display::{open_display, update_chain};
+use chain_reaction_display::{open_chain_graph_display};
 use components::{InInteractionArray, InteractGlowEvent, InteractablesImageHandle, KeyTimer, ScrollSelector};
 use systems::*;
-use unteractables_ui::{spawn_ui_camera};
+use interactables_ui::{redact_ui_camera, spawn_ui_camera, UiCameraData};
+use wave_modulator::open_wave_modulator_display;
 
 use crate::utils::custom_material_loader::{preload_sprites, LoadingStates};
 
 mod systems;
 pub mod components;
 pub mod chain_reaction_display;
-pub mod unteractables_ui;
+pub mod interactables_ui;
+pub mod wave_modulator;
 
 pub struct InteractionsPlugin;
 
@@ -21,13 +23,14 @@ impl Plugin for InteractionsPlugin {
         .add_event::<InteractGlowEvent>()
         .insert_resource(KeyTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .insert_resource(ScrollSelector::default())
-        .insert_resource(InInteractionArray {in_interaction: [false], in_any_interaction: false})
+        .insert_resource(InInteractionArray {in_interaction: components::InteractionTypes::ChainReactionDisplay, in_any_interaction: false})
         .insert_resource(InteractablesImageHandle::default())
+        .insert_resource(UiCameraData {ui_camera_entity: Entity::PLACEHOLDER, ui_rendered_material_entity: Entity::PLACEHOLDER})
         .add_systems(Update, (
-            (interact, update_interactables, open_display).chain(),
+            (interact, update_interactables, (open_chain_graph_display, open_wave_modulator_display)).chain(),
         ))
         .add_systems(OnEnter(LoadingStates::Next), spawn_ui_camera)
-        .add_systems(Update, update_chain)
+        .add_systems(Update, (update_graphs_time, (redact_ui_camera).run_if(in_state(LoadingStates::Next))))
         ;
     }
 }

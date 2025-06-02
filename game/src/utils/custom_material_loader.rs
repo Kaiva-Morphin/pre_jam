@@ -3,7 +3,7 @@ use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{confi
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, Group, Sensor};
 use shaders::components::*;
 
-use crate::interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractablesImageHandle, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}};
+use crate::interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractablesImageHandle, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}, wave_modulator::WaveGraphMaterial};
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum LoadingStates {
@@ -18,8 +18,12 @@ pub struct SpriteAssets {
     pub grass_sprite: Handle<Image>,
     #[asset(path = "keys/e.png")]
     pub key_e_sprite: Handle<Image>,
-    #[asset(path = "pixel/ChainGraph.png")]
+    #[asset(path = "interactables/ChainGraph.png")]
     pub chain_graph_sprite: Handle<Image>,
+    #[asset(path = "interactables/chain.png")]
+    pub chain_interactable: Handle<Image>,
+    #[asset(path = "interactables/wave.png")]
+    pub wave_interactable: Handle<Image>,
 }
 
 pub struct SpritePreloadPlugin;
@@ -38,6 +42,7 @@ impl Plugin for SpritePreloadPlugin {
             // Material2dPlugin::<GrassMaterial>::default(),
             Material2dPlugin::<InteractableMaterial>::default(),
             Material2dPlugin::<ChainGraphMaterial>::default(),
+            Material2dPlugin::<WaveGraphMaterial>::default(),
         ))
         .insert_resource(VelocityBufferHandles::default())
         .insert_resource(TextureAtlasHandes::default())
@@ -45,7 +50,6 @@ impl Plugin for SpritePreloadPlugin {
         .add_systems(OnEnter(LoadingStates::Next), (preload_sprites, create_atlas))
         .add_systems(Update, (spawn_sprites).run_if(in_state(LoadingStates::Next)));
     }
-
 }
 #[derive(Resource, Default)]
 pub struct TextureAtlasHandes {
@@ -75,6 +79,7 @@ pub fn create_atlas(
 pub struct SpritePreloadData {
     pub handle: Handle<Image>,
     pub pos: Vec2,
+    pub interaction_type: InteractionTypes,
 }
 
 #[derive(Event)]
@@ -91,8 +96,16 @@ pub fn preload_sprites(
 ) {
     println!("preload sprites");
     texture_atlas_handles.image_handle = sprite_assets.key_e_sprite.clone();
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_assets.grass_sprite.clone(), pos: Vec2::new(-40., 10.) }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData { handle: sprite_assets.grass_sprite.clone(), pos: Vec2::new(40., 10.) }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
+        handle: sprite_assets.chain_interactable.clone(),
+        pos: Vec2::new(-40., 10.),
+        interaction_type: InteractionTypes::ChainReactionDisplay,
+    }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
+        handle: sprite_assets.wave_interactable.clone(),
+        pos: Vec2::new(40., 10.),
+        interaction_type: InteractionTypes::WaveModulator,
+    }));
 }
 
 pub fn spawn_sprites(
@@ -137,7 +150,7 @@ pub fn spawn_sprites(
                     ActiveEvents::COLLISION_EVENTS,
                     Sensor,
                     InInteraction {data: false},
-                    InteractionTypes::ChainReactionDisplay,
+                    sprite_data.interaction_type.clone(),
                 ));
             }
         }

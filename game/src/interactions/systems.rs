@@ -5,9 +5,9 @@ use bevy_rapier2d::prelude::CollisionEvent;
 use shaders::VelocityEmmiter;
 use utils::{Easings, WrappedDelta};
 
-use crate::utils::{custom_material_loader::{TextureAtlasHandes, KEYS_ATLAS_SIZE}, mouse::CursorPosition};
+use crate::utils::{custom_material_loader::{TextureAtlasHandes, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition};
 
-use super::components::{EKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector};
+use super::{chain_reaction_display::ChainGraphMaterial, components::{EKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector}, wave_modulator::WaveGraphMaterial};
 
 pub fn interact(
     mut commands: Commands,
@@ -29,7 +29,6 @@ pub fn interact(
     if in_interaction_array.in_any_interaction {
         if keyboard.just_released(KeyCode::KeyE) {
             in_interaction_array.in_any_interaction = false;
-            in_interaction_array.in_interaction = [false];
             //exit
             // TODO: add "press E again to exit sign"
         }
@@ -39,11 +38,7 @@ pub fn interact(
         let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
         let interaction_type = interaction_types.get(current_entity).unwrap().clone();
         in_interaction_array.in_any_interaction = true;
-        match interaction_type {
-            InteractionTypes::ChainReactionDisplay => {
-                in_interaction_array.in_interaction[0] = true;
-            }
-        }
+        in_interaction_array.in_interaction = interaction_type;
     }
     let mut mouse_scroll_delta = 0.;
     for event in mouse_wheel_events.read() {
@@ -136,6 +131,26 @@ pub fn update_interactables(
             if let Some(material) = material_assets.get_mut(material_handle) {
                 material.time = 0.;
             }
+        }
+    }
+}
+
+pub fn update_graphs_time(
+    debree_level: Res<DebreeLevel>,
+    chain_material_handle: Query<&MeshMaterial2d<ChainGraphMaterial>>,
+    wave_material_handle: Query<&MeshMaterial2d<WaveGraphMaterial>>,
+    mut chain_material_assets: ResMut<Assets<ChainGraphMaterial>>,
+    mut wave_material_assets: ResMut<Assets<WaveGraphMaterial>>,
+    time: Res<Time>,
+) {
+    if let Ok(chain_material_handle) = chain_material_handle.single() {
+        if let Some(material) = chain_material_assets.get_mut(chain_material_handle) {
+            material.chain = time.elapsed_secs();
+        }
+    }
+    if let Ok(wave_material_handle) = wave_material_handle.single() {
+        if let Some(material) = wave_material_assets.get_mut(wave_material_handle) {
+            material.time = time.elapsed_secs();
         }
     }
 }
