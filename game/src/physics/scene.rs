@@ -46,7 +46,6 @@ pub fn spawn_player(
         Controller{
             horisontal_velocity: 0.0,
             max_horisontal_velocity: 100.0,
-            total_air_jumps: 2,
             ..default()
         }
     ));

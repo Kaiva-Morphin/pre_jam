@@ -44,14 +44,6 @@ macro_rules! overlay_text {
     };
 }
 
-#[macro_export]
-macro_rules! overlay {
-    () => {
-        #[cfg(feature = "debug_overlay")]
-        mut overlay_events: bevy::prelude::EventWriter<DebugOverlayEvent>,
-    };
-}
-
 pub struct DebugOverlayPlugin{
     pub enabled: bool,
     pub supress_default: bool,

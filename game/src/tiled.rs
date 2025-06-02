@@ -9,6 +9,7 @@ use core::CorePlugin;
 use crate::camera::plugin::CameraFocus;
 use crate::physics::controller::{Controller, ControllersPlugin};
 use crate::physics::scene::{spawn_player, Player};
+use crate::utils::background::StarBackgroundPlugin;
 
 use bevy_ecs_tilemap::TilemapPlugin;
 mod core;
@@ -22,13 +23,14 @@ fn main() {
     app
         .add_plugins((CorePlugin,
             SwitchableEguiInspectorPlugin::default(),
-            SwitchableRapierDebugPlugin::default(),
             DebugOverlayPlugin::enabled(),
             TilemapPlugin,
             TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: None }),
+            SwitchableRapierDebugPlugin::disabled(),
             TiledPhysicsPlugin::<TiledPhysicsRapierBackend>::default(),
+            StarBackgroundPlugin,
         ))
-        .add_systems(Startup, (start))
+        .add_systems(Startup, start)
         .run();
 }
 
@@ -54,7 +56,6 @@ pub fn start(
         Controller{
             horisontal_velocity: 0.0,
             max_horisontal_velocity: 100.0,
-            total_air_jumps: 2,
             ..default()
         }
     ));
@@ -63,12 +64,6 @@ pub fn start(
         TiledMapHandle(asset_server.load("tilemaps/v1.0/map.tmx")),
         TilemapAnchor::Center,
         TiledPhysicsSettings::<TiledPhysicsRapierBackend>::default(),
-    ));
-
-    cmd.spawn((
-        RigidBody::Fixed,
-        Transform::from_xyz(0.0, 0.0, 0.0),
-        Collider::cuboid(100.0, 5.0),
     ));
 }
 
