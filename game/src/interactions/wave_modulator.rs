@@ -1,11 +1,11 @@
 use std::f32::consts::{PI, TAU};
 
-use bevy::{color::palettes::css::{BLUE, RED}, prelude::*, render::render_resource::{AsBindGroup, ShaderRef}, sprite::{AlphaMode2d, Material2d}, ui::RelativeCursorPosition};
+use bevy::{color::palettes::css::{BLUE, RED}, prelude::*, render::render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDescriptor, TextureUsages}, sprite::{AlphaMode2d, Material2d}, ui::RelativeCursorPosition};
 use pixel_utils::camera::{PixelCamera, RenderCamera, TARGET_HEIGHT, TARGET_WIDTH};
 
-use crate::{ui::target::LowresUiContainer, utils::{custom_material_loader::SpinnyAtlasHandles, mouse::CursorPosition}};
+use crate::{ui::target::LowresUiContainer, utils::{custom_material_loader::{SpinnyAtlasHandles, SpriteAssets}, mouse::CursorPosition}};
 
-use super::components::{InInteractionArray, InteractablesImageHandle, InteractionTypes};
+use super::components::{InInteractionArray, InteractionTypes};
 
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -45,12 +45,9 @@ pub struct WaveGraphMaterial {
 
 const WAVEGRAPH_MATERIAL_PATH: &str = "shaders/wave_graph.wgsl";
 
-impl Material2d for WaveGraphMaterial {
+impl UiMaterial for WaveGraphMaterial {
     fn fragment_shader() -> ShaderRef {
         WAVEGRAPH_MATERIAL_PATH.into()
-    }
-    fn alpha_mode(&self) -> AlphaMode2d {
-        AlphaMode2d::Blend
     }
 }
 
@@ -58,11 +55,13 @@ pub fn open_wave_modulator_display(
     mut commands: Commands,
     in_interaction_array: Res<InInteractionArray>,
     mut already_spawned: Local<Option<Entity>>,
-    interactables_material_handle: Res<InteractablesImageHandle>,
-    // pc: Single<Entity, With<PixelCamera>>,
-    // rc: Single<Entity, With<RenderCamera>>,
     spinny_atlas_handles: Res<SpinnyAtlasHandles>,
     lowres_container: Single<Entity, With<LowresUiContainer>>,
+    mut wave_graph_material: ResMut<Assets<WaveGraphMaterial>>,
+    mut modulator_consts: ResMut<WaveModulatorConsts>,
+    images: Res<Assets<Image>>,
+    sprite_assets: Res<SpriteAssets>,
+    asset_server: Res<AssetServer>,
 ) {
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
@@ -71,6 +70,32 @@ pub fn open_wave_modulator_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::WaveModulator && in_interaction_array.in_any_interaction {
+            let consts = generate_wave_modulator_consts();
+            modulator_consts.consts = consts.1;
+            let t = images.get(&sprite_assets.wave_graph_sprite).unwrap();
+            let data = t.data.clone();
+            let size = t.size();
+            let canvas_size = Extent3d {
+                width: size.x,
+                height: size.y,
+                ..default()
+            };
+            let canvas = Image {
+                texture_descriptor: TextureDescriptor {
+                    usage: TextureUsages::RENDER_ATTACHMENT | TextureUsages::TEXTURE_BINDING | TextureUsages::COPY_DST,
+                    label: None,
+                    size: canvas_size,
+                    dimension: bevy::render::render_resource::TextureDimension::D2,
+                    format: bevy::render::render_resource::TextureFormat::Bgra8UnormSrgb,
+                    view_formats: &[],
+                    mip_level_count: 1,
+                    sample_count: 1,
+                },
+                data,
+                ..default()
+            };
+            let sprite_handle = asset_server.add(canvas);
+            // println!("{:?} {:?}", interactables_material_handle.rendered_image_handle, interactables_material_handle.base_image_handle);
             let entity = commands.spawn((
                 Node {
                     width: Val::Percent(100.),
@@ -85,10 +110,23 @@ pub fn open_wave_modulator_display(
                 children![
                     (
                         // wave graph
-                        ImageNode {
-                            image: interactables_material_handle.rendered_image_handle.clone(),
-                            ..default()
-                        },
+                        MaterialNode(wave_graph_material.add(
+                            WaveGraphMaterial {
+                                a: consts.0[0],
+                                b: consts.0[1],
+                                c: consts.0[2],
+                                d: consts.0[3],
+                                ra: consts.0[4],
+                                rb: consts.0[5],
+                                rc: consts.0[6],
+                                rd: consts.0[7],
+                                time: 0.,
+                                _webgl2_padding_8b: 0,
+                                _webgl2_padding_12b: 0,
+                                _webgl2_padding_16b: 0,
+                                sprite_handle,
+                                base_sprite_handle: sprite_assets.wave_graph_sprite.clone(),
+                            })),
                         Node {
                             width: Val::Px(200.),
                             height: Val::Px(200.),
@@ -215,7 +253,7 @@ pub fn touch_spinny(
 pub fn interact_with_spinny(
     spinny: Res<Spinny>,
     spinny_q: Query<(&SpinnyIds, &mut ImageNode)>,
-    material_handle: Single<&MeshMaterial2d<WaveGraphMaterial>>,
+    material_handle: Single<&MaterialNode<WaveGraphMaterial>>,
     mut material_assets: ResMut<Assets<WaveGraphMaterial>>,
     modulator_consts: Res<WaveModulatorConsts>,
 ) {
@@ -272,7 +310,7 @@ pub fn generate_wave_modulator_consts() -> ([f32; 8], [Vec<f32>; 4]) {
     // For frequency (d, rd)
     let mi_freq = 1.0;
     let ma_freq = 3.0; // 1 to 3 waves across the texture
-    
+
     let a = gen_wave_rng(mi_offset, ma_offset);
     let b = gen_wave_rng(mi_amplitude, ma_amplitude);
     let c = gen_wave_rng(mi_phase, ma_phase);

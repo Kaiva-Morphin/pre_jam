@@ -137,8 +137,8 @@ pub fn update_interactables(
 
 pub fn update_graphs_time(
     debree_level: Res<DebreeLevel>,
-    chain_material_handle: Query<&MeshMaterial2d<ChainGraphMaterial>>,
-    wave_material_handle: Query<&MeshMaterial2d<WaveGraphMaterial>>,
+    chain_material_handle: Query<&MaterialNode<ChainGraphMaterial>>,
+    wave_material_handle: Query<&MaterialNode<WaveGraphMaterial>>,
     mut chain_material_assets: ResMut<Assets<ChainGraphMaterial>>,
     mut wave_material_assets: ResMut<Assets<WaveGraphMaterial>>,
     time: Res<Time>,

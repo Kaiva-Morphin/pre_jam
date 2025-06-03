@@ -66,16 +66,11 @@ pub enum InteractionTypes {
     #[default]
     ChainReactionDisplay,
     WaveModulator,
+    PipePuzzle,
 }
 
 #[derive(Resource, Debug)]
 pub struct InInteractionArray {
     pub in_interaction: InteractionTypes,
     pub in_any_interaction: bool,
-}
-
-#[derive(Resource, Default)]
-pub struct InteractablesImageHandle {
-    pub base_image_handle: Handle<Image>,
-    pub rendered_image_handle: Handle<Image>,
 }
