@@ -1,0 +1,39 @@
+{
+    "activeFile": "",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "map.tmx": {
+            "scale": 0.6285400390625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": -511.5028160807924,
+                "y": 127.279083317149
+            }
+        },
+        "map.tmx#tilemap": {
+            "scaleInDock": 1
+        },
+        "pad_test.tmx": {
+            "scale": 2.681770833333333,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 239.9533890075743,
+                "y": 159.96892600504952
+            }
+        }
+    },
+    "last.imagePath": "R:/prog/pre_jam/game/assets/tilemaps/v1.0",
+    "openFiles": [
+    ],
+    "project": "p.tiled-project",
+    "recentFiles": [
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.margin": 4,
+    "tileset.spacing": 4,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}

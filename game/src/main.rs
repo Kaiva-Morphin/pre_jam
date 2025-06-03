@@ -6,6 +6,7 @@ use debug_utils::rapier::plugin::SwitchableRapierDebugPlugin;
 use core::CorePlugin;
 
 mod core;
+mod ui;
 mod camera;
 mod utils;
 mod physics;

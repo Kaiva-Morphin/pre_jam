@@ -6,7 +6,7 @@ use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDeb
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, utils::cursor::CursorPlugin};
+use crate::{camera::plugin::CameraControllerPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::cursor::CursorPlugin};
 
 
 #[derive(Default)]
@@ -29,7 +29,7 @@ impl Plugin for CorePlugin {
                         ..default()
                     })
                     .set(AssetPlugin {
-                        meta_check: bevy::asset::AssetMetaCheck::Never,
+                        // meta_check: bevy::asset::AssetMetaCheck::Never,
                         ..default()
                     })
                     .set(ImagePlugin::default_nearest()),
@@ -38,6 +38,7 @@ impl Plugin for CorePlugin {
                 PixelCameraPlugin,
                 CameraControllerPlugin,
                 PlatformsPlugin,
+                UiRetargetPlugin,
                 ControllersPlugin,
                 CursorPlugin,
                 bevy_framepace::FramepacePlugin,

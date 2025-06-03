@@ -8,7 +8,3 @@ bevy-inspector-egui.workspace = true
 bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
 bevy = { version = "0.16.1", default-features = false }
 
-
-
-[target.x86_64-pc-windows-msvc]
-features = "bevy/dynamic_linking"
