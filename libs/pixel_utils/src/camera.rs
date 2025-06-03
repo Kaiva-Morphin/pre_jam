@@ -21,9 +21,14 @@ impl Plugin for PixelCameraPlugin {
 pub const PIXEL_PERFECT_LAYERS: RenderLayers = RenderLayers::layer(0);
 pub const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 
+// pub const SCALE : u32 = 2;
+// pub const TARGET_WIDTH: u32 = 480 * SCALE;
+// pub const TARGET_HEIGHT: u32 = 270 * SCALE;
+
+
 pub const SCALE : u32 = 1;
-pub const TARGET_WIDTH: u32 = 480 * SCALE;
-pub const TARGET_HEIGHT: u32 = 270 * SCALE;
+pub const TARGET_WIDTH: u32 = 720 * SCALE;
+pub const TARGET_HEIGHT: u32 = 405 * SCALE;
 
 #[derive(Component)]
 pub struct RenderCamera;

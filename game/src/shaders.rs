@@ -23,6 +23,8 @@ use utils::debree::DebreePlugin;
 use utils::mouse::CursorPositionPlugin;
 
 use crate::core::CorePlugin;
+use crate::physics::constants::*;
+use crate::physics::player::Player;
 
 mod core;
 mod camera;
@@ -64,7 +66,7 @@ pub fn spawn(
         RigidBody::Dynamic,
         Transform::from_xyz(0.0, 100.0, 0.0),
         Velocity::zero(),
-        physics::scene::Player,
+        Player,
         Dominance::group(0),
         GravityScale(0.0),
         Name::new("Player"),
@@ -75,12 +77,7 @@ pub fn spawn(
         Ccd::enabled(),),
         Friction{coefficient: 0.0, combine_rule: CoefficientCombineRule::Min},
         camera::plugin::CameraFocus{priority: 0},
-        physics::controller::Controller{
-            horisontal_velocity: 0.0,
-            max_horisontal_velocity: 100.0,
-            total_air_jumps: 2,
-            ..default()
-        },
+        physics::controller::Controller::default(),
         CollisionGroups::new(
             Group::from_bits(PLAYER_CG).unwrap(),
             Group::from_bits(STRUCTURES_CG).unwrap(),

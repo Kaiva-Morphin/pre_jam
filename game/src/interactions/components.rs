@@ -1,10 +1,5 @@
 use bevy::{prelude::*, render::render_resource::{AsBindGroup, ShaderRef}, sprite::{AlphaMode2d, Material2d}};
 
-pub const PLAYER_CG: u32 =        0b0000_0000_0000_0001;
-pub const PLAYER_SENSOR_CG: u32 = 0b0000_0000_0000_0010;
-pub const INTERACTABLE_CG: u32 =  0b0000_0000_0000_0100;
-pub const STRUCTURES_CG: u32 =    0b0000_0000_0000_1000;
-
 #[derive(Component)]
 pub struct Interactable;
 
@@ -66,16 +61,11 @@ pub enum InteractionTypes {
     #[default]
     ChainReactionDisplay,
     WaveModulator,
+    PipePuzzle,
 }
 
 #[derive(Resource, Debug)]
 pub struct InInteractionArray {
     pub in_interaction: InteractionTypes,
     pub in_any_interaction: bool,
-}
-
-#[derive(Resource, Default)]
-pub struct InteractablesImageHandle {
-    pub base_image_handle: Handle<Image>,
-    pub rendered_image_handle: Handle<Image>,
 }

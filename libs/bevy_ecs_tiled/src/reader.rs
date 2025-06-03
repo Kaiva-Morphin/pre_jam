@@ -33,7 +33,8 @@ impl<'a> tiled::ResourceReader for BytesResourceReader<'a, '_> {
                             "tilepack.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/test/tilepack.tsx")))),
                             "tilemap.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/v1.0/tilemap.tsx")))),
                             "pad_test.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/v1.0/pad_test.tsx")))),
-                            _ => {panic!("PLEASE ADD THE TILESET INTO libs/bevy_ecs_tiled/src/reader.rs")}
+                            "test.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/v1.0/test.tsx")))),
+                            _ => {panic!("PLEASE ADD THE TILESET \"{:?}\" INTO libs/bevy_ecs_tiled/src/reader.rs", path.to_str())}
                         }
                     }
                 }

@@ -44,7 +44,6 @@ impl Plugin for CorePlugin {
                 CameraControllerPlugin,
                 PlatformsPlugin,
                 UiRetargetPlugin,
-                ControllersPlugin,
                 CursorPlugin,
                 bevy_framepace::FramepacePlugin,
                 InteractionsPlugin,

@@ -11,45 +11,12 @@ impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Startup, (
-                spawn_player, 
                 init_scene
             ));
     }
 }
 
 
-
-
-#[derive(Component)]
-pub struct Player;
-
-
-pub fn spawn_player(
-    mut cmd: Commands,
-    assets: Res<AssetServer>,
-
-){
-    cmd.spawn((
-        RigidBody::Dynamic,
-        Transform::from_xyz(0.0, 100.0, 0.0),
-        Velocity::zero(),
-        Player,
-        Dominance::group(0),
-        GravityScale(0.0),
-        Name::new("Player"),
-        Collider::capsule(vec2(0.0, 6.0), vec2(0.0, -6.0), 6.0),
-        Sprite::from_image(assets.load("pixel/test.png")),
-        LockedAxes::ROTATION_LOCKED,
-        Sleeping::disabled(),
-        Ccd::enabled(),
-        CameraFocus{priority: 0},
-        Controller{
-            horisontal_velocity: 0.0,
-            max_horisontal_velocity: 100.0,
-            ..default()
-        }
-    ));
-}
 
 pub fn init_scene(
     mut cmd: Commands,

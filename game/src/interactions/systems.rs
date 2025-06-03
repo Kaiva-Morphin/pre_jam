@@ -27,14 +27,14 @@ pub fn interact(
     // TODO: stop player in interaction
     // println!("{:?}", in_interaction_array);
     if in_interaction_array.in_any_interaction {
-        if keyboard.just_released(KeyCode::KeyE) {
+        if keyboard.just_released(KeyCode::KeyF) {
             in_interaction_array.in_any_interaction = false;
             //exit
             // TODO: add "press E again to exit sign"
         }
         return;
     }
-    if keyboard.just_released(KeyCode::KeyE) && !scroll_selector.current_displayed.is_none() {
+    if keyboard.just_released(KeyCode::KeyF) && !scroll_selector.current_displayed.is_none() {
         let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
         let interaction_type = interaction_types.get(current_entity).unwrap().clone();
         in_interaction_array.in_any_interaction = true;
@@ -137,8 +137,8 @@ pub fn update_interactables(
 
 pub fn update_graphs_time(
     debree_level: Res<DebreeLevel>,
-    chain_material_handle: Query<&MeshMaterial2d<ChainGraphMaterial>>,
-    wave_material_handle: Query<&MeshMaterial2d<WaveGraphMaterial>>,
+    chain_material_handle: Query<&MaterialNode<ChainGraphMaterial>>,
+    wave_material_handle: Query<&MaterialNode<WaveGraphMaterial>>,
     mut chain_material_assets: ResMut<Assets<ChainGraphMaterial>>,
     mut wave_material_assets: ResMut<Assets<WaveGraphMaterial>>,
     time: Res<Time>,

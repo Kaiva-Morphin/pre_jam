@@ -3,7 +3,7 @@ use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{confi
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, Group, Sensor};
 use shaders::components::*;
 
-use crate::interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractablesImageHandle, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}};
+use crate::{interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::constants::*};
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum LoadingStates {
@@ -26,6 +26,10 @@ pub struct SpriteAssets {
     pub wave_interactable: Handle<Image>,
     #[asset(path = "atlases/spinny.png")]
     pub spinny_sprite: Handle<Image>,
+    #[asset(path = "interactables/pipe.png")]
+    pub pipe_interactable: Handle<Image>,
+    #[asset(path = "interactables/WaveGraph.png")]
+    pub wave_graph_sprite: Handle<Image>,
 }
 
 pub struct SpritePreloadPlugin;
@@ -43,8 +47,8 @@ impl Plugin for SpritePreloadPlugin {
             // Material2dPlugin::<VelocityBufferMaterial>::default(),
             // Material2dPlugin::<GrassMaterial>::default(),
             Material2dPlugin::<InteractableMaterial>::default(),
-            Material2dPlugin::<ChainGraphMaterial>::default(),
-            Material2dPlugin::<WaveGraphMaterial>::default(),
+            UiMaterialPlugin::<ChainGraphMaterial>::default(),
+            UiMaterialPlugin::<WaveGraphMaterial>::default(),
         ))
         .insert_resource(VelocityBufferHandles::default())
         .insert_resource(TextureAtlasHandles::default())
@@ -119,13 +123,18 @@ pub fn preload_sprites(
     spinny_atlas_handles.image_handle = sprite_assets.spinny_sprite.clone();
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
         handle: sprite_assets.chain_interactable.clone(),
-        pos: Vec2::new(-40., 10.),
+        pos: Vec2::new(100., 10.),
         interaction_type: InteractionTypes::ChainReactionDisplay,
     }));
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
         handle: sprite_assets.wave_interactable.clone(),
         pos: Vec2::new(40., 10.),
         interaction_type: InteractionTypes::WaveModulator,
+    }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
+        handle: sprite_assets.pipe_interactable.clone(),
+        pos: Vec2::new(-40., 10.),
+        interaction_type: InteractionTypes::PipePuzzle,
     }));
 }
 
@@ -138,8 +147,6 @@ pub fn spawn_sprites(
     buffer_handles: Res<VelocityBufferHandles>,
     mut reader: EventReader<SpritePreloadEvent>,
     mut chain_graph_material: ResMut<Assets<ChainGraphMaterial>>,
-    mut interactables_material_handle: ResMut<InteractablesImageHandle>,
-    
 ) {
     for event in reader.read() {
         match event {

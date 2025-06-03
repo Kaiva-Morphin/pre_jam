@@ -1,0 +1,151 @@
+use std::collections::HashMap;
+
+use bevy::prelude::*;
+use num_enum::{IntoPrimitive, TryFromPrimitive};
+use utils::{MoveTowards, WrappedDelta};
+
+
+
+
+pub(super) struct PlayerAnimatorPlugin;
+
+impl Plugin for PlayerAnimatorPlugin {
+    fn build(&self, app: &mut App) {
+        app
+            .add_systems(Update, (setup_scene_once_loaded, update));
+    }
+}
+
+
+
+
+fn update(
+    animations: Res<PlayerAnimations>,
+    time: Res<Time>,
+    mut player: Single<(Entity, &mut AnimationPlayer)>,
+){
+    let (_e, p) = &mut *player;
+    let dt = time.dt();
+    for (k, v) in animations.nodes.iter() {
+        p.play(*v).repeat();
+        let a = p.animation_mut(*v).unwrap();
+        
+        let target_val = if animations.target == *k {
+            1.0
+        } else {
+            0.0
+        };
+        if k.need_interpolation() && animations.target.need_interpolation() {
+            let s = if PlayerAnimationNode::Float == animations.target ||
+            PlayerAnimationNode::Float == *k {6.0} else {3.0};
+            a.set_weight(a.weight().move_towards(target_val, dt * s));
+        } else {
+            a.set_weight(target_val);
+        }
+    }
+}
+
+
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, IntoPrimitive, TryFromPrimitive, Hash)]
+pub enum PlayerAnimationNode {
+    Breakdance,
+    Climb,
+    Dance,
+    Dance2,
+    Dance3,
+    Dance4,
+    Float,
+    HeadSpin,
+    HeadSpin2,
+    Idle,
+    Run,
+    RunJump,
+    Walk,
+}
+
+impl PlayerAnimationNode {
+    pub fn iter() -> impl Iterator<Item = PlayerAnimationNode> {
+        [
+            PlayerAnimationNode::Breakdance,
+            PlayerAnimationNode::Climb,
+            PlayerAnimationNode::Dance,
+            PlayerAnimationNode::Dance2,
+            PlayerAnimationNode::Dance3,
+            PlayerAnimationNode::Dance4,
+            PlayerAnimationNode::Float,
+            PlayerAnimationNode::HeadSpin,
+            PlayerAnimationNode::HeadSpin2,
+            PlayerAnimationNode::Idle,
+            PlayerAnimationNode::Run,
+            PlayerAnimationNode::RunJump,
+            PlayerAnimationNode::Walk,
+        ]
+        .iter()
+        .copied()
+    }
+
+    pub fn need_interpolation(&self) -> bool {
+        matches!(self, PlayerAnimationNode::Idle | PlayerAnimationNode::Walk | 
+        PlayerAnimationNode::Run | PlayerAnimationNode::Float)
+    }
+}
+
+
+#[derive(Resource)]
+pub struct PlayerAnimations {
+    nodes: HashMap<PlayerAnimationNode, AnimationNodeIndex>,
+    graph: Handle<AnimationGraph>,
+    pub target: PlayerAnimationNode
+}
+
+impl PlayerAnimations {
+    pub fn new(
+        nodes: HashMap<PlayerAnimationNode, AnimationNodeIndex>,
+        graph: Handle<AnimationGraph>,
+        target: PlayerAnimationNode
+    ) -> Self {
+        Self {
+            nodes,
+            graph,
+            target
+        }
+    }
+    pub fn get_clip(&self, key: &PlayerAnimationNode) -> Option<&AnimationNodeIndex> {
+        self.nodes.get(key)
+    }
+
+    pub fn nodes(&self) -> &HashMap<PlayerAnimationNode, AnimationNodeIndex> {
+        &self.nodes
+    }
+}
+
+
+
+fn setup_scene_once_loaded(
+    animations: Res<PlayerAnimations>,
+    mut cmd: Commands,
+    mut player: Query<(Entity, &mut AnimationPlayer)>,
+    mut done: Local<bool>,
+) {
+    if *done {return}
+    for (e, mut p) in player.iter_mut() {
+        cmd.entity(e)
+            .insert(AnimationGraphHandle(animations.graph.clone()))
+            .insert(AnimationTransitions::new());
+
+        for (k, v) in animations.nodes.iter() {
+            p.play(*v).repeat();
+            let a = p.animation_mut(*v).unwrap();
+            let target = if animations.target == *k {
+                1.0
+            } else {
+                0.0
+            };
+            a.set_weight(target);
+        }
+        *done = true;
+    }
+}
+
