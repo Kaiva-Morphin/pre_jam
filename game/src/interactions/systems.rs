@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::CollisionEvent;
 use shaders::VelocityEmmiter;
 use utils::{Easings, WrappedDelta};
 
-use crate::utils::{custom_material_loader::{TextureAtlasHandes, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition};
+use crate::utils::{custom_material_loader::{TextureAtlasHandles, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition};
 
 use super::{chain_reaction_display::ChainGraphMaterial, components::{EKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector}, wave_modulator::WaveGraphMaterial};
 
@@ -18,7 +18,7 @@ pub fn interact(
     mut player_query: Single<(Entity, &VelocityEmmiter)>,
     mut writer: EventWriter<InteractGlowEvent>,
     mut interactable: Query<(&mut InInteraction, &Transform)>,
-    texture_atlas_handles: Res<TextureAtlasHandes>,
+    texture_atlas_handles: Res<TextureAtlasHandles>,
     mut scroll_selector: ResMut<ScrollSelector>,
     keyboard: Res<ButtonInput<KeyCode>>,
     interaction_types: Query<&InteractionTypes>,

@@ -5,9 +5,9 @@ use chain_reaction_display::{open_chain_graph_display};
 use components::{InInteractionArray, InteractGlowEvent, InteractablesImageHandle, KeyTimer, ScrollSelector};
 use systems::*;
 use interactables_ui::{redact_ui_camera, spawn_ui_camera, UiCameraData};
-use wave_modulator::open_wave_modulator_display;
+use wave_modulator::{open_wave_modulator_display};
 
-use crate::utils::custom_material_loader::{preload_sprites, LoadingStates};
+use crate::{interactions::wave_modulator::{custom_relative_cursor_system}, utils::custom_material_loader::{preload_sprites, LoadingStates}};
 
 mod systems;
 pub mod components;
@@ -30,7 +30,7 @@ impl Plugin for InteractionsPlugin {
             (interact, update_interactables, (open_chain_graph_display, open_wave_modulator_display)).chain(),
         ))
         .add_systems(OnEnter(LoadingStates::Next), spawn_ui_camera)
-        .add_systems(Update, (update_graphs_time, (redact_ui_camera).run_if(in_state(LoadingStates::Next))))
+        .add_systems(Update, (update_graphs_time, custom_relative_cursor_system, (redact_ui_camera).run_if(in_state(LoadingStates::Next))))
         ;
     }
 }

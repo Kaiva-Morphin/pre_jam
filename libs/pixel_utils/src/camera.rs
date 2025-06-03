@@ -24,7 +24,7 @@ pub const TARGET_WIDTH: u32 = 480 * SCALE;
 pub const TARGET_HEIGHT: u32 = 270 * SCALE;
 
 #[derive(Component)]
-struct RenderCamera;
+pub struct RenderCamera;
 
 #[derive(bevy_inspector_egui::InspectorOptions)]
 #[derive(Resource)]

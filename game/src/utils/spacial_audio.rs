@@ -12,7 +12,7 @@ use bevy::prelude::*;
 //             Material2dPlugin::<InteractableMaterial>::default(),
 //         ))
 //         .insert_resource(VelocityBufferHandles::default())
-//         .insert_resource(TextureAtlasHandes::default())
+//         .insert_resource(TextureAtlasHandles::default())
 //         .add_event::<SpritePreloadEvent>()
 //         .add_systems(Startup, (preload_sprites, create_atlas))
 //         .add_systems(Update, spawn_sprites);

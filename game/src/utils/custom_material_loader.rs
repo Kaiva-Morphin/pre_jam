@@ -3,7 +3,7 @@ use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{confi
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, Group, Sensor};
 use shaders::components::*;
 
-use crate::interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractablesImageHandle, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}, wave_modulator::WaveGraphMaterial};
+use crate::interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractablesImageHandle, InteractionTypes, INTERACTABLE_CG, PLAYER_SENSOR_CG}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}};
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum LoadingStates {
@@ -16,7 +16,7 @@ pub enum LoadingStates {
 pub struct SpriteAssets {
     #[asset(path = "pixel/grass.png")]
     pub grass_sprite: Handle<Image>,
-    #[asset(path = "keys/e.png")]
+    #[asset(path = "atlases/E.png")]
     pub key_e_sprite: Handle<Image>,
     #[asset(path = "interactables/ChainGraph.png")]
     pub chain_graph_sprite: Handle<Image>,
@@ -24,6 +24,8 @@ pub struct SpriteAssets {
     pub chain_interactable: Handle<Image>,
     #[asset(path = "interactables/wave.png")]
     pub wave_interactable: Handle<Image>,
+    #[asset(path = "atlases/E copy.png")]
+    pub spinny_sprite: Handle<Image>,
 }
 
 pub struct SpritePreloadPlugin;
@@ -45,14 +47,22 @@ impl Plugin for SpritePreloadPlugin {
             Material2dPlugin::<WaveGraphMaterial>::default(),
         ))
         .insert_resource(VelocityBufferHandles::default())
-        .insert_resource(TextureAtlasHandes::default())
+        .insert_resource(TextureAtlasHandles::default())
+        .insert_resource(SpinnyAtlasHandles::default())
         .add_event::<SpritePreloadEvent>()
-        .add_systems(OnEnter(LoadingStates::Next), (preload_sprites, create_atlas))
+        .add_systems(OnEnter(LoadingStates::Next), (preload_sprites, create_atlases))
         .add_systems(Update, (spawn_sprites).run_if(in_state(LoadingStates::Next)));
     }
 }
+
 #[derive(Resource, Default)]
-pub struct TextureAtlasHandes {
+pub struct TextureAtlasHandles {
+    pub layout_handle: Handle<TextureAtlasLayout>,
+    pub image_handle: Handle<Image>,
+}
+
+#[derive(Resource, Default)]
+pub struct SpinnyAtlasHandles {
     pub layout_handle: Handle<TextureAtlasLayout>,
     pub image_handle: Handle<Image>,
 }
@@ -61,9 +71,10 @@ pub const KEYS_ATLAS_COLUMNS: u32 = 3;
 pub const KEYS_ATLAS_ROWS: u32 = 1;
 pub const KEYS_ATLAS_SIZE: u32 = KEYS_ATLAS_COLUMNS * KEYS_ATLAS_ROWS;
 
-pub fn create_atlas(
+pub fn create_atlases(
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
-    mut texture_atlas_handles: ResMut<TextureAtlasHandes>,
+    mut texture_atlas_handles: ResMut<TextureAtlasHandles>,
+    mut spinny_atlas_handles: ResMut<SpinnyAtlasHandles>,
 ) {
     let atlas = TextureAtlasLayout::from_grid(
         UVec2::new(19, 21),
@@ -74,6 +85,15 @@ pub fn create_atlas(
     );
     let handle = texture_atlases.add(atlas);
     texture_atlas_handles.layout_handle = handle.clone();
+    let spinny_atlas = TextureAtlasLayout::from_grid(
+        SPINNY_SIZE,
+        NUM_SPINNY_STATES as u32,
+        1,
+        None,
+        None
+    );
+    let spinny_handle = texture_atlases.add(spinny_atlas);
+    spinny_atlas_handles.layout_handle = spinny_handle;
 }
 
 pub struct SpritePreloadData {
@@ -91,11 +111,13 @@ pub enum SpritePreloadEvent {
 pub fn preload_sprites(
     asset_server: ResMut<AssetServer>,
     mut writer: EventWriter<SpritePreloadEvent>,
-    mut texture_atlas_handles: ResMut<TextureAtlasHandes>,
+    mut texture_atlas_handles: ResMut<TextureAtlasHandles>,
+    mut spinny_atlas_handles: ResMut<SpinnyAtlasHandles>,
     sprite_assets: Res<SpriteAssets>,
 ) {
     println!("preload sprites");
     texture_atlas_handles.image_handle = sprite_assets.key_e_sprite.clone();
+    spinny_atlas_handles.image_handle = sprite_assets.spinny_sprite.clone();
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
         handle: sprite_assets.chain_interactable.clone(),
         pos: Vec2::new(-40., 10.),
