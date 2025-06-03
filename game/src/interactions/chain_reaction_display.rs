@@ -60,7 +60,6 @@ pub fn open_chain_graph_display(
                     position_type: PositionType::Absolute,
                     ..default()
                 },
-                UiTargetCamera(*pc)
             )).with_child((
                 ImageNode {
                     image: interactables_material_handle.rendered_image_handle.clone(),
