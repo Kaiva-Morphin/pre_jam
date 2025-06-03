@@ -45,7 +45,7 @@ pub fn setup(
 }
 
 const CAMERA_SPEED: f32 = 0.5;
-const CAMERA_FOLLOW_SPEED: f32 = 4.0;
+const CAMERA_FOLLOW_SPEED: f32 = 2.0;
 
 pub fn camera_controller(
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -109,6 +109,7 @@ pub fn camera_controller(
                     camera_transform.rotation = target.rotation();  
                 } else {
                     camera_transform.translation = camera_transform.translation.exp_decay(target.translation(), CAMERA_FOLLOW_SPEED, dt);
+                    camera_transform.translation.smooth_nudge(&target.translation(), CAMERA_FOLLOW_SPEED, dt);
                     camera_transform.rotation = camera_transform.rotation.slerp(target.rotation(), dt * 5.0);
                 }
             }

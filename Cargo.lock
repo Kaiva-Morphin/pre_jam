@@ -2680,6 +2680,7 @@ dependencies = [
  "bevy_rapier2d",
  "debug_utils",
  "getrandom 0.3.3",
+ "num_enum",
  "pixel_utils",
  "shaders",
  "utils",

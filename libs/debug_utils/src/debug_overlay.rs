@@ -358,7 +358,7 @@ impl DebugRecordType {
                     }
                 }
                 *children = nc;
-
+                
                 while let Some((c, t)) = to_add.next() {
                     let e = cmd.spawn((
                         font.clone(),
@@ -424,6 +424,7 @@ pub fn init(
         font_size: 12.0,
         ..default()
     };
+    
     overlay.root = cmd.spawn((
         Node {
             width: Val::Percent(100.),
