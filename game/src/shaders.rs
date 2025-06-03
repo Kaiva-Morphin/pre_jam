@@ -22,6 +22,8 @@ use utils::custom_material_loader::SpritePreloadPlugin;
 use utils::debree::DebreePlugin;
 use utils::mouse::CursorPositionPlugin;
 
+use crate::core::CorePlugin;
+
 mod core;
 mod camera;
 mod utils;
@@ -34,40 +36,14 @@ const AUDIO_SCALE: f32 = 1. / 100.0;
 fn main() {
     App::new()
     .add_plugins((
-        DefaultPlugins
-            .set(WindowPlugin {
-                primary_window: Some(Window {
-                    resolution: WindowResolution::new(800., 800.),
-                    title: "Game".to_string(),
-                    canvas: Some("#bevy".to_owned()),
-                    fit_canvas_to_parent: true,
-                    prevent_default_event_handling: false,
-                    ..default()
-                }),
-                ..default()
-            })
-            .set(ImagePlugin::default_nearest())
-            .set(AudioPlugin {
-            default_spatial_scale: SpatialScale::new_2d(AUDIO_SCALE),
-            ..default()
-        }),
-        // ShaderPlugin,
+        CorePlugin,
         (TilemapPlugin,
         TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: None }),
         TiledPhysicsPlugin::<TiledPhysicsRapierBackend>::default(),
         StarBackgroundPlugin,
-        RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(12.0),
-        EguiPlugin { enable_multipass_for_primary_context: true },
-        PixelCameraPlugin,
-        CameraControllerPlugin,
         SwitchableEguiInspectorPlugin,
         SwitchableRapierDebugPlugin::enabled(),
-        ControllersPlugin,
         DebugOverlayPlugin::enabled(),),
-        InteractionsPlugin,
-        CursorPositionPlugin,
-        SpritePreloadPlugin,
-        DebreePlugin,
     ))
     .add_systems(Startup, spawn.before(shaders::compute::setup))
     .run();

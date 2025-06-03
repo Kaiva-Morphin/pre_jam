@@ -1,6 +1,6 @@
 use bevy::{prelude::*, render::{camera::RenderTarget, render_resource::{Extent3d, TextureDescriptor, TextureUsages}, view::RenderLayers}};
 
-use crate::{interactions::{components::InteractionTypes, wave_modulator::WaveGraphMaterial}, utils::{custom_material_loader::SpriteAssets, debree::DebreeLevel}};
+use crate::{interactions::{components::InteractionTypes, wave_modulator::{generate_wave_modulator_consts, WaveGraphMaterial, WaveModulatorConsts}}, utils::{custom_material_loader::SpriteAssets, debree::DebreeLevel}};
 
 use super::{chain_reaction_display::ChainGraphMaterial, components::{InInteractionArray, InteractablesImageHandle}};
 
@@ -88,6 +88,7 @@ pub fn redact_ui_camera(
     in_interaction_array: Res<InInteractionArray>,
     ui_camera_data: Res<UiCameraData>,
     mut prev_interaction_type: Local<InteractionTypes>,
+    mut modulator_consts: ResMut<WaveModulatorConsts>,
 ) {
     if *prev_interaction_type == in_interaction_array.in_interaction {
         return;
@@ -155,40 +156,17 @@ pub fn redact_ui_camera(
             ));
         },
         InteractionTypes::WaveModulator => {
-            // For vertical offset (a, ra)
-            let mi_offset = 0.4;
-            let ma_offset = 0.6;
-
-            // For amplitude (b, rb)
-            let mi_amplitude = 0.2;
-            let ma_amplitude = 0.4; // visible, but not clipped
-
-            // For phase (c, rc)
-            let mi_phase = 0.0;
-            let ma_phase = std::f32::consts::TAU; // 0 to 2π
-
-            // For frequency (d, rd)
-            let mi_freq = 1.0;
-            let ma_freq = 3.0; // 1 to 3 waves across the texture
-
-            let a = mi_offset as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_offset - mi_offset) as f32);
-            let b = mi_amplitude as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_amplitude - mi_amplitude) as f32);
-            let c = mi_phase as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_phase - mi_phase) as f32);
-            let d = mi_freq as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_freq - mi_freq) as f32);
-
-            let ra = mi_offset as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_offset - mi_offset) as f32);
-            let rb = mi_amplitude as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_amplitude - mi_amplitude) as f32);
-            let rc = mi_phase as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_phase - mi_phase) as f32);
-            let rd = mi_freq as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma_freq - mi_freq) as f32);
+            let consts = generate_wave_modulator_consts();
+            modulator_consts.consts = consts.1;
             let material = WaveGraphMaterial {
-                a,
-                b,
-                c,
-                d,
-                ra,
-                rb,
-                rc,
-                rd,
+                a: consts.0[0],
+                b: consts.0[1],
+                c: consts.0[2],
+                d: consts.0[3],
+                ra: consts.0[4],
+                rb: consts.0[5],
+                rc: consts.0[6],
+                rd: consts.0[7],
                 time: 0.,
                 _webgl2_padding_8b: 0,
                 _webgl2_padding_12b: 0,

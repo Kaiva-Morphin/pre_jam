@@ -24,7 +24,7 @@ pub struct SpriteAssets {
     pub chain_interactable: Handle<Image>,
     #[asset(path = "interactables/wave.png")]
     pub wave_interactable: Handle<Image>,
-    #[asset(path = "atlases/E copy.png")]
+    #[asset(path = "atlases/spinny.png")]
     pub spinny_sprite: Handle<Image>,
 }
 
@@ -115,7 +115,6 @@ pub fn preload_sprites(
     mut spinny_atlas_handles: ResMut<SpinnyAtlasHandles>,
     sprite_assets: Res<SpriteAssets>,
 ) {
-    println!("preload sprites");
     texture_atlas_handles.image_handle = sprite_assets.key_e_sprite.clone();
     spinny_atlas_handles.image_handle = sprite_assets.spinny_sprite.clone();
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {

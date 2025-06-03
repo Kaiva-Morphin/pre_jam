@@ -29,8 +29,8 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
 
     // Animate both waves by shifting phase with time
     let speed = 1.0; // adjust for desired speed
-    let f = 0.5 + graph_uniforms.b * sin((x + graph_uniforms.c + graph_uniforms.time * speed) * graph_uniforms.d);
-    let t = 0.5 + graph_uniforms.rb * sin((x + graph_uniforms.rc + graph_uniforms.time * speed) * graph_uniforms.rd);
+    let f = graph_uniforms.a + graph_uniforms.b * sin((x + graph_uniforms.c + graph_uniforms.time * speed) * graph_uniforms.d);
+    let t = graph_uniforms.ra + graph_uniforms.rb * sin((x + graph_uniforms.rc + graph_uniforms.time * speed) * graph_uniforms.rd);
 
     let dist_f = abs(y - f);
     let dist_t = abs(y - t);
