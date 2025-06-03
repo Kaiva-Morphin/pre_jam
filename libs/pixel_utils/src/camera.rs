@@ -4,11 +4,12 @@ use bevy::{color::palettes::css::GRAY, core_pipeline::{bloom::{Bloom, BloomCompo
 
 
 pub struct PixelCameraPlugin;
-
+use crate::post_processing::PostProcessPlugin3d;
 
 impl Plugin for PixelCameraPlugin {
     fn build(&self, app: &mut App) {
         app
+            // .add_plugins(PostProcessPlugin3d)
             .add_systems(PreStartup, setup_camera)
             .add_systems(PreUpdate, (true_pixel_switch, fit_canvas).chain())
             .add_systems(PostUpdate, sync_3d)
@@ -20,7 +21,7 @@ impl Plugin for PixelCameraPlugin {
 pub const PIXEL_PERFECT_LAYERS: RenderLayers = RenderLayers::layer(0);
 pub const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 
-pub const SCALE : u32 = 2;
+pub const SCALE : u32 = 1;
 pub const TARGET_WIDTH: u32 = 480 * SCALE;
 pub const TARGET_HEIGHT: u32 = 270 * SCALE;
 

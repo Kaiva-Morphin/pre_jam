@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy::scene::SceneLoader;
+use bevy_inspector_egui::bevy_egui::{EguiContextPass, EguiContexts};
+use bevy_inspector_egui::egui;
 use bevy_rapier2d::prelude::*;
 use debug_utils::debug_overlay::DebugOverlayPlugin;
 use debug_utils::inspector::plugin::SwitchableEguiInspectorPlugin;
@@ -27,7 +29,7 @@ fn main() {
     app
         .add_plugins((CorePlugin,
             SwitchableEguiInspectorPlugin::default(),
-            DebugOverlayPlugin::enabled(),
+            DebugOverlayPlugin::default(),
             TilemapPlugin,
             TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: None }),
             SwitchableRapierDebugPlugin::disabled(),
@@ -36,11 +38,14 @@ fn main() {
         ))
         .add_systems(Startup, start)
         .add_systems(Update, setup_scene_once_loaded)
+        .add_systems(EguiContextPass, update)
         .run();
 }
 
 
 pub const RENDER_3D_WORLD: &str = "render_3d_world";
+
+
 
 pub fn start(
     mut cmd: Commands,
@@ -71,7 +76,7 @@ pub fn start(
         }
     ));
 
-    let clip = asset_server.load(GltfAssetLabel::Animation(0).from_asset("raw/dancin.glb"));
+    let clip = asset_server.load(GltfAssetLabel::Animation(1).from_asset("raw/astro.glb"));
     let mut animation_graph = AnimationGraph::new();
     let node_indices = animation_graph
         .add_clips(vec![clip], 1.0, animation_graph.root)
@@ -80,35 +85,13 @@ pub fn start(
         node_indices,
         graph: animation_graphs.add(animation_graph),
     });
-    // let astro = asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/dancin.glb"));
+    let astro = asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/astro.glb"));
     
-    // cmd.spawn((
-    //     SceneRoot(astro.clone()),
-    //     Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::splat(10.0)),
-    //     Visibility::Visible,
-    // ));
-
-
     cmd.spawn((
-        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/reg.glb"))),
-        Transform::from_xyz(20.0, 0.0, 0.0).with_scale(Vec3::splat(6.0)).with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, PI / 4.0, 0.0)),
+        SceneRoot(astro.clone()),
+        Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::splat(10.0)),
         Visibility::Visible,
     ));
-
-    cmd.spawn((
-        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/inv.glb"))),
-        Transform::from_xyz(-20.0, 0.0, 0.0).with_scale(Vec3::splat(6.0)).with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, PI / 4.0, 0.0)),
-        Visibility::Visible,
-    ));
-
-    cmd.spawn((
-        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/Scene.glb"))),
-        Transform::from_xyz(40.0, 0.0, 0.0).with_scale(Vec3::splat(6.0)).with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, PI /  4.0, 0.0)),
-        Visibility::Visible,
-    ));
-
-
-
     cmd.spawn((
         TiledMapHandle(asset_server.load("tilemaps/v1.0/pad_test.tmx")),
         TilemapAnchor::Center,
@@ -118,11 +101,20 @@ pub fn start(
 
 
 
+pub struct PlayerAnimationGraph(pub Handle<AnimationGraph>);
 
 
 
 
 
+fn update(
+    mut contexts: EguiContexts,
+) {
+    let ctx = contexts.ctx_mut();
+    egui::Window::new("Hello").show(ctx, |ui| {
+        ui.label("world");
+    });
+}
 
 
 

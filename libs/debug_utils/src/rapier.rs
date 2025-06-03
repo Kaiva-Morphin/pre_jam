@@ -12,34 +12,23 @@ pub mod plugin {
             Self(false)
         } 
     }
-    #[derive(Resource)]
-    pub struct RapierDebugSwitch(pub bool);
     impl Plugin for SwitchableRapierDebugPlugin {
         fn build(&self, app: &mut bevy::prelude::App) {
+            let mut r = RapierDebugRenderPlugin::default();
+            if !self.0 {r = r.disabled();}
             app
-                .add_plugins(RapierDebugRenderPlugin::default())
-                .add_systems(Update, update)
-                .add_systems(Startup, start)
-                .insert_resource(RapierDebugSwitch(self.0));
+                .add_plugins(r)
+                .add_systems(Update, update);
         }
     }
 
-    fn start (
-        q: Option<ResMut<DebugRenderContext>>,
-        s: Res<RapierDebugSwitch>,
-    ){
-        let Some(mut c) = q else {return};
-        c.enabled = !s.0;
-    }
     fn update(
         q: Option<ResMut<DebugRenderContext>>,
         k: Res<ButtonInput<KeyCode>>,
-        mut s: ResMut<RapierDebugSwitch>,
     ){
         let Some(mut c) = q else {return};
         if k.just_pressed(KeyCode::F2){
-            s.0 = !s.0;
-            c.enabled = !s.0;
+            c.enabled = !c.enabled;
         }
     }
 }

@@ -6,7 +6,7 @@ use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDeb
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, interactions::InteractionsPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
+use crate::{camera::plugin::CameraControllerPlugin, interactions::InteractionsPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
 
 const AUDIO_SCALE: f32 = 1. / 100.0;
 

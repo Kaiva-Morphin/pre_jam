@@ -71,12 +71,10 @@ pub fn resize(
     mut s: ResMut<UiScale>
 ){
     if keys.just_pressed(PIXEL_SWITCH_TRIGGER){
-        // info!("Retarget: {} -> {}", s.0, v.scale());
         s.0 = v.scale();
         return;
     }
     for _ in resize_events.read() {
-        // info!("Retarget: {} -> {}", s.0, v.scale());
         s.0 = v.scale();
         return;
     }
