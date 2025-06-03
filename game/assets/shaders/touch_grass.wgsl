@@ -1,5 +1,13 @@
-@group(2) @binding(1) var<uniform> pos: vec2<f32>;
-@group(2) @binding(6) var<uniform> time: f32;
+@group(2) @binding(1)
+var<uniform> GrassUniforms: struct {
+    pos: vec2<f32>,
+    _pad: vec2<f32>,
+};
+@group(2) @binding(6)
+var<uniform> TimeUniforms: struct {
+    time: f32,
+    _pad: vec3<f32>,
+};
 @group(2) @binding(2) var sprite_texture: texture_2d<f32>;
 @group(2) @binding(3) var sprite_texture_sampler: sampler;
 @group(2) @binding(4) var velbuf_texture: texture_2d<f32>;
@@ -40,7 +48,7 @@ fn fragment(input: VertexOutput) -> @location(0) vec4<f32> {
     let decoded_velocity = (velocity - vec2<f32>(0.5)) * 2.0;
 
     // Optional animation via time
-    let wind_wave = sin(time * 3.0 + input.uv.y * 10.0);
+    let wind_wave = sin(TimeUniforms.time * 3.0 + input.uv.y * 10.0);
 
     // Distortion
     let distortion_strength = 0.00;

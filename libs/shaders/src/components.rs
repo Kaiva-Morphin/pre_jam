@@ -59,11 +59,14 @@ impl Default for ComputeNode {
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[repr(C)]
 pub struct VelocityBufferMaterial {
     #[uniform(1)]
     pub screen_size: Vec2,
+    pub _pad: [f32; 2],
     #[uniform(2)]
     pub player_pos: Vec2,
+    pub _pad1: [f32; 2],
     #[texture(3)]
     #[sampler(4)]
     pub buffer_handle: Handle<Image>,
@@ -81,9 +84,11 @@ impl Material2d for VelocityBufferMaterial {
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
+#[repr(C)]
 pub struct GrassMaterial {
     #[uniform(1)]
     pub pos: Vec2,
+    pub _pad: [f32; 2],
     #[texture(2)]
     #[sampler(3)]
     pub sprite_handle: Handle<Image>,
@@ -92,6 +97,7 @@ pub struct GrassMaterial {
     pub velbuf_handle: Handle<Image>,
     #[uniform(6)]
     pub time: f32,
+    pub _pad1: [f32; 3],
 }
 
 const GRASS_MATERIAL_PATH: &str = "shaders/touch_grass.wgsl";

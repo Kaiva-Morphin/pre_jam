@@ -1,13 +1,14 @@
 use std::{collections::BTreeMap, sync::Arc};
 
-use bevy::{prelude::*, text::FontStyle, window::WindowResolution, winit::{cursor::{CursorIcon, CustomCursor, CustomCursorImage}, WinitWindows}};
+use bevy::{audio::{AudioPlugin, SpatialScale}, prelude::*, text::FontStyle, window::WindowResolution, winit::{cursor::{CursorIcon, CustomCursor, CustomCursorImage}, WinitWindows}};
 use bevy_inspector_egui::{bevy_egui::{EguiContexts, EguiPlugin, EguiPreUpdateSet}, egui::{self, style::TextCursorStyle, CornerRadius, Stroke, Style, TextStyle, Visuals}};
 use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::cursor::CursorPlugin};
+use crate::{camera::plugin::CameraControllerPlugin, interactions::InteractionsPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
 
+const AUDIO_SCALE: f32 = 1. / 100.0;
 
 #[derive(Default)]
 pub struct CorePlugin;
@@ -32,7 +33,11 @@ impl Plugin for CorePlugin {
                         // meta_check: bevy::asset::AssetMetaCheck::Never,
                         ..default()
                     })
-                    .set(ImagePlugin::default_nearest()),
+                    .set(ImagePlugin::default_nearest())
+                    .set(AudioPlugin {
+                        default_spatial_scale: SpatialScale::new_2d(AUDIO_SCALE),
+                        ..default()
+                    }),
                 RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
                 EguiPlugin { enable_multipass_for_primary_context: true },
                 PixelCameraPlugin,
@@ -42,6 +47,10 @@ impl Plugin for CorePlugin {
                 ControllersPlugin,
                 CursorPlugin,
                 bevy_framepace::FramepacePlugin,
+                InteractionsPlugin,
+                CursorPositionPlugin,
+                SpritePreloadPlugin,
+                DebreePlugin,
             ))
             .insert_resource(bevy_framepace::FramepaceSettings{limiter: bevy_framepace::Limiter::from_framerate(60.0)})
             .add_systems(Startup, init_egui_font.after(EguiPreUpdateSet::InitContexts))

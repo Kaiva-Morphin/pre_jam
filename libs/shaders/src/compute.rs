@@ -58,6 +58,8 @@ pub fn setup(
        player_pos: player_pos.translation.xy(),
        buffer_handle,
        debug_handle,
+       _pad: [0., 0.],
+       _pad1: [0., 0.],
     });
     buffer_handles.material_handle = handle.clone();
     commands.spawn((
