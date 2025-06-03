@@ -30,7 +30,7 @@ impl Plugin for CorePlugin {
                         ..default()
                     })
                     .set(AssetPlugin {
-                        meta_check: bevy::asset::AssetMetaCheck::Never,
+                        // meta_check: bevy::asset::AssetMetaCheck::Never,
                         ..default()
                     })
                     .set(ImagePlugin::default_nearest())
@@ -43,6 +43,7 @@ impl Plugin for CorePlugin {
                 PixelCameraPlugin,
                 CameraControllerPlugin,
                 PlatformsPlugin,
+                UiRetargetPlugin,
                 ControllersPlugin,
                 CursorPlugin,
                 bevy_framepace::FramepacePlugin,

@@ -27,6 +27,7 @@ mod camera;
 mod utils;
 mod physics;
 mod interactions;
+mod ui;
 
 const AUDIO_SCALE: f32 = 1. / 100.0;
 

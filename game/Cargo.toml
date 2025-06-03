@@ -19,7 +19,6 @@ bevy_framepace = "0.19.1"
 getrandom = { version = "0.3.3", features = ["wasm_js"] }
 
 
-
 [[bin]]
 name = "game"
 path = "src/main.rs"
@@ -39,4 +38,16 @@ path = "src/tiled.rs"
 [[bin]]
 name = "ui"
 path = "src/ui.rs"
+
+[[bin]]
+name = "normalmaps"
+path = "src/normalmaps.rs"
+
+[[bin]]
+name = "anim"
+path = "src/anim.rs"
+
+[[bin]]
+name = "test"
+path = "src/test.rs"
 

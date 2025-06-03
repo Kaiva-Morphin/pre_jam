@@ -16,7 +16,6 @@ impl Plugin for CameraControllerPlugin {
 }
 
 
-
 #[derive(Component, PartialEq, Eq)]
 pub enum CameraMode {
     Free,

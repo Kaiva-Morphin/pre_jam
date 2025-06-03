@@ -1,10 +1,13 @@
 use bevy::prelude::*;
+use bevy::scene::SceneLoader;
 use bevy_rapier2d::prelude::*;
 use debug_utils::debug_overlay::DebugOverlayPlugin;
 use debug_utils::inspector::plugin::SwitchableEguiInspectorPlugin;
 use debug_utils::rapier::plugin::SwitchableRapierDebugPlugin;
 use bevy_ecs_tiled::prelude::*;
+use pixel_utils::camera::HIGH_RES_LAYERS;
 use core::CorePlugin;
+use std::f32::consts::PI;
 
 use crate::camera::plugin::CameraFocus;
 use crate::physics::controller::{Controller, ControllersPlugin};
@@ -17,6 +20,7 @@ mod camera;
 mod utils;
 mod physics;
 mod interactions;
+mod ui;
 
 fn main() {
     let mut app = App::new();
@@ -31,12 +35,19 @@ fn main() {
             StarBackgroundPlugin,
         ))
         .add_systems(Startup, start)
+        .add_systems(Update, setup_scene_once_loaded)
         .run();
 }
 
+
+pub const RENDER_3D_WORLD: &str = "render_3d_world";
+
 pub fn start(
     mut cmd: Commands,
+    mut animation_graphs: ResMut<Assets<AnimationGraph>>,
     asset_server: Res<AssetServer>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ){
     cmd.spawn((
         RigidBody::Dynamic,
@@ -60,11 +71,86 @@ pub fn start(
         }
     ));
 
+    let clip = asset_server.load(GltfAssetLabel::Animation(0).from_asset("raw/dancin.glb"));
+    let mut animation_graph = AnimationGraph::new();
+    let node_indices = animation_graph
+        .add_clips(vec![clip], 1.0, animation_graph.root)
+        .collect();
+    cmd.insert_resource(Animations {
+        node_indices,
+        graph: animation_graphs.add(animation_graph),
+    });
+    // let astro = asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/dancin.glb"));
+    
+    // cmd.spawn((
+    //     SceneRoot(astro.clone()),
+    //     Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::splat(10.0)),
+    //     Visibility::Visible,
+    // ));
+
+
     cmd.spawn((
-        TiledMapHandle(asset_server.load("tilemaps/v1.0/map.tmx")),
+        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/reg.glb"))),
+        Transform::from_xyz(20.0, 0.0, 0.0).with_scale(Vec3::splat(6.0)).with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, PI / 4.0, 0.0)),
+        Visibility::Visible,
+    ));
+
+    cmd.spawn((
+        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/inv.glb"))),
+        Transform::from_xyz(-20.0, 0.0, 0.0).with_scale(Vec3::splat(6.0)).with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, PI / 4.0, 0.0)),
+        Visibility::Visible,
+    ));
+
+    cmd.spawn((
+        SceneRoot(asset_server.load(GltfAssetLabel::Scene(0).from_asset("raw/Scene.glb"))),
+        Transform::from_xyz(40.0, 0.0, 0.0).with_scale(Vec3::splat(6.0)).with_rotation(Quat::from_euler(EulerRot::XYZ, 0.0, PI /  4.0, 0.0)),
+        Visibility::Visible,
+    ));
+
+
+
+    cmd.spawn((
+        TiledMapHandle(asset_server.load("tilemaps/v1.0/pad_test.tmx")),
         TilemapAnchor::Center,
         TiledPhysicsSettings::<TiledPhysicsRapierBackend>::default(),
     ));
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fn setup_scene_once_loaded(
+    animations: Res<Animations>,
+    mut cmd: Commands,
+    mut player: Query<(Entity, &mut AnimationPlayer)>,
+    mut done: Local<bool>,
+) {
+    if *done {return}
+    for (e, mut p) in player.iter_mut() {
+        cmd.entity(e)
+                .insert(AnimationGraphHandle(animations.graph.clone()))
+                .insert(AnimationTransitions::new());
+        p.play(animations.node_indices[0]).repeat();
+        *done = true;
+    }
+}
+
+
+#[derive(Resource)]
+struct Animations {
+    node_indices: Vec<AnimationNodeIndex>,
+    graph: Handle<AnimationGraph>,
+}
