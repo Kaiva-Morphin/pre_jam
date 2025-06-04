@@ -75,16 +75,16 @@ fn display_custom_tiles(
         let Ok((e, c)) = q_tile.get(e.entity) else {continue;};
         
         for c in c.iter() {
-                    cmd.entity(c).insert((
-                        Sensor,
-                        LadderCollider,
-                        ActiveEvents::COLLISION_EVENTS,
-                        CollisionGroups{
-                            memberships: Group::from_bits(LADDERS_CG).unwrap(),
-                            filters: Group::from_bits(PLAYER_CG).unwrap(),
-                        }
-                    ));
+            cmd.entity(c).insert((
+                Sensor,
+                LadderCollider,
+                ActiveEvents::COLLISION_EVENTS,
+                CollisionGroups{
+                    memberships: Group::from_bits(LADDERS_CG).unwrap(),
+                    filters: Group::from_bits(PLAYER_CG).unwrap(),
                 }
+            ));
+        }
     }
 }
 
