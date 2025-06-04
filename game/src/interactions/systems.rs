@@ -7,7 +7,7 @@ use utils::{Easings, WrappedDelta};
 
 use crate::utils::{custom_material_loader::{TextureAtlasHandles, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition};
 
-use super::{chain_reaction_display::ChainGraphMaterial, components::{EKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector}, wave_modulator::WaveGraphMaterial};
+use super::{chain_reaction_display::ChainGraphMaterial, components::{FKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector}, wave_modulator::WaveGraphMaterial};
 
 pub fn interact(
     mut commands: Commands,
@@ -72,12 +72,14 @@ pub fn interact(
         match collision_event {
             // interactable - sender; sensor - reciever
             CollisionEvent::Started(reciever_entity, sender_entity, _) => {
-                let (mut in_interaction, _) = interactable.get_mut(*sender_entity).unwrap();
+                // блять ярик никаких анврапов больше 🙏молю🙏
+                // особенно там, где ОНО БЛЯТЬ МОЖЕТ ЕБНУТЬСЯ ☠️☠️☠️
+                let Ok((mut in_interaction, _)) = interactable.get_mut(*sender_entity) else {continue;};
                 scroll_selector.selection_options.push(*sender_entity);
                 in_interaction.data = true;
             }
             CollisionEvent::Stopped(reciever_entity, sender_entity, _) => {
-                let (mut in_interaction, interactable_transform) = interactable.get_mut(*sender_entity).unwrap();
+                let Ok((mut in_interaction, interactable_transform)) = interactable.get_mut(*sender_entity) else {continue;};
                 in_interaction.data = false;
                 if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == *sender_entity) {
                     scroll_selector.selection_options.remove(index);
@@ -100,8 +102,8 @@ pub fn interact(
                     TextureAtlas::from(texture_atlas_handles.layout_handle.clone()),
                 ),
                 Transform::from_translation(interactable_pos + Vec3::Y * 50.),
-                EKey,
-                Name::new("EKey"),
+                FKey,
+                Name::new("FKey"),
             )).id();
             scroll_selector.current_displayed = Some(e_key_entity.clone());
         }
@@ -111,7 +113,7 @@ pub fn interact(
 pub fn update_interactables(
     mut material_assets: ResMut<Assets<InteractableMaterial>>,
     material_handles: Query<(&MeshMaterial2d<InteractableMaterial>, &InInteraction)>,
-    mut e_keys: Query<&mut Sprite, With<EKey>>,
+    mut e_keys: Query<&mut Sprite, With<FKey>>,
     time: Res<Time>,
     mut key_timer: ResMut<KeyTimer>,
 ) {

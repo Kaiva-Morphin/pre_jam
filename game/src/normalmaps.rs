@@ -2,7 +2,7 @@
 use bevy::{prelude::*, render::render_resource::{TextureDescriptor, TextureUsages}};
 use debug_utils::{debug_overlay::DebugOverlayPlugin, inspector::plugin::SwitchableEguiInspectorPlugin};
 
-use crate::core::CorePlugin;
+use crate::core::plugin::CorePlugin;
 
 
 mod core;
@@ -11,6 +11,7 @@ mod utils;
 mod physics;
 mod interactions;
 mod ui;
+mod tilemap;
 
 
 pub fn main(){

@@ -33,7 +33,6 @@ impl Plugin for ControllersPlugin {
             .add_systems(Update, update_controllers)
             .add_systems(FixedPreUpdate, tick_controllers)
             .add_systems(EguiContextPass, debug)
-            .insert_resource(SpaceWalk(false))
             .insert_resource(GlobalGravity(Vec2::new(0.0, -981. / 2.0)))
             ;
     }
@@ -224,8 +223,6 @@ pub fn tick_controllers(
 }
 
 
-#[derive(Resource)]
-pub struct SpaceWalk(pub bool);
 
 pub fn debug(
     mut contexts: EguiContexts,
@@ -248,7 +245,6 @@ pub fn update_controllers(
     mut cmd: Commands,
     mut animations: ResMut<PlayerAnimations>,
     
-    mut spacewalk: ResMut<SpaceWalk>,
     mut mesh_turn: Local<f32>,
     mut mesh_rotation: Local<f32>,
 ){
@@ -274,8 +270,7 @@ pub fn update_controllers(
 
     let (player_e, player_vel, controller, constrants, transform) = &mut *player;
     if keyboard.just_pressed(KeyCode::KeyC) {
-        spacewalk.0 = !spacewalk.0;
-        if spacewalk.0 {
+        if true {
             cmd.entity(*player_e).insert((
                 GravityOverride(Vec2::ZERO),
                 Friction::coefficient(1.0),
@@ -293,7 +288,7 @@ pub fn update_controllers(
 
 
     
-    if spacewalk.0 {
+    if true {
         animations.target = PlayerAnimationNode::Float;
         let ang_dir = keyboard.pressed(KeyCode::KeyQ) as usize as f32 - keyboard.pressed(KeyCode::KeyE) as usize as f32;
         let target = player_vel.angvel + ang_dir * dt * constrants.spacewalk_ang_speed;

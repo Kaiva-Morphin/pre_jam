@@ -30,7 +30,7 @@ impl<'a> tiled::ResourceReader for BytesResourceReader<'a, '_> {
                 if let Some(f) = path.file_name() {
                     if let Some(f) = f.to_str() {
                         match f {
-                            "tilepack.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/test/tilepack.tsx")))),
+                            // "tilepack.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/test/tilepack.tsx")))),
                             "tilemap.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/v1.0/tilemap.tsx")))),
                             "pad_test.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/v1.0/pad_test.tsx")))),
                             "test.tsx" => return Ok(Box::new(Cursor::new(include_bytes!("../../../game/assets/tilemaps/v1.0/test.tsx")))),

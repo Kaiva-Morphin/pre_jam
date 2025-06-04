@@ -50,10 +50,5 @@ name = "normalmaps"
 path = "src/normalmaps.rs"
 
 [[bin]]
-name = "anim"
-path = "src/anim.rs"
-
-[[bin]]
 name = "test"
 path = "src/test.rs"
-

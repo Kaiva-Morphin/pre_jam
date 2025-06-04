@@ -2,7 +2,7 @@ use bevy::{prelude::*, window::WindowResized};
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{true_pixel_switch, PixelCameraVars, PIXEL_SWITCH_TRIGGER, TARGET_HEIGHT, TARGET_WIDTH};
 
-use crate::core::debug_ui_to_camera;
+use crate::core::plugin::debug_ui_to_camera;
 
 
 

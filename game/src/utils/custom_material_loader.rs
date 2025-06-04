@@ -1,16 +1,13 @@
 use bevy::{prelude::*, sprite::Material2dPlugin};
-use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt}};
-use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionGroups, Group, Sensor};
+use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::{ConfigureLoadingState, LoadingStateConfig}, LoadingState, LoadingStateAppExt}};
+use bevy_rapier2d::prelude::{ActiveCollisionTypes, ActiveEvents, Collider, CollisionGroups, Group, Sensor};
 use shaders::components::*;
 
-use crate::{interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::constants::*};
+use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState, OnGame}, interactions::{chain_reaction_display::ChainGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::constants::*};
 
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
-pub enum LoadingStates {
-    #[default]
-    AssetLoading,
-    Next,
-}
+
+
+
 
 #[derive(AssetCollection, Resource)]
 pub struct SpriteAssets {
@@ -32,16 +29,16 @@ pub struct SpriteAssets {
     pub wave_graph_sprite: Handle<Image>,
 }
 
+
 pub struct SpritePreloadPlugin;
 
 impl Plugin for SpritePreloadPlugin {
     fn build(&self, app: &mut App) {
         app
-        .init_state::<LoadingStates>()
-        .add_loading_state(
-            LoadingState::new(LoadingStates::AssetLoading)
-            .load_collection::<SpriteAssets>()
-            .continue_to_state(LoadingStates::Next)
+        // FOR YARO: THAT WILL HOOKS TO GLOBAL
+        .configure_loading_state(
+            LoadingStateConfig::new(AppLoadingAssetsSubState::Loading)
+                .load_collection::<SpriteAssets>(),
         )
         .add_plugins((
             // Material2dPlugin::<VelocityBufferMaterial>::default(),
@@ -54,10 +51,12 @@ impl Plugin for SpritePreloadPlugin {
         .insert_resource(TextureAtlasHandles::default())
         .insert_resource(SpinnyAtlasHandles::default())
         .add_event::<SpritePreloadEvent>()
-        .add_systems(OnEnter(LoadingStates::Next), (preload_sprites, create_atlases))
-        .add_systems(Update, (spawn_sprites).run_if(in_state(LoadingStates::Next)));
+        .add_systems(OnGame, (preload_sprites, create_atlases))
+        .add_systems(Update, spawn_sprites.run_if(in_state(GlobalAppState::InGame)));
     }
 }
+
+
 
 #[derive(Resource, Default)]
 pub struct TextureAtlasHandles {
@@ -171,6 +170,7 @@ pub fn spawn_sprites(
                     Name::new("Interactable"),
                     Interactable,
                     Collider::cuboid(width as f32 / 4., height as f32 / 4.),
+                    ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
                     CollisionGroups::new(
                         Group::from_bits(INTERACTABLE_CG).unwrap(),
                         Group::from_bits(PLAYER_SENSOR_CG).unwrap(),

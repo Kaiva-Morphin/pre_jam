@@ -42,7 +42,7 @@ pub struct InInteraction {
 }
 
 #[derive(Component)]
-pub struct EKey;
+pub struct FKey;
 
 #[derive(Resource)]
 pub struct KeyTimer {

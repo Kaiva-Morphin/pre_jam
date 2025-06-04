@@ -10,7 +10,7 @@ use bevy_ecs_tiled::prelude::*;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use pixel_utils::camera::HIGH_RES_LAYERS;
 use ::utils::{ExpDecay, MoveTowards, WrappedDelta};
-use core::CorePlugin;
+use core::plugin::CorePlugin;
 use std::collections::{HashMap, HashSet};
 use std::f32::consts::PI;
 
@@ -18,6 +18,7 @@ use crate::camera::plugin::CameraFocus;
 use crate::physics::animator::{PlayerAnimationNode, PlayerAnimations};
 use crate::physics::controller::{Controller, ControllersPlugin};
 use crate::physics::player::PlayerPlugin;
+use crate::tilemap::plugin::MapPlugin;
 use crate::utils::background::StarBackgroundPlugin;
 
 use bevy_ecs_tilemap::TilemapPlugin;
@@ -27,6 +28,7 @@ mod utils;
 mod physics;
 mod interactions;
 mod ui;
+mod tilemap;
 
 fn main() {
     let mut app = App::new();
@@ -34,30 +36,15 @@ fn main() {
         .add_plugins((CorePlugin,
             SwitchableEguiInspectorPlugin::default(),
             DebugOverlayPlugin::default(),
-            TilemapPlugin,
-            TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: None }),
             SwitchableRapierDebugPlugin::disabled(),
-            TiledPhysicsPlugin::<TiledPhysicsRapierBackend>::default(),
             StarBackgroundPlugin,
+            MapPlugin,
             PlayerPlugin
         ))
-        .add_systems(Startup, start)
         .add_systems(EguiContextPass, debug)
         .run();
 }
 
-
-pub fn start(
-    mut cmd: Commands,
-    asset_server: Res<AssetServer>,
-){
-
-    cmd.spawn((
-        TiledMapHandle(asset_server.load("tilemaps/v1.0/test.tmx")),
-        TilemapAnchor::Center,
-        TiledPhysicsSettings::<TiledPhysicsRapierBackend>::default(),
-    ));
-}
 
 fn debug(
     mut contexts: EguiContexts,

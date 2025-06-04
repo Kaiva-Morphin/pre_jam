@@ -22,7 +22,7 @@ use utils::custom_material_loader::SpritePreloadPlugin;
 use utils::debree::DebreePlugin;
 use utils::mouse::CursorPositionPlugin;
 
-use crate::core::CorePlugin;
+use crate::core::plugin::CorePlugin;
 use crate::physics::constants::*;
 use crate::physics::player::Player;
 
@@ -31,6 +31,7 @@ mod camera;
 mod utils;
 mod physics;
 mod interactions;
+mod tilemap;
 mod ui;
 
 const AUDIO_SCALE: f32 = 1. / 100.0;

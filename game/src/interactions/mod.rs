@@ -6,7 +6,7 @@ use components::{InInteractionArray, InteractGlowEvent, KeyTimer, ScrollSelector
 use systems::*;
 use wave_modulator::{open_wave_modulator_display};
 
-use crate::{interactions::{pipe_puzzle::open_pipe_puzzle_display, wave_modulator::{interact_with_spinny, touch_spinny, Spinny, WaveModulatorConsts}}, utils::custom_material_loader::{preload_sprites, LoadingStates}};
+use crate::{core::states::GlobalAppState, interactions::{pipe_puzzle::open_pipe_puzzle_display, wave_modulator::{interact_with_spinny, touch_spinny, Spinny, WaveModulatorConsts}}};
 
 mod systems;
 pub mod components;
@@ -28,7 +28,7 @@ impl Plugin for InteractionsPlugin {
         .add_systems(Update, (
             (interact, update_interactables, open_pipe_puzzle_display, update_graphs_time, touch_spinny, interact_with_spinny,
                 (open_chain_graph_display, open_wave_modulator_display)
-                .run_if(in_state(LoadingStates::Next))
+                .run_if(in_state(GlobalAppState::InGame))
             ).chain(),
         ))
         ;

@@ -1,12 +1,12 @@
 use std::{collections::BTreeMap, sync::Arc};
 
-use bevy::{audio::{AudioPlugin, SpatialScale}, prelude::*, text::FontStyle, window::WindowResolution, winit::{cursor::{CursorIcon, CustomCursor, CustomCursorImage}, WinitWindows}};
+use bevy::{audio::{AudioPlugin, SpatialScale}, prelude::*, state::app::StatesPlugin, text::FontStyle, window::WindowResolution, winit::{cursor::{CursorIcon, CustomCursor, CustomCursorImage}, WinitWindows}};
 use bevy_inspector_egui::{bevy_egui::{EguiContexts, EguiPlugin, EguiPreUpdateSet}, egui::{self, style::TextCursorStyle, CornerRadius, Stroke, Style, TextStyle, Visuals}};
 use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, interactions::InteractionsPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
+use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
 
 const AUDIO_SCALE: f32 = 1. / 100.0;
 
@@ -40,6 +40,7 @@ impl Plugin for CorePlugin {
                     }),
                 RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
                 EguiPlugin { enable_multipass_for_primary_context: true },
+                GameStatesPlugin,
                 PixelCameraPlugin,
                 CameraControllerPlugin,
                 PlatformsPlugin,
@@ -77,7 +78,7 @@ pub fn init_egui_font(
 
     let mut fonts = egui::FontDefinitions::default();
         fonts.font_data.insert("Font".to_owned(),
-        Arc::new(egui::FontData::from_static(include_bytes!("../assets/fonts/orp_regular.ttf")))
+        Arc::new(egui::FontData::from_static(include_bytes!("../../assets/fonts/orp_regular.ttf")))
     );
 
     fonts.families.insert(egui::FontFamily::Name("Font".into()), vec!["Font".to_owned()]);

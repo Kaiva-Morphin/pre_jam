@@ -4,6 +4,8 @@ use bevy::prelude::*;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use utils::{MoveTowards, WrappedDelta};
 
+use crate::core::states::GlobalAppState;
+
 
 
 
@@ -12,7 +14,7 @@ pub(super) struct PlayerAnimatorPlugin;
 impl Plugin for PlayerAnimatorPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(Update, (setup_scene_once_loaded, update));
+            .add_systems(Update, (setup_scene_once_loaded, update).run_if(in_state(GlobalAppState::InGame)));
     }
 }
 
