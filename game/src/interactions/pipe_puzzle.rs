@@ -21,7 +21,7 @@ pub fn open_pipe_puzzle_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction {
-            const GRID_SCREEN_SIZE: f32 = 200.;
+            const GRID_SCREEN_SIZE: f32 = 50.;
             let mut childern = vec![];
             for y in 0..GRID_SIZE {
                 for x in 0..GRID_SIZE {
@@ -29,8 +29,8 @@ pub fn open_pipe_puzzle_display(
                         Node {
                             width: Val::Px(50.),
                             height: Val::Px(50.),
-                            left: Val::Px(GRID_SCREEN_SIZE / x as f32),
-                            bottom: Val::Px(GRID_SCREEN_SIZE / y as f32),
+                            left: Val::Px(GRID_SCREEN_SIZE * x as f32),
+                            bottom: Val::Px(GRID_SCREEN_SIZE * y as f32),
                             position_type: PositionType::Absolute,
                             ..default()
                         },

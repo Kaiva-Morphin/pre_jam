@@ -15,7 +15,6 @@ pub fn interact(
     mouse_button: Res<ButtonInput<MouseButton>>,
     cursor_position: Res<CursorPosition>,
     mut collision_events: EventReader<CollisionEvent>,
-    mut player_query: Single<(Entity, &VelocityEmmiter)>,
     mut writer: EventWriter<InteractGlowEvent>,
     mut interactable: Query<(&mut InInteraction, &Transform)>,
     texture_atlas_handles: Res<TextureAtlasHandles>,
@@ -72,8 +71,6 @@ pub fn interact(
         match collision_event {
             // interactable - sender; sensor - reciever
             CollisionEvent::Started(reciever_entity, sender_entity, _) => {
-                // блять ярик никаких анврапов больше 🙏молю🙏
-                // особенно там, где ОНО БЛЯТЬ МОЖЕТ ЕБНУТЬСЯ ☠️☠️☠️
                 let Ok((mut in_interaction, _)) = interactable.get_mut(*sender_entity) else {continue;};
                 scroll_selector.selection_options.push(*sender_entity);
                 in_interaction.data = true;
