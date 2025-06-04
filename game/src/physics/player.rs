@@ -173,7 +173,7 @@ pub fn spawn_player(
         (
         Transform::from_xyz(0.0, 200.0, 0.0),
         Player::default(),
-        ActiveHooks::MODIFY_SOLVER_CONTACTS,
+        // ActiveHooks::MODIFY_SOLVER_CONTACTS,
         Name::new("Player"),
         Collider::capsule(vec2(0.0, 22.0), vec2(0.0, -6.0), 8.0),
         LockedAxes::ROTATION_LOCKED,

@@ -38,7 +38,7 @@ impl Plugin for CorePlugin {
                         default_spatial_scale: SpatialScale::new_2d(AUDIO_SCALE),
                         ..default()
                     }),
-                RapierPhysicsPlugin::<FrictionPhysicsHook>::pixels_per_meter(16.0),
+                RapierPhysicsPlugin::<()>::pixels_per_meter(16.0),
                 EguiPlugin { enable_multipass_for_primary_context: true },
                 GameStatesPlugin,
                 PixelCameraPlugin,

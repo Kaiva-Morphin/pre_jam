@@ -19,8 +19,9 @@ impl Plugin for MapPlugin {
             ))
             .register_type::<MapObject>()
             .add_systems(Startup, spawn_map)
+            .add_systems(Update, display_custom_tiles)
             .add_systems(Update, (
-                check_map, event_map_created, display_custom_tiles
+                check_map, event_map_created, 
             ).run_if(in_state(GlobalAppState::AssetLoading)))
         ;
     }

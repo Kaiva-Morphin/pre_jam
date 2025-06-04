@@ -20,13 +20,14 @@ mod tilemap;
 fn main() {
     let mut app = App::new();
     app
-        .add_plugins((CorePlugin,
-            SwitchableEguiInspectorPlugin::default(),
-            DebugOverlayPlugin::default(),
-            SwitchableRapierDebugPlugin::default(),
+        .add_plugins((
+            CorePlugin,
             StarBackgroundPlugin,
+            PlayerPlugin,
             MapPlugin,
-            PlayerPlugin
+            SwitchableEguiInspectorPlugin::default(),
+            SwitchableRapierDebugPlugin::default(),
+            DebugOverlayPlugin::default(),
         ))
         .run();
 }

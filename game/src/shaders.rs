@@ -1,119 +1,74 @@
-use bevy::audio::{AudioPlugin, SpatialScale};
-use bevy::color::palettes::css::{BLUE, GREEN, RED};
-use bevy::{prelude::*, window::WindowResolution};
-use bevy_ecs_tiled::map::TiledMapHandle;
-use bevy_ecs_tiled::prelude::{TiledPhysicsPlugin, TiledPhysicsRapierBackend, TiledPhysicsSettings, TilemapAnchor};
-use bevy_ecs_tiled::{TiledMapPlugin, TiledMapPluginConfig};
-use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_inspector_egui::bevy_egui::EguiPlugin;
-use bevy_rapier2d::plugin::{NoUserData, RapierPhysicsPlugin};
-use bevy_rapier2d::prelude::*;
-use camera::plugin::CameraControllerPlugin;
+use bevy::prelude::*;
 use debug_utils::debug_overlay::DebugOverlayPlugin;
 use debug_utils::inspector::plugin::SwitchableEguiInspectorPlugin;
 use debug_utils::rapier::plugin::SwitchableRapierDebugPlugin;
-use interactions::components::*;
-use interactions::InteractionsPlugin;
-use pixel_utils::camera::PixelCameraPlugin;
-use shaders::{ShaderPlugin, VelocityEmmiter};
-use utils::background::StarBackgroundPlugin;
-use utils::custom_material_loader::SpritePreloadPlugin;
-use utils::debree::DebreePlugin;
-use utils::mouse::CursorPositionPlugin;
 
-use crate::core::plugin::CorePlugin;
-use crate::physics::constants::*;
-use crate::physics::player::Player;
+use core::plugin::CorePlugin;
+
+use crate::physics::constants::PLAYER_SENSOR_CG;
+use crate::physics::player::{Player, PlayerPlugin};
+use crate::tilemap::plugin::MapPlugin;
+use crate::utils::background::StarBackgroundPlugin;
 
 mod core;
+mod ui;
 mod camera;
 mod utils;
 mod physics;
 mod interactions;
 mod tilemap;
-mod ui;
-
-const AUDIO_SCALE: f32 = 1. / 100.0;
 
 fn main() {
-    App::new()
-    .add_plugins((
-        CorePlugin,
-        (TilemapPlugin,
-        TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: None }),
-        TiledPhysicsPlugin::<TiledPhysicsRapierBackend>::default(),
-        StarBackgroundPlugin,
-        SwitchableEguiInspectorPlugin,
-        SwitchableRapierDebugPlugin::enabled(),
-        DebugOverlayPlugin::enabled(),),
-    ))
-    .add_systems(Startup, spawn.before(shaders::compute::setup))
-    .run();
+    let mut app = App::new();
+    app
+        .add_plugins((
+            CorePlugin,
+            StarBackgroundPlugin,
+            PlayerPlugin,
+            MapPlugin,
+            SwitchableEguiInspectorPlugin::default(),
+            SwitchableRapierDebugPlugin::default(),
+            DebugOverlayPlugin::default(),
+        ))
+        .run();
 }
 
-pub fn spawn(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-    const GAP: f32 = 50.;
-    commands.spawn((
-        RigidBody::Fixed,
-        Collider::cuboid(200., 2.),
-        Name::new("Floor"),
-    ));
-    commands.spawn((
-        (VelocityEmmiter,
-        RigidBody::Dynamic,
-        Transform::from_xyz(0.0, 100.0, 0.0),
-        Velocity::zero(),
-        Player::default(),
-        Dominance::group(0),
-        GravityScale(0.0),
-        Name::new("Player"),
-        Collider::capsule(vec2(0.0, 6.0), vec2(0.0, -6.0), 6.0),
-        Sprite::from_image(asset_server.load("pixel/test.png")),
-        LockedAxes::ROTATION_LOCKED,
-        Sleeping::disabled(),
-        Ccd::enabled(),),
-        Friction{coefficient: 0.0, combine_rule: CoefficientCombineRule::Min},
-        camera::plugin::CameraFocus{priority: 0},
-        CollisionGroups::new(
-            Group::from_bits(PLAYER_CG).unwrap(),
-            Group::from_bits(STRUCTURES_CG).unwrap(),
-        ),
-        SpatialListener::new(-GAP),
-        children![
-        (
-            Name::new("Player sensor"),
-            Collider::ball(30.),
-            CollisionGroups::new(
-                Group::from_bits(PLAYER_SENSOR_CG).unwrap(),
-                Group::from_bits(INTERACTABLE_CG).unwrap(),
-            ),
-            Sensor,
-        ),
-        // left ear
-        (
-            Sprite::from_color(Color::Srgba(RED), Vec2::splat(20.0)),
-            Transform::from_xyz(-GAP / 2., 0.0, 0.0),
-        ),
-        // right ear
-        (
-            Sprite::from_color(Color::Srgba(BLUE), Vec2::splat(20.0)),
-            Transform::from_xyz(GAP / 2., 0.0, 0.0),
-        )
-        ],
-    ))
-    ;
-    commands.spawn((
-        AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
-        PlaybackSettings::LOOP.with_spatial(true),
-        Transform::from_xyz(50., 0., 0.),
-        Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
-    ));
-    commands.spawn((
-        TiledMapHandle(asset_server.load("tilemaps/v1.0/map.tmx")),
-        TilemapAnchor::Center,
-        TiledPhysicsSettings::<TiledPhysicsRapierBackend>::default(),
-    ));
-}
+    // .add_systems(OnGame, spawn.after(spawn_player))  //.before(shaders::compute::setup)
+
+
+// pub fn spawn(
+//     mut commands: Commands,
+//     asset_server: Res<AssetServer>,
+//     p: Single<Entity, With<Player>>,
+// ) {
+//     const GAP: f32 = 50.;
+//     commands.entity(*p).with_children(|cmd|{
+//         cmd.spawn((
+//             Name::new("Player sensor"),
+//             Collider::ball(30.),
+//             CollisionGroups::new(
+//                 Group::from_bits(PLAYER_SENSOR_CG).unwrap(),
+//                 Group::from_bits(INTERACTABLE_CG).unwrap(),
+//             ),
+//             Sensor,
+//         ));
+//         // left ear
+//         cmd.spawn((
+//             Sprite::from_color(Color::Srgba(RED), Vec2::splat(20.0)),
+//             Transform::from_xyz(-GAP / 2., 0.0, 0.0),
+//         ));
+//         // right ear
+//         cmd.spawn((
+//             Sprite::from_color(Color::Srgba(BLUE), Vec2::splat(20.0)),
+//             Transform::from_xyz(GAP / 2., 0.0, 0.0),
+//         ));
+//     });
+    
+//     commands.spawn((
+//         AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
+//         PlaybackSettings::LOOP.with_spatial(true),
+//         Transform::from_xyz(50., 0., 0.),
+//         Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
+//     ));
+
+// }
