@@ -14,7 +14,7 @@ pub(super) struct PlayerAnimatorPlugin;
 impl Plugin for PlayerAnimatorPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(Update, (setup_scene_once_loaded, update).run_if(in_state(GlobalAppState::InGame)));
+            .add_systems(PostUpdate, (setup_scene_once_loaded, update).run_if(in_state(GlobalAppState::InGame)));
     }
 }
 
@@ -43,7 +43,7 @@ fn update(
 
         if k.need_interpolation() && animations.target.need_interpolation() {
             let s = if PlayerAnimationNode::Float == animations.target ||
-            PlayerAnimationNode::Float == *k {6.0} else {3.0};
+            PlayerAnimationNode::Float == *k {8.0} else {6.0};
             a.set_weight(a.weight().move_towards(target_val, dt * s));
         } else {
             a.set_weight(target_val);
