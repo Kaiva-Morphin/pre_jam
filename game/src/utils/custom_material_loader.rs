@@ -15,6 +15,8 @@ pub struct SpriteAssets {
     pub grass_sprite: Handle<Image>,
     #[asset(path = "atlases/E.png")]
     pub key_e_sprite: Handle<Image>,
+    #[asset(path = "atlases/Pipes.png")]
+    pub pipes_sprite: Handle<Image>,
     #[asset(path = "interactables/ChainGraph.png")]
     pub chain_graph_sprite: Handle<Image>,
     #[asset(path = "interactables/chain.png")]
@@ -50,6 +52,7 @@ impl Plugin for SpritePreloadPlugin {
         .insert_resource(VelocityBufferHandles::default())
         .insert_resource(TextureAtlasHandles::default())
         .insert_resource(SpinnyAtlasHandles::default())
+        .insert_resource(PipesAtlasHandles::default())
         .add_event::<SpritePreloadEvent>()
         .add_systems(OnGame, (preload_sprites, create_atlases))
         .add_systems(Update, spawn_sprites.run_if(in_state(GlobalAppState::InGame)));
@@ -70,6 +73,12 @@ pub struct SpinnyAtlasHandles {
     pub image_handle: Handle<Image>,
 }
 
+#[derive(Resource, Default)]
+pub struct PipesAtlasHandles {
+    pub layout_handle: Handle<TextureAtlasLayout>,
+    pub image_handle: Handle<Image>,
+}
+
 pub const KEYS_ATLAS_COLUMNS: u32 = 3;
 pub const KEYS_ATLAS_ROWS: u32 = 1;
 pub const KEYS_ATLAS_SIZE: u32 = KEYS_ATLAS_COLUMNS * KEYS_ATLAS_ROWS;
@@ -78,6 +87,7 @@ pub fn create_atlases(
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
     mut texture_atlas_handles: ResMut<TextureAtlasHandles>,
     mut spinny_atlas_handles: ResMut<SpinnyAtlasHandles>,
+    mut pipes_atlas_handles: ResMut<PipesAtlasHandles>,
 ) {
     let atlas = TextureAtlasLayout::from_grid(
         UVec2::new(19, 21),
@@ -88,6 +98,7 @@ pub fn create_atlases(
     );
     let handle = texture_atlases.add(atlas);
     texture_atlas_handles.layout_handle = handle.clone();
+
     let spinny_atlas = TextureAtlasLayout::from_grid(
         SPINNY_SIZE,
         NUM_SPINNY_STATES as u32,
@@ -97,6 +108,16 @@ pub fn create_atlases(
     );
     let spinny_handle = texture_atlases.add(spinny_atlas);
     spinny_atlas_handles.layout_handle = spinny_handle;
+
+    let pipes_atlas = TextureAtlasLayout::from_grid(
+        SPINNY_SIZE,
+        NUM_SPINNY_STATES as u32,
+        1,
+        None,
+        None
+    );
+    let pipes_handle = texture_atlases.add(pipes_atlas);
+    pipes_atlas_handles.layout_handle = pipes_handle;
 }
 
 pub struct SpritePreloadData {
