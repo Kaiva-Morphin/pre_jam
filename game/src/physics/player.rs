@@ -30,7 +30,6 @@ impl Plugin for PlayerPlugin {
                 check_player_assets
             ).run_if(in_state(GlobalAppState::AssetLoading)))
             .add_systems(Update, (
-                controller,
                 tick_controllers,
                 update_controllers,
                 listen_events
@@ -119,6 +118,7 @@ pub struct PlayerConstants {
     pub walk_speed: f32,
     pub run_speed: f32,
     pub climb_speed: f32,
+    pub climb_out_speed: f32,
 
     pub max_horisontal_velocity: f32,
     pub max_vertical_velocity: f32,
@@ -146,7 +146,8 @@ impl Default for PlayerConstants {
             walk_speed: 80.0,
             run_speed: 120.0,
             
-            climb_speed: 120.0,
+            climb_speed: 20.0,
+            climb_out_speed: 200.0,
 
             spacewalk_max_linvel: 100.0,
             spacewalk_max_angvel: 2.0,
@@ -329,77 +330,6 @@ impl Default for Controller {
 
 
 
-pub fn controller(
-    mut p: Single<(&mut KinematicCharacterController, &KinematicCharacterControllerOutput, &mut Player, &mut Transform), With<Player>>,
-    time: Res<Time>,
-    mut anim: ResMut<PlayerAnimations>,
-    keyboard: Res<ButtonInput<KeyCode>>,
-    mut cmd: Commands,
-    consts: Res<PlayerConstants>,
-    mut overlay_events: EventWriter<DebugOverlayEvent>
-){
-    let dt = time.dt();
-    let mut raw_dir = Vec2::ZERO;
-    keyboard.pressed(KeyCode::KeyA).then(|| raw_dir.x -= 1.0);
-    keyboard.pressed(KeyCode::KeyD).then(|| raw_dir.x += 1.0);
-    keyboard.pressed(KeyCode::KeyS).then(|| raw_dir.y -= 1.0);
-    keyboard.pressed(KeyCode::KeyW).then(|| raw_dir.y += 1.0);
-    let (c, o, p, t) = &mut *p;
-    let mut to_move = Vec2::ZERO;
-    match &mut p.state {
-        PlayerState::Dance => {
-            if raw_dir.x != 0.0 || !o.grounded {
-                p.state = PlayerState::Regular{accumulated_vel: 0.0};
-                anim.target = PlayerAnimationNode::Idle;
-                to_move += consts.gravity;
-            }
-        }
-        PlayerState::Regular{accumulated_vel: acc} => {
-            let mut target = raw_dir.x * consts.walk_speed;
-            if keyboard.pressed(KeyCode::ShiftLeft) {
-                target = raw_dir.x * consts.run_speed;
-            }
-            if target == 0.0 {
-                *acc = acc.move_towards(target, dt * consts.speed_gain);
-            } else {
-                *acc = acc.move_towards(target, dt * consts.speed_loss);
-            }
-            to_move = vec2(*acc, 0.0) + consts.gravity;
-            if o.effective_translation.x.abs() > 0.2 {
-                anim.target = PlayerAnimationNode::Run;
-            } else if o.effective_translation.x.abs() > 0.1 {
-                anim.target = PlayerAnimationNode::Walk;
-            } else {
-                anim.target = PlayerAnimationNode::Idle;
-                *acc = 0.0;
-            }
-            // info!("Eff tra: {:?}", o.effective_translation);
-            overlay_text!(overlay_events;TopLeft;TRANS:
-                format!("Eff tra: {:?}", o.effective_translation),(255, 255, 255);
-            );
-        }
-        PlayerState::Climbing{ladder: Ladder{x_pos: l, entity: e}} => {
-        //     anim.target = PlayerAnimationNode::Climb;
-        //     *acc = acc.move_towards(raw_dir.y * consts.climb_speed, dt);
-        //     anim.params.climb_speed = *acc;
-        //     to_move.y = *acc;
-        //     if raw_dir.x != 0.0 {
-        //         to_move.x = raw_dir.x * consts.climb_speed * 0.5;
-        //     } else {
-        //         // move to the ladder
-        //         to_move.x = (*l - t.translation.x).signum() * consts.climb_speed * 0.5;
-        //     }
-        }
-        PlayerState::Spacewalk => {
-            to_move = raw_dir;
-        }
-    }
-    c.translation = Some(to_move);
-    overlay_text!(overlay_events;TopLeft;CONTROLLER:
-        format!("{:#?}", c),(255, 255, 255);
-    );
-}
-
 fn debug(
     mut contexts: EguiContexts,
     // mut player: Single<&mut KinematicCharacterController>,
@@ -418,8 +348,10 @@ fn debug(
         // ui.add(egui::Slider::new(&mut consts.walk_speed, 0.0..=500.0));
         // ui.label("Run speed");
         // ui.add(egui::Slider::new(&mut consts.run_speed, 0.0..=500.0));
-        // ui.label("Climb speed");
-        // ui.add(egui::Slider::new(&mut consts.climb_speed, 0.0..=500.0));
+        ui.label("Climb speed");
+        ui.add(egui::Slider::new(&mut consts.climb_speed, 0.0..=700.0));
+        ui.label("Climb out speed");
+        ui.add(egui::Slider::new(&mut consts.climb_out_speed, 0.0..=700.0));
         // ui.separator();
         // ui.heading("Slide");
         // ui.checkbox(&mut player.slide, "Slide");
@@ -473,7 +405,8 @@ pub fn update_controllers(
 
     mut mesh_turn: Local<f32>,
     mut mesh_rotation: Local<f32>,
-    ladders: Res<NearestLadders>
+    ladders: Res<NearestLadders>,
+    mut time_since_climb: Local<f32>,
 ){
     let dt = time.dt();
     let mut raw_dir = Vec2::ZERO;
@@ -519,7 +452,11 @@ pub fn update_controllers(
             transform.rotation = Quat::IDENTITY;
         }
     }
-
+    if !player.is_climbing() {
+        *time_since_climb += dt;
+    } else {
+        *time_since_climb = 0.0;
+    }
     match &mut player.state {
         PlayerState::Dance => {
             if raw_dir.x != 0.0 || !controller.is_on_floor() {
@@ -529,18 +466,24 @@ pub fn update_controllers(
             }
         }
         PlayerState::Climbing{ladder: Ladder{x_pos: l, entity: e}} => {
-            if let None = ladders.ladders.get(e) {player.state = PlayerState::Regular{accumulated_vel: 0.0};return;}
+            if let None = ladders.ladders.get(e) {
+                player.state = PlayerState::Regular{accumulated_vel: 0.0};
+                return;
+            }
             anim.target = PlayerAnimationNode::Climb;
             anim.params.climb_speed = raw_dir.y;
             player_vel.linvel.y = raw_dir.y * consts.climb_speed;
-            if raw_dir.x != 0.0 {
-                player_vel.linvel.x = raw_dir.x * consts.climb_speed * 0.5;
+            *mesh_turn = 0.0;
+            player_mesh.rotation = Quat::from_axis_angle(Vec3::Y, *mesh_turn);
+            if raw_dir.x != 0.0 && raw_dir.y == 0.0 {
+                player_vel.linvel.x = raw_dir.x * consts.climb_out_speed;
             } else {
-                player_vel.linvel.x = player_vel.linvel.x.move_towards((*l - transform.translation.x).signum(),  dt);
+                player_vel.linvel.x = 0.0;
+                transform.translation.x = transform.translation.x.move_towards(*l,dt * 20.0);
             }
         }
         PlayerState::Regular { accumulated_vel: _ } => {
-            if raw_dir.y != 0.0 {
+            if raw_dir.y != 0.0 && *time_since_climb > 0.1 {
                 if let Some((_, l)) = ladders.ladders.iter().next() {
                     //raw_dir.y != 0.0 
                     player.state = PlayerState::Climbing{ladder: l.clone()};
