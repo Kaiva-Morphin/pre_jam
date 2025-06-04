@@ -67,16 +67,14 @@ pub struct LadderCollider;
 fn display_custom_tiles(
     mut cmd: Commands,
     q_tile: Query<
-        (Entity, &MapObject, &Children),
+        (Entity, &Children),
     >,
     mut e: EventReader<TiledObjectCreated>,
 ) {
     for e in e.read(){
-        let Ok((e, m, c)) = q_tile.get(e.entity) else {continue;};
+        let Ok((e, c)) = q_tile.get(e.entity) else {continue;};
         
-        match m {
-            MapObject::Ladder => {
-                for c in c.iter() {
+        for c in c.iter() {
                     cmd.entity(c).insert((
                         Sensor,
                         LadderCollider,
@@ -87,11 +85,6 @@ fn display_custom_tiles(
                         }
                     ));
                 }
-            }
-            MapObject::Interactable => {
-                // commands.entity(e).insert(Interactable);
-            }
-        }
     }
 }
 
