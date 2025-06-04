@@ -3,7 +3,7 @@ use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use utils::{wrap, ExpDecay, WrappedDelta};
 use pixel_utils::camera::{setup_camera, PixelCamera};
 
-use crate::physics::player::PlayerState;
+use crate::physics::player::{Player, PlayerState};
 
 
 pub struct CameraControllerPlugin;
@@ -58,7 +58,7 @@ pub fn camera_controller(
     to_focus: Query<(&GlobalTransform, &CameraFocus)>,
     mut overlay_events: EventWriter<DebugOverlayEvent>,
     time: Res<Time>,
-    state: Single<&PlayerState>,
+    state: Single<&Player>,
 ){
     let dt = time.dt();
     let (projection, camera_transform, mode) = &mut *pixel_camera;
@@ -105,7 +105,7 @@ pub fn camera_controller(
             if let Some(target) = follow {
                 m_dt.z = 0.0;
                 
-                if state.spacewalk {
+                if state.is_spacewalking() {
                     camera_transform.translation = target.translation();
                     camera_transform.rotation = target.rotation();  
                 } else {

@@ -37,6 +37,10 @@ fn update(
         } else {
             0.0
         };
+        if PlayerAnimationNode::Climb == *k {
+            a.set_speed(animations.params.climb_speed);
+        }
+
         if k.need_interpolation() && animations.target.need_interpolation() {
             let s = if PlayerAnimationNode::Float == animations.target ||
             PlayerAnimationNode::Float == *k {6.0} else {3.0};
@@ -99,7 +103,12 @@ impl PlayerAnimationNode {
 pub struct PlayerAnimations {
     nodes: HashMap<PlayerAnimationNode, AnimationNodeIndex>,
     graph: Handle<AnimationGraph>,
-    pub target: PlayerAnimationNode
+    pub target: PlayerAnimationNode,
+    pub params: AnimParams,
+}
+#[derive(Default)]
+pub struct AnimParams {
+    pub climb_speed: f32
 }
 
 impl PlayerAnimations {
@@ -111,7 +120,8 @@ impl PlayerAnimations {
         Self {
             nodes,
             graph,
-            target
+            target,
+            params: Default::default(),
         }
     }
     pub fn get_clip(&self, key: &PlayerAnimationNode) -> Option<&AnimationNodeIndex> {

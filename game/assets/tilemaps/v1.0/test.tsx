@@ -34,8 +34,8 @@
  </tile>
  <tile id="6">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0">
-    <polygon points="0,0 0,16 16,16 0,0"/>
+   <object id="2" x="16" y="16">
+    <polygon points="0,0 0,-4 -4,-4 -4,-8 -8,-8 -8,-12 -12,-12 -12,-16 -16,-16 -16,0"/>
    </object>
   </objectgroup>
  </tile>
@@ -46,15 +46,15 @@
  </tile>
  <tile id="9">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0">
-    <polygon points="0,0 16,8 16,16 0,16"/>
+   <object id="5" x="16" y="4">
+    <polygon points="0,0 -8,0 -8,-4 -16,-4 -16,12 0,12"/>
    </object>
   </objectgroup>
  </tile>
  <tile id="10">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="8">
-    <polygon points="0,0 16,8 0,8"/>
+   <object id="3" x="0" y="8">
+    <polygon points="0,0 4,0 8,0 8,4 16,4 16,8 0,8"/>
    </object>
   </objectgroup>
  </tile>

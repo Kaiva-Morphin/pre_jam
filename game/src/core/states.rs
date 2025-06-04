@@ -28,7 +28,7 @@ impl Plugin for GameStatesPlugin {
     }
 }
 
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct PreGameTasks {
     tasks: HashSet<String>
 }
