@@ -5,6 +5,10 @@ use debug_utils::rapier::plugin::SwitchableRapierDebugPlugin;
 
 use core::plugin::CorePlugin;
 
+use crate::physics::player::PlayerPlugin;
+use crate::tilemap::plugin::MapPlugin;
+use crate::utils::background::StarBackgroundPlugin;
+
 mod core;
 mod ui;
 mod camera;
@@ -14,12 +18,15 @@ mod interactions;
 mod tilemap;
 
 fn main() {
-    App::new()
+    let mut app = App::new();
+    app
         .add_plugins((CorePlugin,
             SwitchableEguiInspectorPlugin::default(),
+            DebugOverlayPlugin::default(),
             SwitchableRapierDebugPlugin::default(),
-            DebugOverlayPlugin::enabled(),
-            crate::physics::scene::ScenePlugin,
+            StarBackgroundPlugin,
+            MapPlugin,
+            PlayerPlugin
         ))
         .run();
 }

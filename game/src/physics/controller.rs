@@ -21,7 +21,7 @@ use pixel_utils::camera::PixelCamera;
 use utils::{wrap, MoveTowards, WrappedDelta};
 
 use crate::physics::animator::{PlayerAnimationNode, PlayerAnimations};
-use crate::physics::player::{Player, PlayerMesh, REG_FRICTION};
+use crate::physics::player::{ControllerConstants, GlobalGravity, GravityOverride, Player, PlayerMesh, REG_FRICTION};
 
 use super::platforms::{MovingPlatform, MovingPlatformMode};
 
@@ -29,12 +29,12 @@ pub struct ControllersPlugin;
 
 impl Plugin for ControllersPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(Update, update_controllers)
-            .add_systems(FixedPreUpdate, tick_controllers)
-            .add_systems(EguiContextPass, debug)
-            .insert_resource(GlobalGravity(Vec2::new(0.0, -981. / 2.0)))
-            ;
+        // app
+        //     .add_systems(Update, update_controllers)
+        //     .add_systems(FixedPreUpdate, tick_controllers)
+        //     .add_systems(EguiContextPass, debug)
+        //     .insert_resource(GlobalGravity(Vec2::new(0.0, -981. / 2.0)))
+        //     ;
     }
 }
 
@@ -42,10 +42,7 @@ impl Plugin for ControllersPlugin {
 
 
 
-#[derive(Resource)]
-pub struct GlobalGravity(pub Vec2);
-#[derive(Component)]
-pub struct GravityOverride(pub Vec2);
+
 
 
 #[derive(Component, Debug)]
@@ -57,73 +54,6 @@ pub struct Controller {
     pub platform_velocity: Option<Vec2>,
 }
 
-#[derive(Component, Debug)]
-pub struct ControllerConstrants {
-    pub speed_gain: f32,
-    pub speed_loss: f32,
-
-    pub walk_speed: f32,
-    pub run_speed: f32,
-    pub climb_speed: f32,
-
-    pub max_slope_angle: f32,
-    pub snap_to_ground_depth: f32,
-    pub snap_to_ground_height: f32,
-
-    pub max_autostep_angle: f32,
-    pub autostep_depth: f32,
-    pub autostep_height: f32,
-
-    pub max_horisontal_velocity: f32,
-    pub max_vertical_velocity: f32,
-    
-    pub spacewalk_max_linvel: f32,
-    pub spacewalk_max_angvel: f32,
-    pub spacewalk_speed: f32,
-    pub spacewalk_ang_speed: f32,
-
-    pub mesh_turn_speed: f32,
-    pub mesh_rot_speed: f32,
-
-    pub jump_vel: f32,
-    pub air_jump_vel: f32,
-
-    pub total_air_jumps: usize,
-}
-
-impl Default for ControllerConstrants {
-    fn default() -> Self {
-        Self {
-            speed_gain: 1400.0,
-            speed_loss: 350.0,
-            walk_speed: 80.0,
-            run_speed: 120.0,
-            
-            climb_speed: 120.0,
-
-            max_slope_angle: PI / 3.0,
-            snap_to_ground_depth: 10.0,
-            snap_to_ground_height: 10.0,
-
-            max_autostep_angle: PI / 4.0,
-            autostep_depth: 20.0,
-            autostep_height: 20.0,
-
-            spacewalk_max_linvel: 100.0,
-            spacewalk_max_angvel: 2.0,
-            spacewalk_speed: 1.0,
-            spacewalk_ang_speed: 0.5,
-            jump_vel: 200.0,
-            air_jump_vel: 150.0,
-            max_horisontal_velocity: 500.0,
-            max_vertical_velocity: 500.0,
-            total_air_jumps: 0,
-
-            mesh_turn_speed: 16.0,
-            mesh_rot_speed: 16.0,
-        }
-    }
-}
 
 impl Controller {
     pub fn is_on_floor(&self) -> bool {
@@ -146,7 +76,7 @@ impl Default for Controller {
 pub fn tick_controllers(
     time: Res<Time>,
     ctx: ReadRapierContext,
-    mut controllers: Query<(Entity, &mut Velocity, &mut Controller, &ControllerConstrants, Option<&GravityOverride>, &Collider, &Transform)>,
+    mut controllers: Query<(Entity, &mut Velocity, &mut Controller, &ControllerConstants, Option<&GravityOverride>, &Collider, &Transform)>,
     platforms: Query<&MovingPlatform>,
     global_gravity: Res<GlobalGravity>,
     mut overlay_events: EventWriter<DebugOverlayEvent>,
@@ -237,7 +167,7 @@ pub fn debug(
 }
 
 pub fn update_controllers(
-    mut player: Single<(Entity, &mut Velocity, &mut Controller, &ControllerConstrants, &mut Transform), (With<Player>, Without<PlayerMesh>)>,
+    mut player: Single<(Entity, &mut Velocity, &mut Controller, &ControllerConstants, &mut Transform), (With<Player>, Without<PlayerMesh>)>,
     mut player_mesh: Single<&mut Transform, (With<PlayerMesh>, Without<Player>)>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mut overlay_events: EventWriter<DebugOverlayEvent>,

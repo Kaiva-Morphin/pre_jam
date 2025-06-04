@@ -10,9 +10,9 @@ debug_utils = {workspace = true, features = ["debug_overlay"] }
 pixel_utils.workspace = true
 utils = { version = "0.1.0", path = "../libs/utils" }
 shaders = { version = "0.1.0", path = "../libs/shaders" }
-bevy_ecs_tilemap = "0.16.0"
+bevy_ecs_tilemap = { version = "0.16.0"}
 bevy_rapier2d = { workspace = true, features = ["serde-serialize", "debug-render-2d", "simd-stable"] } #  "parallel", 
-bevy_ecs_tiled = { version = "0.7.0", path = "../libs/bevy_ecs_tiled", features = ["wasm", "rapier", "physics", "rapier_debug"] }
+bevy_ecs_tiled = { version = "0.7.0", path = "../libs/bevy_ecs_tiled", features = ["wasm", "rapier", "physics", "rapier_debug", "user_properties"] }
 bevy_asset_loader = { version = "0.23.0", features = ["2d", "3d"] }
 bevy_framepace = "0.19.1"
 getrandom = { version = "0.3.3", features = ["wasm_js"] }
@@ -32,18 +32,6 @@ path = "src/main.rs"
 [[bin]]
 name = "shaders"
 path = "src/shaders.rs"
-
-[[bin]]
-name = "clear"
-path = "src/clear.rs"
-
-[[bin]]
-name = "tiled"
-path = "src/tiled.rs"
-
-[[bin]]
-name = "ui"
-path = "src/ui.rs"
 
 [[bin]]
 name = "normalmaps"

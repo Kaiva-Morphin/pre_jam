@@ -35,7 +35,6 @@ pub struct SpritePreloadPlugin;
 impl Plugin for SpritePreloadPlugin {
     fn build(&self, app: &mut App) {
         app
-        // FOR YARO: THAT WILL HOOKS TO GLOBAL
         .configure_loading_state(
             LoadingStateConfig::new(AppLoadingAssetsSubState::Loading)
                 .load_collection::<SpriteAssets>(),
@@ -170,7 +169,7 @@ pub fn spawn_sprites(
                     Name::new("Interactable"),
                     Interactable,
                     Collider::cuboid(width as f32 / 4., height as f32 / 4.),
-                    ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
+                    // ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
                     CollisionGroups::new(
                         Group::from_bits(INTERACTABLE_CG).unwrap(),
                         Group::from_bits(PLAYER_SENSOR_CG).unwrap(),

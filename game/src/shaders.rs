@@ -14,7 +14,6 @@ use debug_utils::inspector::plugin::SwitchableEguiInspectorPlugin;
 use debug_utils::rapier::plugin::SwitchableRapierDebugPlugin;
 use interactions::components::*;
 use interactions::InteractionsPlugin;
-use physics::controller::ControllersPlugin;
 use pixel_utils::camera::PixelCameraPlugin;
 use shaders::{ShaderPlugin, VelocityEmmiter};
 use utils::background::StarBackgroundPlugin;
@@ -67,7 +66,7 @@ pub fn spawn(
         RigidBody::Dynamic,
         Transform::from_xyz(0.0, 100.0, 0.0),
         Velocity::zero(),
-        Player,
+        Player::default(),
         Dominance::group(0),
         GravityScale(0.0),
         Name::new("Player"),
@@ -78,7 +77,6 @@ pub fn spawn(
         Ccd::enabled(),),
         Friction{coefficient: 0.0, combine_rule: CoefficientCombineRule::Min},
         camera::plugin::CameraFocus{priority: 0},
-        physics::controller::Controller::default(),
         CollisionGroups::new(
             Group::from_bits(PLAYER_CG).unwrap(),
             Group::from_bits(STRUCTURES_CG).unwrap(),

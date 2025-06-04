@@ -1,25 +1,228 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="3" nextobjectid="4">
- <tileset firstgid="1" source="pad_test.tsx"/>
- <tileset firstgid="13" source="test.tsx"/>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="3" nextobjectid="27">
+ <tileset firstgid="1" source="test.tsx"/>
  <layer id="1" name="Слой тайлов 1" width="30" height="20">
   <data encoding="base64" compression="zlib">
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYBgFgxEwjuqnWD8lZsD0C1Oon1wzGHFgSvVzATE3kjoAM8wAVA==
+   eJxjYBg+gBGKR/UPbf3kmoOun51C/aSagU0/KX7Bp58LiLmxqCVWPy4MAFPYAFw=
   </chunk>
    <chunk x="0" y="-16" width="16" height="16">
-   eJxjYBgFQxEwjmD9QhToh+klRz+yXlL1o+slVj8TEDNj0UtIPz59yPoBXFQAbQ==
+   eJxjYBgFIxEwQjE5gI0C/ch6SdWPrpcU/dj0EqMfmx5izGECYmYy9JOqj1IMAFW4AGE=
+  </chunk>
+   <chunk x="16" y="-16" width="16" height="16">
+   eJxjYBjagHFU/6j+Uf1kAwAawAAO
   </chunk>
    <chunk x="-16" y="0" width="16" height="16">
-   eJxjYMAOGInEo2AUjIKhCwAqXAAL
+   eJxjYEAARjLwKBgFo2DoAgA2LAAO
   </chunk>
    <chunk x="0" y="0" width="16" height="16">
-   eJxjZGBgYCQTj4JRMAqGNgAAPlwAEA==
+   eJxjZGBgYKQAj4JRMAqGLgAAQiAAEQ==
+  </chunk>
+   <chunk x="16" y="0" width="16" height="16">
+   eJxjZBgFo2AUjFQAAAgAAAI=
   </chunk>
   </data>
  </layer>
  <objectgroup id="2" name="Objects">
-  <object id="2" name="ladder" x="37" y="-170.5" width="25" height="142.5"/>
-  <object id="3" name="ladder" x="-26" y="-172.5" width="25" height="142.5"/>
+  <object id="17" name="ladder" x="131.667" y="-208.833" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="18" name="ladder" x="100.167" y="-190.833" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="19" name="ladder" x="-29.8333" y="-177.333" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="22" name="ladder" x="34.6667" y="-163.833" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="23" name="ladder" x="-60.8333" y="-161.833" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="24" name="ladder" x="-93.3333" y="-176.833" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="25" name="ladder" x="-141.833" y="-224.833" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="26" name="ladder" x="-173.833" y="-240.833" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="20" name="ladder" x="195.167" y="-269.333" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
+  <object id="21" name="ladder" x="228.667" y="-288.333" width="25" height="142.5">
+   <properties>
+    <property name="grp" type="class" propertytype="bevy_rapier2d::geometry::collider::CollisionGroups">
+     <properties>
+      <property name="filters" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="1"/>
+       </properties>
+      </property>
+      <property name="memberships" type="class" propertytype="bevy_rapier2d::geometry::collider::Group">
+       <properties>
+        <property name="0" type="int" value="16"/>
+       </properties>
+      </property>
+     </properties>
+    </property>
+    <property name="sensor" type="class" propertytype="bevy_rapier2d::geometry::collider::Sensor"/>
+    <property name="type" type="class" propertytype="game::tilemap::plugin::MapObject"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

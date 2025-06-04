@@ -3,8 +3,9 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "test.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "fileStates": {
         ":/automap-tiles.tsx": {
@@ -25,8 +26,8 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 101.75,
-                "y": -111.5
+                "x": 128,
+                "y": -0.5
             }
         },
         "pad_test.tsx": {
@@ -37,12 +38,23 @@
             "scale": 4.6460937499999995,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 127.95695308558938,
-                "y": 128.06457037161599
+                "x": 140.01008912056503,
+                "y": 107.83252059862119
+            }
+        },
+        "test.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 2,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 150.25,
+                "y": 0
             }
         },
         "test.tsx": {
-            "scaleInDock": 1,
+            "scaleInDock": 4,
             "scaleInEditor": 8
         },
         "tilemap.tsx": {
@@ -50,20 +62,28 @@
         }
     },
     "last.imagePath": "R:/prog/pre_jam/game/assets/tilemaps/v1.0",
+    "last.objectTypesPath": "R:/prog/pre_jam/game/assets_raw/objects.json",
     "map.fixedSize": false,
     "map.lastUsedFormat": "tmx",
     "map.layerDataFormat": "3",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
+        "pad_test.tmx",
+        "pad_test.tsx",
+        "test.tmx",
+        "test.tsx",
+        "rules.tmx"
     ],
     "project": "p.tiled-project",
+    "property.type": "bevy_scene::components::SceneRoot",
     "recentFiles": [
-        "test.tsx",
+        "pad_test.tmx",
         "pad_test.tsx",
-        "map.tmx",
         "rules.tmx",
-        "pad_test.tmx"
+        "test.tsx",
+        "test.tmx",
+        "map.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.margin": 0,

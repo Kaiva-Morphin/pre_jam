@@ -1,12 +1,12 @@
 use std::{collections::BTreeMap, sync::Arc};
 
-use bevy::{audio::{AudioPlugin, SpatialScale}, prelude::*, state::app::StatesPlugin, text::FontStyle, window::WindowResolution, winit::{cursor::{CursorIcon, CustomCursor, CustomCursorImage}, WinitWindows}};
+use bevy::{audio::{AudioPlugin, SpatialScale}, ecs::system::SystemParam, prelude::*, state::app::StatesPlugin, text::FontStyle, window::WindowResolution, winit::{cursor::{CursorIcon, CustomCursor, CustomCursorImage}, WinitWindows}};
 use bevy_inspector_egui::{bevy_egui::{EguiContexts, EguiPlugin, EguiPreUpdateSet}, egui::{self, style::TextCursorStyle, CornerRadius, Stroke, Style, TextStyle, Visuals}};
-use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, render::RapierDebugRenderPlugin};
+use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, prelude::{BevyPhysicsHooks, ContactModificationContextView}, render::RapierDebugRenderPlugin};
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::{controller::ControllersPlugin, platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
+use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::{platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
 
 const AUDIO_SCALE: f32 = 1. / 100.0;
 
@@ -38,7 +38,7 @@ impl Plugin for CorePlugin {
                         default_spatial_scale: SpatialScale::new_2d(AUDIO_SCALE),
                         ..default()
                     }),
-                RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
+                RapierPhysicsPlugin::<FrictionPhysicsHook>::pixels_per_meter(16.0),
                 EguiPlugin { enable_multipass_for_primary_context: true },
                 GameStatesPlugin,
                 PixelCameraPlugin,
@@ -59,7 +59,21 @@ impl Plugin for CorePlugin {
     }
 }
 
+#[derive(SystemParam)]
+pub struct FrictionPhysicsHook;
 
+impl BevyPhysicsHooks for FrictionPhysicsHook {
+    fn modify_solver_contacts(&self, context: ContactModificationContextView) {
+        let normal = context.raw.normal.normalize();
+        let is_x_aligned = normal.y.abs() < 0.1;
+
+        for solver_contact in &mut *context.raw.solver_contacts {
+            if is_x_aligned {
+                solver_contact.friction = 0.0;
+            }
+        }
+    }
+}
 
 
 pub fn debug_ui_to_camera(
