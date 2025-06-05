@@ -6,7 +6,7 @@ use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, prelude::{BevyPhy
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::{platforms::PlatformsPlugin}, ui::target::UiRetargetPlugin, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
+use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::platforms::PlatformsPlugin, ui::{plugin::UiSystemPlugin, target::UiRetargetPlugin}, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
 
 const AUDIO_SCALE: f32 = 1. / 100.0;
 
@@ -43,11 +43,12 @@ impl Plugin for CorePlugin {
                 GameStatesPlugin,
                 PixelCameraPlugin,
                 CameraControllerPlugin,
+                UiSystemPlugin,
                 PlatformsPlugin,
                 UiRetargetPlugin,
                 CursorPlugin,
                 bevy_framepace::FramepacePlugin,
-                InteractionsPlugin,
+                // InteractionsPlugin,
                 CursorPositionPlugin,
                 SpritePreloadPlugin,
                 DebreePlugin,

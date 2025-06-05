@@ -1444,6 +1444,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_tailwind"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c32e7933310663a0f099acdf417daf3e846cf8ee77959972313f688c7cabd89"
+dependencies = [
+ "bevy",
+ "bevy_tailwind_macro",
+]
+
+[[package]]
+name = "bevy_tailwind_macro"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b474030107827c7c3ae0bdb6db2f730373569a89f938240bf3b35f3a2f430ada"
+dependencies = [
+ "indexmap",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "bevy_tasks"
 version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2678,6 +2700,7 @@ dependencies = [
  "bevy_ecs_tilemap",
  "bevy_framepace",
  "bevy_rapier2d",
+ "bevy_tailwind",
  "debug_utils",
  "getrandom 0.3.3",
  "num_enum",

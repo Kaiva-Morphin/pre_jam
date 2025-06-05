@@ -131,6 +131,10 @@ pub struct PlayerConstants {
     pub mesh_turn_speed: f32,
     pub mesh_rot_speed: f32,
 
+    pub mesh_rot_attn: f32,
+    pub mesh_rot_weight: f32,
+    pub mesh_vel_attn: f32,
+
     pub jump_vel: f32,
     pub air_jump_vel: f32,
 
@@ -143,7 +147,7 @@ impl Default for PlayerConstants {
             gravity: Vec2::new(0.0, -981.0 * 0.5),
             speed_gain: 1400.0,
             speed_loss: 350.0,
-            walk_speed: 80.0,
+            walk_speed: 55.0,
             run_speed: 120.0,
             
             climb_speed: 20.0,
@@ -158,6 +162,10 @@ impl Default for PlayerConstants {
             max_horisontal_velocity: 500.0,
             max_vertical_velocity: 500.0,
             total_air_jumps: 0,
+
+            mesh_rot_attn: 0.2,
+            mesh_rot_weight: 1.0,
+            mesh_vel_attn: 0.1,
 
             mesh_turn_speed: 16.0,
             mesh_rot_speed: 16.0,
@@ -182,6 +190,8 @@ pub fn spawn_player(
         REG_FRICTION,
         CameraFocus{priority: 0},
         Ccd::enabled(),
+        Visibility::default(),
+        InheritedVisibility::default(),
         ),
         CollisionGroups::new(
         Group::from_bits(PLAYER_CG).unwrap(),
@@ -344,14 +354,23 @@ fn debug(
         // ui.add(egui::Slider::new(&mut consts.speed_gain, 0.0..=500.0));
         // ui.label("Speed loss");
         // ui.add(egui::Slider::new(&mut consts.speed_loss, 0.0..=500.0));
-        // ui.label("Walk speed");
-        // ui.add(egui::Slider::new(&mut consts.walk_speed, 0.0..=500.0));
-        // ui.label("Run speed");
-        // ui.add(egui::Slider::new(&mut consts.run_speed, 0.0..=500.0));
+        ui.label("Walk speed");
+        ui.add(egui::Slider::new(&mut consts.walk_speed, 0.0..=1000.0));
+        ui.label("Run speed");
+        ui.add(egui::Slider::new(&mut consts.run_speed, 0.0..=1000.0));
         ui.label("Climb speed");
-        ui.add(egui::Slider::new(&mut consts.climb_speed, 0.0..=700.0));
+        ui.add(egui::Slider::new(&mut consts.climb_speed, 0.0..=1000.0));
         ui.label("Climb out speed");
-        ui.add(egui::Slider::new(&mut consts.climb_out_speed, 0.0..=700.0));
+        ui.add(egui::Slider::new(&mut consts.climb_out_speed, 0.0..=1000.0));
+
+        ui.label("mesh_rot_attn");
+        ui.add(egui::Slider::new(&mut consts.mesh_rot_attn, 0.0..=1000.0));
+
+        ui.label("mesh_rot_weight");
+        ui.add(egui::Slider::new(&mut consts.mesh_rot_weight, 0.0..=1000.0));
+
+        ui.label("mesh_vel_attn");
+        ui.add(egui::Slider::new(&mut consts.mesh_vel_attn, 0.0..=1000.0));
         // ui.separator();
         // ui.heading("Slide");
         // ui.checkbox(&mut player.slide, "Slide");
@@ -466,8 +485,11 @@ pub fn update_controllers(
             }
         }
         PlayerState::Climbing{ladder: Ladder{x_pos: l, entity: e}} => {
+            controller.horisontal_velocity = 0.0;
             if let None = ladders.ladders.get(e) {
                 player.state = PlayerState::Regular{accumulated_vel: 0.0};
+                *mesh_turn = if raw_dir.x.abs() < 0.1 { PI } else 
+                if raw_dir.x > 0.0 {PI / 2.0} else {- PI / 2.0};
                 return;
             }
             anim.target = PlayerAnimationNode::Climb;
@@ -477,6 +499,10 @@ pub fn update_controllers(
             player_mesh.rotation = Quat::from_axis_angle(Vec3::Y, *mesh_turn);
             if raw_dir.x != 0.0 && raw_dir.y == 0.0 {
                 player_vel.linvel.x = raw_dir.x * consts.climb_out_speed;
+                player.state = PlayerState::Regular{accumulated_vel: 0.0};
+                *mesh_turn = if raw_dir.x.abs() < 0.1 { PI } else 
+                if raw_dir.x > 0.0 {PI / 2.0} else {- PI / 2.0};
+                return;
             } else {
                 player_vel.linvel.x = 0.0;
                 transform.translation.x = transform.translation.x.move_towards(*l,dt * 20.0);
@@ -513,11 +539,12 @@ pub fn update_controllers(
                 } else if controller.horisontal_velocity < 0.0 {
                     *mesh_turn = mesh_turn.move_towards(-PI * 0.5, dt * consts.mesh_turn_speed);
                 }
-                player_mesh.rotation = Quat::from_axis_angle(Vec3::Y, *mesh_turn);
-                if controller.horisontal_velocity.abs() < 10.0 {
+                if player_vel.linvel.x.abs() < 1.0 {
                     anim.target = PlayerAnimationNode::Idle;
-                } else {
+                } else if player_vel.linvel.x.abs() < consts.walk_speed + 2.0{
                     anim.target = PlayerAnimationNode::Walk;
+                } else {
+                    anim.target = PlayerAnimationNode::Run;
                 }
                 if sjp {
                     controller.jumping = true;
@@ -532,6 +559,7 @@ pub fn update_controllers(
                     player_vel.linvel.y = consts.air_jump_vel;
                 }
             }
+            player_mesh.rotation = Quat::from_axis_angle(Vec3::Y, *mesh_turn);
             
             if !sp || player_vel.linvel.y < 0.0 {
                 controller.jumping = false;
@@ -539,7 +567,8 @@ pub fn update_controllers(
         }
         PlayerState::Spacewalk => {
             anim.target = PlayerAnimationNode::Float;
-            let ang_dir = keyboard.pressed(KeyCode::KeyQ) as usize as f32 - keyboard.pressed(KeyCode::KeyE) as usize as f32;
+            let ang_dir = keyboard.pressed(KeyCode::KeyA) as usize as f32 - keyboard.pressed(KeyCode::KeyD) as usize as f32;
+            raw_dir.x = keyboard.pressed(KeyCode::KeyE) as usize as f32 - keyboard.pressed(KeyCode::KeyQ) as usize as f32;
             let target = player_vel.angvel + ang_dir * dt * consts.spacewalk_ang_speed;
             if target.abs() > player_vel.angvel.abs() {
                 player_vel.angvel = target.clamp(-consts.spacewalk_max_angvel, consts.spacewalk_max_angvel);
@@ -559,6 +588,27 @@ pub fn update_controllers(
             } else {
                 player_vel.linvel = target;
             }
+
+            let desired_dir = player_vel.linvel.normalize_or_zero();
+            let current_dir = transform.right().xy().normalize_or_zero();
+            let dot = desired_dir.dot(current_dir);
+            
+            let v = player_vel.linvel.x * consts.mesh_vel_attn;
+            let r = -player_vel.angvel * consts.mesh_rot_attn;
+            // TODO: IMPROVE
+            let t = if r.abs() * consts.mesh_rot_weight> v.abs() {
+                r
+            } else {
+                if dot.abs() > 0.8 {
+                    v
+                } else {
+                    r
+                }             
+            };
+            *mesh_turn = mesh_turn.move_towards((t).clamp(-PI / 2.0, PI / 2.0), dt * consts.mesh_turn_speed * 0.2);
+            
+            player_mesh.rotation = Quat::from_axis_angle(Vec3::Y, *mesh_turn);
+
             *mesh_rotation = transform.rotation.to_euler(EulerRot::XYZ).2;
             controller.horisontal_velocity = player_vel.linvel.x;
         }
@@ -582,7 +632,6 @@ pub fn tick_controllers(
     mut player: Single<(Entity, &mut Player, &mut Velocity, &mut Controller, &Collider, &Transform)>,
     consts: Res<PlayerConstants>,
     mut overlay_events: EventWriter<DebugOverlayEvent>,
-    mut gizmos: Gizmos
 ){
     overlay_text!(overlay_events;TopLeft;FIXED_DT:format!("Fixed dt: {:.1} ({:.1} fps)", time.delta_secs(), 1.0 / time.delta_secs()),(255, 255, 255););
     let dt = time.dt();

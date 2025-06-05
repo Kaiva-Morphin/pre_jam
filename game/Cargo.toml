@@ -18,6 +18,8 @@ bevy_framepace = "0.19.1"
 getrandom = { version = "0.3.3", features = ["wasm_js"] }
 num_enum = "0.7.3"
 bevy = { workspace = true, features = ["mp3", "wav", "dynamic_linking"]  }
+bevy_tailwind.workspace = true
+
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 bevy = { workspace = true, features = ["file_watcher", "embedded_watcher"]}
