@@ -47,7 +47,7 @@ impl Plugin for CorePlugin {
                 UiRetargetPlugin,
                 CursorPlugin,
                 bevy_framepace::FramepacePlugin,
-                InteractionsPlugin,
+                // InteractionsPlugin,
                 CursorPositionPlugin,
                 SpritePreloadPlugin,
                 DebreePlugin,

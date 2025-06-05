@@ -73,7 +73,7 @@
         "test.tsx"
     ],
     "project": "p.tiled-project",
-    "property.type": "bevy_scene::components::SceneRoot",
+    "property.type": "bevy_render::view::visibility::ViewVisibility",
     "recentFiles": [
         "test.tsx",
         "test.tmx",
