@@ -316,10 +316,10 @@ pub fn generate_wave_modulator_consts() -> ([f32; 8], [Vec<f32>; 4]) {
     let c = gen_wave_rng(mi_phase, ma_phase);
     let d = gen_wave_rng(mi_freq, ma_freq);
 
-    let ra = a.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (NUM_SPINNY_STATES - 1.)) as usize];
-    let rb = b.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (NUM_SPINNY_STATES - 1.)) as usize];
-    let rc = c.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (NUM_SPINNY_STATES - 1.)) as usize];
-    let rd = d.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (NUM_SPINNY_STATES - 1.)) as usize];
+    let ra = a.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * NUM_SPINNY_STATES) as usize];
+    let rb = b.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * NUM_SPINNY_STATES) as usize];
+    let rc = c.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * NUM_SPINNY_STATES) as usize];
+    let rd = d.1[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * NUM_SPINNY_STATES) as usize];
     ([a.0, b.0, c.0, d.0, ra, rb, rc, rd], [a.1, b.1, c.1, d.1])
 }
 
