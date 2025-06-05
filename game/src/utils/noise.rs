@@ -7,29 +7,13 @@ pub fn save_texture(data: &[u8], size: u32, path: &str) {
 }
 
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor};
-use noise::{NoiseFn, OpenSimplex, Perlin};
-use bevy::render::render_resource::{AddressMode, Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages};
+use bevy::render::render_resource::{Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages};
 use bevy::prelude::*;
-use simdnoise::NoiseBuilder;
 
 
-
-fn seamless_2d_noise(x: f64, y: f64, period: f64) -> f64 {
-    let noise = OpenSimplex::new(123);
-    
-    let nx = (x / period) * std::f64::consts::TAU;
-    let ny = (y / period) * std::f64::consts::TAU;
-
-    let sx = nx.cos();
-    let sy = nx.sin();
-    let sz = ny.cos();
-    let sw = ny.sin();
-
-    noise.get([sx, sy, sz, sw]) // 4D
-}
-
-
-pub fn create_texture_3d(data: &[u8], size: u32) -> Image {
+pub fn get_noise_3d() -> Image {
+    let size = 128;
+    let mut data = include_bytes!("../../assets/shaders/noise.bin");
     let size = Extent3d {
         width: size,
         height: size,

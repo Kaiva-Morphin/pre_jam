@@ -1,9 +1,9 @@
 
-use bevy::{prelude::*, render::{camera::RenderTarget, render_resource::{Extent3d, RenderPipelineDescriptor, ShaderSize, ShaderType, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}, view::RenderLayers}};
+use bevy::{prelude::*, render::{camera::RenderTarget, render_resource::{Extent3d, RenderPipelineDescriptor, ShaderSize, ShaderType, StorageTextureAccess, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages}, storage::{GpuShaderStorageBuffer, ShaderStorageBuffer}, view::RenderLayers}};
 use debug_utils::{debug_overlay::DebugOverlayPlugin, inspector::plugin::SwitchableEguiInspectorPlugin};
 use pixel_utils::camera::{TARGET_HEIGHT, TARGET_WIDTH};
 
-use crate::{core::plugin::CorePlugin, utils::noise::{create_texture_3d}};
+use crate::{core::plugin::CorePlugin, utils::noise::get_noise_3d};
 
 
 mod core;
@@ -47,13 +47,15 @@ fn setup(
     mut materials: ResMut<Assets<CustomMaterial>>,
     asset_server: Res<AssetServer>,
     mut blur_materials: ResMut<Assets<BlurMaterial>>,
+    mut buffers: ResMut<Assets<ShaderStorageBuffer>>,
 ) {
     let size = Extent3d {
         width: (TARGET_WIDTH as f32 * LIGHT_RESOLUTION) as u32,
-        height: (TARGET_HEIGHT as f32 * LIGHT_RESOLUTION * 2.0) as u32,
         // 360 mlg hack for normals
+        height: (TARGET_HEIGHT as f32 * LIGHT_RESOLUTION * 2.0) as u32,
         depth_or_array_layers: 1,
     };
+
 
 
 
@@ -72,16 +74,16 @@ fn setup(
         },
         ..default()
     };
-
+    
     image.resize(size);
 
-    // TODO: SAVE AND LOAD
-    let data = std::fs::read("R://bebra.bin").unwrap();
-    let noise = create_texture_3d(&data, 128);
+    
+    let noise = get_noise_3d();
     let noise_handle = images.add(noise);
-
-
     let image_handle = images.add(image);
+
+
+
     commands.spawn((
         Mesh2d(meshes.add(Rectangle::default())),
         MeshMaterial2d(materials.add(CustomMaterial {
@@ -167,8 +169,9 @@ struct CustomMaterial {
 pub struct LightEmitter {
     pub camera_relative_position: Vec2,
     pub radius_px: f32,
-    pub ang: f32,
-    pub color: Vec4,
+    pub spot: f32,
+    pub rotation: f32,
+    pub color: Vec3,
 }
 
 impl Default for LightEmitter {
@@ -176,8 +179,9 @@ impl Default for LightEmitter {
         Self {
             camera_relative_position: Vec2::ZERO,
             radius_px: 0.0,
-            ang: 0.0,
-            color: Vec4::ZERO,
+            spot: 0.0,
+            rotation: 0.0,
+            color: Vec3::ZERO,
         }
     }
 }
@@ -218,6 +222,7 @@ struct BlurMaterial {
     noise_texture: Handle<Image>,
     #[texture(9)]
     light_texture: Handle<Image>,
+    
 }
 
 impl Material2d for BlurMaterial {
@@ -245,14 +250,16 @@ fn update(
         material.lights[0] = LightEmitter {
             camera_relative_position: Vec2::new(-100.0, 10.0),
             radius_px: 250.0,
-            ang: 0.0,
-            color: vec4(0.0, 0.0, 1.0, 1.0)
+            spot: 0.0,
+            color: vec3(0.8, 0.4, 0.6),
+            ..default()
         };
         material.lights[1] = LightEmitter {
             camera_relative_position: Vec2::new(100.0, 10.0),
             radius_px: 250.0,
-            ang: 0.0,
-            color: vec4(1.0, 0.0, 1.0, 1.0)
+            spot: 0.0,
+            color: vec3(0.2, 0.2, 0.2),
+            ..default()
         };
     }
     for m in q.iter_mut() {

@@ -66,7 +66,7 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
     // noise *= 1.0;
     // // noise += 0.1;
     // let edgeFactor = 1.0 - (result_color.r + result_color.g + result_color.b) / 4.0;
-    var u = up_uv * vec2(width, height);
+    var u = uv * vec2(width, height);
     u.x = floor(u.x / 3.0) * 3.0;
     u.y = floor(u.y / 3.0) * 3.0;
     let noise = white_noise_3d(vec3(u, in.time * 0.01)) * white_noise_3d(vec3(uv, in.time * 0.01));
