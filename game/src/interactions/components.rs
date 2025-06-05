@@ -62,6 +62,9 @@ pub enum InteractionTypes {
     ChainReactionDisplay,
     WaveModulator,
     PipePuzzle,
+    CollisionMinigame,
+    WarningInterface,
+    HackMinigame,
 }
 
 #[derive(Resource, Debug)]
@@ -69,3 +72,6 @@ pub struct InInteractionArray {
     pub in_interaction: InteractionTypes,
     pub in_any_interaction: bool,
 }
+
+#[derive(Component)]
+pub struct PlayerSensor;

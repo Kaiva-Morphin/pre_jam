@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::CollisionEvent;
 use shaders::VelocityEmmiter;
 use utils::{Easings, WrappedDelta};
 
-use crate::utils::{custom_material_loader::{TextureAtlasHandles, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition};
+use crate::{interactions::components::PlayerSensor, physics::player::Player, utils::{custom_material_loader::{TextureAtlasHandles, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition}};
 
 use super::{chain_reaction_display::ChainGraphMaterial, components::{FKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector}, wave_modulator::WaveGraphMaterial};
 
@@ -21,7 +21,8 @@ pub fn interact(
     mut scroll_selector: ResMut<ScrollSelector>,
     keyboard: Res<ButtonInput<KeyCode>>,
     interaction_types: Query<&InteractionTypes>,
-    mut in_interaction_array: ResMut<InInteractionArray>
+    mut in_interaction_array: ResMut<InInteractionArray>,
+    player_entity: Single<Entity, With<PlayerSensor>>,
 ) {
     // TODO: stop player in interaction
     // println!("{:?}", in_interaction_array);
@@ -71,14 +72,22 @@ pub fn interact(
         match collision_event {
             // interactable - sender; sensor - reciever
             CollisionEvent::Started(reciever_entity, sender_entity, _) => {
-                let Ok((mut in_interaction, _)) = interactable.get_mut(*sender_entity) else {continue;};
-                scroll_selector.selection_options.push(*sender_entity);
+                let mut interactable_entity = *sender_entity;
+                if *sender_entity == *player_entity {
+                    interactable_entity = *reciever_entity;
+                }
+                let Ok((mut in_interaction, _)) = interactable.get_mut(interactable_entity) else {continue;};
+                scroll_selector.selection_options.push(interactable_entity);
                 in_interaction.data = true;
             }
             CollisionEvent::Stopped(reciever_entity, sender_entity, _) => {
-                let Ok((mut in_interaction, interactable_transform)) = interactable.get_mut(*sender_entity) else {continue;};
+                let mut interactable_entity = *sender_entity;
+                if *sender_entity == *player_entity {
+                    interactable_entity = *reciever_entity;
+                }
+                let Ok((mut in_interaction, interactable_transform)) = interactable.get_mut(interactable_entity) else {continue;};
                 in_interaction.data = false;
-                if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == *sender_entity) {
+                if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == interactable_entity) {
                     scroll_selector.selection_options.remove(index);
                     if let Some(current_displayed) = scroll_selector.current_displayed {
                         commands.entity(current_displayed).despawn();

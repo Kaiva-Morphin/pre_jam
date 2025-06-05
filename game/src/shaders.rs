@@ -8,10 +8,12 @@ use debug_utils::rapier::plugin::SwitchableRapierDebugPlugin;
 use core::plugin::CorePlugin;
 
 use crate::core::states::OnGame;
+use crate::interactions::components::PlayerSensor;
 use crate::physics::constants::{INTERACTABLE_CG, PLAYER_SENSOR_CG};
 use crate::physics::player::{spawn_player, Player, PlayerPlugin};
 use crate::tilemap::plugin::MapPlugin;
 use crate::utils::background::StarBackgroundPlugin;
+use crate::utils::spacial_audio::SpacialAudioPlugin;
 
 mod core;
 mod ui;
@@ -31,13 +33,12 @@ fn main() {
             MapPlugin,
             SwitchableEguiInspectorPlugin::default(),
             SwitchableRapierDebugPlugin::default(),
-            DebugOverlayPlugin::default(),
+            DebugOverlayPlugin::enabled(),
+            SpacialAudioPlugin,
         ))
         .add_systems(OnGame, spawn.after(spawn_player))  //.before(shaders::compute::setup)
         .run();
 }
-
-
 
 pub fn spawn(
     mut commands: Commands,
@@ -54,6 +55,7 @@ pub fn spawn(
                 Group::from_bits(INTERACTABLE_CG).unwrap(),
             ),
             Sensor,
+            PlayerSensor,
         ));
         // left ear
         cmd.spawn((
