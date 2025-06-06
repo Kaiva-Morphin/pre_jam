@@ -38,7 +38,7 @@ pub struct HackButton {
 }
 
 impl HackButton {
-    fn get_idx(&self, hovered: bool, pressed: bool) -> usize {
+    pub fn get_idx(&self, hovered: bool, pressed: bool) -> usize {
         match self.state {
             HackButtonState::Disabled => {
                 0 + if pressed {18} else {0}
@@ -87,3 +87,11 @@ pub fn ui_hack_button_hover(
         }
     }
 }
+
+pub const HACK_BUTTON_NAMES : [&'static str ; 5] = [
+    "AA",
+    "5E",
+    "2D",
+    "3G",
+    "4A"
+];

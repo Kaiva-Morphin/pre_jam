@@ -11,7 +11,7 @@ impl Plugin for DebreePlugin {
         app
         .insert_resource(DebreeLevel::default())
         .insert_resource(Malfunction::default())
-        .add_systems(Update, (debree_level_management, manage_malfunctions).run_if(in_state(GlobalAppState::InGame)));
+        .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions).run_if(in_state(GlobalAppState::InGame)));
     }
 }
 
@@ -52,22 +52,30 @@ pub fn debree_level_management(
         );
 }
 
+#[derive(Clone)]
+pub struct Resolved {
+    pub resolved_type: MalfunctionType,
+    pub failed: bool,
+}
+
 #[derive(Resource, Default)]
 pub struct Malfunction {
     pub in_progress: bool,
     pub malfunction_types: Vec<MalfunctionType>,
     pub warning_data: Vec<WarningData>,
+    pub resolved: Vec<Resolved>,
 }
 
-#[derive(Default)]
+#[derive(Default, PartialEq, Clone)]
 pub enum MalfunctionType {
     #[default]
     NoMalfunction,
     Reactor,
     Collision,
+    Hack,
 }
 
-const MALFUNCTION_TYPES_NUM: usize = 3;
+const MALFUNCTION_TYPES_NUM: usize = 4;
 
 pub fn manage_malfunctions(
     debree_level: Res<DebreeLevel>,
@@ -76,7 +84,7 @@ pub fn manage_malfunctions(
     sprite_assets: Res<SpriteAssets>,
 ) {
     if (getrandom::u32().unwrap() as f32 / u32::MAX as f32) < debree_level.malfunction_probability || keyboard.just_pressed(KeyCode::KeyP) {
-        // TODO: && not in progress
+        // TODO: && not the same type
         malfunction.in_progress = true;
         let malfunc_type = ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (MALFUNCTION_TYPES_NUM as f32 - 1.)) as usize;
         match malfunc_type {
@@ -84,7 +92,7 @@ pub fn manage_malfunctions(
                 malfunction.malfunction_types.push(MalfunctionType::Reactor);
                 malfunction.warning_data.push(WarningData {
                     color: false,
-                    text: "Reactor malfunctioned".to_string(),
+                    text: "Reactor malfunctioned!".to_string(),
                     handle: sprite_assets.reactor_mini.clone(),
                 });
             },
@@ -92,11 +100,57 @@ pub fn manage_malfunctions(
                 malfunction.malfunction_types.push(MalfunctionType::Collision);
                 malfunction.warning_data.push(WarningData {
                     color: false,
-                    text: "Collision".to_string(),
+                    text: "The ship is on a trajectory to collide with debree!".to_string(),
+                    handle: sprite_assets.reactor_mini.clone(),
+                });
+            },
+            2 => {
+                malfunction.malfunction_types.push(MalfunctionType::Hack);
+                malfunction.warning_data.push(WarningData {
+                    color: true,
+                    text: "A sattelite is on a collision trajectory!".to_string(),
                     handle: sprite_assets.reactor_mini.clone(),
                 });
             },
             _ => unreachable!()
         };
+        println!("new malfunc: {:?}", malfunction.warning_data[malfunction.warning_data.len() - 1].text);
+    }
+}
+
+pub fn get_random_range(mi: f32, ma: f32) -> f32 {
+    let rand = getrandom::u32().unwrap() as f32 / (u32::MAX as f32);
+    mi + rand * (ma + 1. - mi)
+}
+
+pub fn resolve_malfunctions(
+    mut malfunction: ResMut<Malfunction>,
+    mut debree_level: ResMut<DebreeLevel>,
+) {
+    if !malfunction.resolved.is_empty() {
+        for resolved in malfunction.resolved.clone() {
+            let index = malfunction.malfunction_types.iter().position(|r| r == &resolved.resolved_type).unwrap();
+            let to_be_resolved = malfunction.malfunction_types.remove(index);
+            match to_be_resolved {
+                MalfunctionType::Hack => {
+                    if resolved.failed {
+                        println!("failed hack");
+                    } else {
+                        println!("resolved hack");
+                    }
+                },
+                MalfunctionType::Collision => {
+
+                },
+                MalfunctionType::Reactor => {
+
+                }
+                MalfunctionType::NoMalfunction => {unreachable!()}
+            }
+        }
+        malfunction.resolved = vec![];
+        if malfunction.malfunction_types.is_empty() {
+            malfunction.in_progress = false;
+        }
     }
 }

@@ -68,7 +68,6 @@ impl Plugin for SpritePreloadPlugin {
         .insert_resource(SpinnyAtlasHandles::default())
         .insert_resource(PipesAtlasHandles::default())
         .insert_resource(WarningAtlasHandles::default())
-        .insert_resource(HackAtlasHandles::default())
         .add_event::<SpritePreloadEvent>()
         .add_systems(OnGame, (preload_sprites, create_atlases))
         .add_systems(Update, spawn_sprites.run_if(in_state(GlobalAppState::InGame)));
@@ -101,12 +100,6 @@ pub struct WarningAtlasHandles {
     pub image_handle: Handle<Image>,
 }
 
-#[derive(Resource, Default)]
-pub struct HackAtlasHandles {
-    pub layout_handle: Handle<TextureAtlasLayout>,
-    pub image_handle: Handle<Image>,
-}
-
 pub const KEYS_ATLAS_COLUMNS: u32 = 3;
 pub const KEYS_ATLAS_ROWS: u32 = 1;
 pub const KEYS_ATLAS_SIZE: u32 = KEYS_ATLAS_COLUMNS * KEYS_ATLAS_ROWS;
@@ -117,7 +110,6 @@ pub fn create_atlases(
     mut spinny_atlas_handles: ResMut<SpinnyAtlasHandles>,
     mut pipes_atlas_handles: ResMut<PipesAtlasHandles>,
     mut warning_atlas_handles: ResMut<WarningAtlasHandles>,
-    mut hack_atlas_handles: ResMut<WarningAtlasHandles>,
     sprite_assets: Res<SpriteAssets>,
 ) {
     // f key
@@ -165,16 +157,16 @@ pub fn create_atlases(
     let warning_handle = texture_atlases.add(warning_atlas);
     warning_atlas_handles.layout_handle = warning_handle;
     // hack
-    hack_atlas_handles.image_handle = sprite_assets.hack_atlas.clone();
-    let hack_atlas = TextureAtlasLayout::from_grid(
-        UVec2::splat(HACK_PIXEL_GRID_SIZE),
-        HACK_ATLAS_COLUMNS,
-        HACK_ATLAS_ROWS,
-        None,
-        None
-    );
-    let hack_handle = texture_atlases.add(hack_atlas);
-    hack_atlas_handles.layout_handle = hack_handle;
+    // hack_atlas_handles.image_handle = sprite_assets.hack_atlas.clone();
+    // let hack_atlas = TextureAtlasLayout::from_grid(
+    //     UVec2::splat(HACK_PIXEL_GRID_SIZE),
+    //     HACK_ATLAS_COLUMNS,
+    //     HACK_ATLAS_ROWS,
+    //     None,
+    //     None
+    // );
+    // let hack_handle = texture_atlases.add(hack_atlas);
+    // hack_atlas_handles.layout_handle = hack_handle;
 }
 
 pub struct SpritePreloadData {
@@ -217,6 +209,11 @@ pub fn preload_sprites(
         handle: sprite_assets.warning_interactable.clone(),
         pos: Vec2::new(-40., 10.),
         interaction_type: InteractionTypes::WarningInterface,
+    }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
+        handle: sprite_assets.warning_interactable.clone(),
+        pos: Vec2::new(-20., 40.),
+        interaction_type: InteractionTypes::HackMinigame,
     }));
 }
 

@@ -23,10 +23,10 @@ pub fn open_pipe_puzzle_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction {
-            let mut childern = vec![];
+            let mut children = vec![];
             for y in 0..GRID_SIZE {
                 for x in 0..GRID_SIZE {
-                    childern.push(commands.spawn((
+                    children.push(commands.spawn((
                         Node {
                             width: Val::Px(50.),
                             height: Val::Px(50.),
@@ -56,7 +56,7 @@ pub fn open_pipe_puzzle_display(
                     flex_direction: FlexDirection::Row,
                     ..default()
                 },
-            )).add_children(&childern).id();
+            )).add_children(&children).id();
             *already_spawned = Some(entity);
             commands.entity(*lowres_container).add_child(entity);
         }
