@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::{ConfigureLoadingState, LoadingStateConfig}, LoadingStateAppExt}};
 
-use crate::{core::states::AppLoadingAssetsSubState, ui::components::hack_button::ui_hack_button_hover};
+use crate::{core::states::AppLoadingAssetsSubState, ui::components::hack_button::{ui_hack_button_hover}};
 
 
 

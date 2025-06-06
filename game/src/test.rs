@@ -13,7 +13,8 @@ use crate::core::states::OnGame;
 use crate::physics::constants::{INTERACTABLE_CG, PLAYER_SENSOR_CG};
 use crate::physics::player::{spawn_player, Player, PlayerPlugin};
 use crate::tilemap::plugin::MapPlugin;
-use crate::ui::components::containers::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container};
+use crate::ui::components::containers::base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container};
+use crate::ui::components::containers::text_display::{text_display_green_handle, ui_text_display_green_with_text};
 use crate::ui::components::hack_button::{hack_button_bundle, ui_hack_button, HackButton, HackButtonState};
 use crate::ui::target::LowresUiContainer;
 use crate::utils::background::StarBackgroundPlugin;
@@ -55,16 +56,19 @@ pub fn spawn(
 ) {
     // let crt = asset_server.load("ui/crt_overlay.png");
     let hack = hack_button_bundle(&asset_server, &mut texture_atlases);
+    let text = text_display_green_handle(&asset_server);
     let main = main_container_handle(&asset_server);
     let sub = sub_container_handle(&asset_server);
-    
     commands.entity(*e).with_children(|cmd| {
         cmd.spawn((
             tw!("items-center justify-center w-full h-full"),
             children![
                 ui_main_container(&main, children![
                     (
-                    ui_sub_container(&sub, children![
+                    tw!("flex flex-row items-center justify-center gap-px"),
+                    children![
+                        ui_text_display_green_with_text(&text, (), "bebra :D", &asset_server), 
+                        ui_main_container(&sub, children![
                         (
                             tw!("flex flex-col items-center justify-center gap-px"),
                             children![
@@ -79,9 +83,10 @@ pub fn spawn(
                                 )]),
                                 ui_main_container(&main, children![(
                                     ui_hack_button(&hack, HackButton{state: HackButtonState::SuperActive, index: 3}, ()),
-                                )])
+                                )]),
                             ]),
                         ]),
+                    ],
                     ),
                 ])
             ],

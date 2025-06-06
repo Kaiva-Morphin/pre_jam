@@ -1,0 +1,77 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "automapping.whileDrawing": false,
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "Все файлы (*)",
+    "fileStates": {
+        "R:/prog/pre_jam/game/assets/tilemaps/v1.0/map.tmx": {
+            "scale": 0.49772949218749996,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": -611.7780938833571,
+                "y": 120.54740766174518
+            }
+        },
+        "R:/prog/pre_jam/game/assets/tilemaps/v1.0/map.tmx#tilemap": {
+            "scaleInDock": 1
+        },
+        "R:/prog/pre_jam/game/assets/tilemaps/v1.0/rules.tmx": {
+            "scale": 3.9818359374999996,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 127.95605042429,
+                "y": 128.0816206406043
+            }
+        },
+        "autobg.tmx": {
+            "scale": 4,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 69.625,
+                "y": 48.5
+            }
+        },
+        "main.tmx": {
+            "scale": 1.5,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": -97,
+                "y": -348
+            }
+        },
+        "main.tsx": {
+            "scaleInEditor": 8
+        },
+        "rules.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 239.25,
+                "y": 172.5
+            }
+        }
+    },
+    "last.imagePath": "R:/prog/pre_jam/game/assets/tilemaps/v2.0",
+    "map.fixedSize": false,
+    "map.lastUsedFormat": "tmx",
+    "map.layerDataFormat": "3",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "openFiles": [
+    ],
+    "project": "project.tiled-project",
+    "recentFiles": [
+        "autobg.tmx",
+        "main.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
