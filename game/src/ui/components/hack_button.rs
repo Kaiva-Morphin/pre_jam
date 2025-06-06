@@ -13,7 +13,7 @@ pub fn hack_button_bundle(a: &Res<AssetServer>, t: &mut ResMut<Assets<TextureAtl
 pub fn ui_hack_button(
     (h, a): &(Handle<Image>, Handle<TextureAtlasLayout>),
     btn: HackButton,
-    children: impl Bundle,
+    component: impl Bundle,
 ) -> impl Bundle {
     (
         ImageNode::from_atlas_image(h.clone(), TextureAtlas{layout: a.clone(), index: btn.get_idx(false, false)},),
@@ -26,7 +26,7 @@ pub fn ui_hack_button(
             blur_radius: Val::Px(5.0),
         }]),
         btn,
-        children
+        component
     )
 }
 
@@ -76,6 +76,7 @@ pub fn ui_hack_button_hover(
         ),
         Changed<Interaction>,
     >,
+    t: Res<Time>
 ) {
     for (entity, interaction, mut node, hack) in
         &mut interaction_query
@@ -87,3 +88,4 @@ pub fn ui_hack_button_hover(
         }
     }
 }
+

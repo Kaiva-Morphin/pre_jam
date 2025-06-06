@@ -33,7 +33,7 @@ fn setup(
         custom_size: Some(vec2(3072.0, 3072.0)),
         ..default()
         },
-        Transform::from_translation(vec3(0.0, 0.0, -100.0)),
+        Transform::from_translation(vec3(0.0, 0.0, -900.0)),
         ParalaxLayer{
             offset: 0.4,
             size: Vec2::splat(1024.0)
@@ -54,7 +54,7 @@ fn setup(
             flip_y: i / 2 == 0,
             ..default()
             },
-            Transform::from_translation(vec3(0.0, 0.0, -10.0 * i as f32 - 10.0)),
+            Transform::from_translation(vec3(0.0, 0.0, -900.0 + -10.0 * i as f32 - 10.0)),
             ParalaxLayer{
                 offset: 0.6 - i as f32 * 0.15,
                 size: Vec2::splat(512.0)

@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 use bevy::prelude::*;
+use bevy_tailwind::tw;
 
 pub const MAIN_CONTAINER_SRC: &str = "ui/main_container.png";
 pub fn main_container_handle(a: &Res<AssetServer>) -> Handle<Image> { a.load(MAIN_CONTAINER_SRC) }
@@ -54,3 +55,7 @@ pub fn ui_sub_container(h: &Handle<Image>, component: impl Bundle) -> impl Bundl
         component
     )
 }
+
+
+
+

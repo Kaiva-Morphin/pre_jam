@@ -642,7 +642,7 @@ pub fn tick_controllers(
     let g = consts.gravity;
     let g = if c.jumping {g * 1.0} else {g};
     let filter = QueryFilter::default().exclude_collider(*e).exclude_sensors();
-    let options = ShapeCastOptions {max_time_of_impact: 2.0 / 64.0,
+    let options = ShapeCastOptions {max_time_of_impact: 4.0 / 64.0,
         target_distance: 0.0,
         stop_at_penetration: true,
         compute_impact_geometry_on_penetration: true,
@@ -664,7 +664,7 @@ pub fn tick_controllers(
     // col.set_scale(Vec2::splat(0.95), 1);
     // floor checks
     if let Some((_, hit)) =
-        ctx.cast_shape(pos, 0.0, g * dt * 2.0, 
+        ctx.cast_shape(pos, 0.0, g * dt * 4.0, 
         &col, options, filter) {
         let Some(d) = hit.details else {return;};
         if d.normal1.dot(g) < -0.7 {

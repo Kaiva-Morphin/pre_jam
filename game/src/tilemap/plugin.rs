@@ -9,12 +9,13 @@ use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::const
 pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        let mut path = std::env::current_dir().unwrap();
-        path.push("assets_raw/objects.json");
+        // let mut path = std::env::current_dir().unwrap();
+        // path.push("assets_raw/objects.json");
+        let path = None;
         app
             .add_plugins((
                 TilemapPlugin,
-                TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: Some(path) }),
+                TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: path}),
                 TiledPhysicsPlugin::<CustomRapierPhysicsBackend>::default(),
             ))
             .register_type::<MapObject>()
@@ -45,7 +46,7 @@ pub fn spawn_map(
     assets: Res<AssetServer>,
     mut tasks: ResMut<PreGameTasks>,
 ){
-    let map = assets.load("tilemaps/v1.0/test.tmx");
+    let map = assets.load("tilemaps/v2.0/main.tmx");
     cmd.insert_resource(MapAssets{map: map.clone()});
     cmd.spawn((
         TiledMapHandle(map),

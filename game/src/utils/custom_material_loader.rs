@@ -117,7 +117,6 @@ pub fn create_atlases(
     mut spinny_atlas_handles: ResMut<SpinnyAtlasHandles>,
     mut pipes_atlas_handles: ResMut<PipesAtlasHandles>,
     mut warning_atlas_handles: ResMut<WarningAtlasHandles>,
-    mut hack_atlas_handles: ResMut<WarningAtlasHandles>,
     sprite_assets: Res<SpriteAssets>,
 ) {
     // f key
@@ -165,7 +164,6 @@ pub fn create_atlases(
     let warning_handle = texture_atlases.add(warning_atlas);
     warning_atlas_handles.layout_handle = warning_handle;
     // hack
-    hack_atlas_handles.image_handle = sprite_assets.hack_atlas.clone();
     let hack_atlas = TextureAtlasLayout::from_grid(
         UVec2::splat(HACK_PIXEL_GRID_SIZE),
         HACK_ATLAS_COLUMNS,
@@ -174,7 +172,6 @@ pub fn create_atlases(
         None
     );
     let hack_handle = texture_atlases.add(hack_atlas);
-    hack_atlas_handles.layout_handle = hack_handle;
 }
 
 pub struct SpritePreloadData {
