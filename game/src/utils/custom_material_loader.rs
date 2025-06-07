@@ -41,6 +41,8 @@ pub struct SpriteAssets {
     pub collision_interactable: Handle<Image>,
     #[asset(path = "interactables/warning.png")]
     pub warning_interactable: Handle<Image>,
+    #[asset(path = "interactables/wire.png")]
+    pub wire: Handle<Image>,
 
     #[asset(path = "interactables/ururur.png")]
     pub faz: Handle<Image>,
@@ -211,13 +213,18 @@ pub fn preload_sprites(
     }));
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
         handle: sprite_assets.warning_interactable.clone(),
-        pos: Vec2::new(-40., 100.),
+        pos: Vec2::new(-80., 100.),
         interaction_type: InteractionTypes::WarningInterface,
     }));
     writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
         handle: sprite_assets.warning_interactable.clone(),
-        pos: Vec2::new(-20., 140.),
+        pos: Vec2::new(-40., 100.),
         interaction_type: InteractionTypes::HackMinigame,
+    }));
+    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
+        handle: sprite_assets.faz.clone(),
+        pos: Vec2::new(0., 100.),
+        interaction_type: InteractionTypes::WiresMinigame,
     }));
 }
 

@@ -3,9 +3,8 @@ use std::time::Duration;
 use bevy::prelude::*;
 use components::{InInteractionArray, InteractGlowEvent, KeyTimer, ScrollSelector};
 use systems::*;
-use wave_modulator::{open_wave_modulator_display};
 
-use crate::{core::states::{GlobalAppState, OnGame}, interactions::{chain_reaction_display::*, collision_minigame::*, hack_minigame::*, pipe_puzzle::*, warning_interface::*, wave_modulator::*}, ui::components::hack_button::ui_hack_button_hover};
+use crate::{core::states::{GlobalAppState, OnGame}, interactions::{chain_reaction_display::*, collision_minigame::*, hack_minigame::*, pipe_puzzle::*, warning_interface::*, wave_modulator::*, wires_minigame::*}, ui::components::hack_button::ui_hack_button_hover};
 
 mod systems;
 pub mod components;
@@ -15,6 +14,7 @@ pub mod pipe_puzzle;
 pub mod collision_minigame;
 pub mod warning_interface;
 pub mod hack_minigame;
+pub mod wires_minigame;
 
 pub struct InteractionsPlugin;
 
@@ -30,6 +30,7 @@ impl Plugin for InteractionsPlugin {
         .insert_resource(CollisionMinigameConsts::default())
         .insert_resource(PipeGrid::default())
         .insert_resource(HackGrid::default())
+        .insert_resource(Wires::default())
         .insert_resource(WarningTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .add_systems(Update, (
             (interact, update_interactables, update_graphs_time,
@@ -49,7 +50,10 @@ impl Plugin for InteractionsPlugin {
                 ).chain(),
                 (
                     init_hack_display, open_hack_display, update_hack_display.before(ui_hack_button_hover)
-                ).chain()
+                ).chain(),
+                (
+                    open_wires_display, touch_wires_inlet
+                ).chain(),
             )
             .run_if(in_state(GlobalAppState::InGame))
             ).chain(),
