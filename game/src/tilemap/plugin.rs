@@ -99,15 +99,18 @@ fn handle_layer_spawn(
         match layer.name.as_str() {
             "LADDERS" => {
                 for c in c.iter() {
-                    cmd.entity(c).insert((
-                        Sensor,
-                        LadderCollider,
-                        ActiveEvents::COLLISION_EVENTS,
-                        CollisionGroups{
-                            memberships: Group::from_bits(LADDERS_CG).unwrap(),
-                            filters: Group::from_bits(PLAYER_CG).unwrap(),
-                        }
-                    ));
+                    let Ok((e, c)) = q_c.get(c) else {continue;};
+                    for c in c.iter() {
+                        cmd.entity(c).insert((
+                            Sensor,
+                            LadderCollider,
+                            ActiveEvents::COLLISION_EVENTS,
+                            CollisionGroups{
+                                memberships: Group::from_bits(LADDERS_CG).unwrap(),
+                                filters: Group::from_bits(PLAYER_CG).unwrap(),
+                            }
+                        ));
+                    }
                 }
             }
             "PLATFORMS" => {

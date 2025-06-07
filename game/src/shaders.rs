@@ -34,7 +34,6 @@ fn main() {
             SwitchableEguiInspectorPlugin::default(),
             SwitchableRapierDebugPlugin::default(),
             DebugOverlayPlugin::enabled(),
-            SpacialAudioPlugin,
         ))
         .add_systems(OnGame, spawn.after(spawn_player))  //.before(shaders::compute::setup)
         .run();

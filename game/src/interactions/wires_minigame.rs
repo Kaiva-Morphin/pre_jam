@@ -116,3 +116,64 @@ pub fn touch_wires_inlet(
         }
     }
 }
+
+
+
+#[derive(Component)]
+pub struct ToWorld;
+
+pub fn get_pos(
+    mut commands: Commands,
+    wires_q: Query<(&RelativeCursorPosition, &WireId, &GlobalTransform, &ComputedNode)>,
+    mouse_button: Res<ButtonInput<MouseButton>>,
+    mut wires: ResMut<Wires>,
+    sprite_assets: Res<SpriteAssets>,
+    cursor: Res<CursorPosition>,
+
+    pic: Option<Single<(Entity, &mut Transform), With<ToWorld>>>
+) {
+    // let Some((e, mut t)) = pic else {
+    //     commands.spawn(
+
+    //     );
+    //     return;
+    // };
+    // if mouse_button.just_released(MouseButton::Left) {
+    //     wires.is_locked = false;
+    // }
+    for (cursor_rel_pos, wire_id, global_transform, node) in wires_q {
+        info!("Curs: {:?}", cursor_rel_pos.mouse_over());
+        if let Some(rel_pos) = cursor_rel_pos.normalized {
+            if cursor_rel_pos.mouse_over() &&
+            mouse_button.just_pressed(MouseButton::Left) {
+                wires.is_locked = true;
+                wires.locked_id = wire_id.id;
+            }
+            if wires.is_locked && wires.locked_id == wire_id.id {
+                
+                let size = node.size;
+                let start = global_transform.translation().xy() - size - Vec2::new(TARGET_WIDTH as f32, TARGET_HEIGHT as f32) / 2.;
+                let end = start + rel_pos * size;
+                println!("{:?} {:?} {:?} {:?}", size, start, rel_pos, cursor.screen_position);
+
+                let delta = end - start;
+                let distance = delta.length();
+                let angle = delta.y.atan2(delta.x);
+
+                let midpoint = (start + end) / 2.0;
+                commands.spawn((
+                    ImageNode::from(sprite_assets.wire.clone()),
+                    Transform::from_rotation(Quat::from_rotation_z(angle)),
+                    Node {
+                        position_type: PositionType::Absolute,
+                        left: Val::Px(midpoint.x),
+                        top: Val::Px(midpoint.y),
+                        width: Val::Px(distance),
+                        height: Val::Px(10.),
+                        ..default()
+                    }
+                ));
+            }
+        }
+    }
+}

@@ -52,7 +52,7 @@ impl Plugin for InteractionsPlugin {
                     init_hack_display, open_hack_display, update_hack_display.before(ui_hack_button_hover)
                 ).chain(),
                 (
-                    open_wires_display, touch_wires_inlet
+                    open_wires_display, touch_wires_inlet, get_pos
                 ).chain(),
             )
             .run_if(in_state(GlobalAppState::InGame))

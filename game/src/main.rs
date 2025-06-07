@@ -133,11 +133,11 @@ pub fn spawn(
         ));
     });
     
-    commands.spawn((
-        AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
-        PlaybackSettings::LOOP.with_spatial(true),
-        Transform::from_xyz(50., 0., 0.),
-        Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
-    ));
+    // commands.spawn((
+    //     AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
+    //     PlaybackSettings::LOOP.with_spatial(true),
+    //     Transform::from_xyz(50., 0., 0.),
+    //     Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
+    // ));
 
 }
