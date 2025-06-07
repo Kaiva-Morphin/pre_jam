@@ -12,6 +12,7 @@ pub fn ui_spinny(
         Interaction::default(),
         RelativeCursorPosition::default(),
         spinny,
-        children
+        children,
+        Name::new("Spinny"),
     )
 }

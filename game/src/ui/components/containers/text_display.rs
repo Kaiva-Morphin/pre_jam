@@ -30,7 +30,7 @@ pub fn ui_text_display_green(h: &Handle<Image>, component: impl Bundle) -> impl 
     )
 }
 
-pub fn ui_text_display_green_with_text(h: &Handle<Image>, component: impl Bundle, text: &str, asset_server : &Res<AssetServer>) -> impl Bundle {
+pub fn ui_text_display_green_with_text(h: &Handle<Image>, component: (impl Bundle, impl Bundle), text: &str, asset_server : &Res<AssetServer>) -> impl Bundle {
     ui_text_display_green(h, (
         children![(
             Text::new(text),
@@ -41,6 +41,7 @@ pub fn ui_text_display_green_with_text(h: &Handle<Image>, component: impl Bundle
                 },
                 TextColor(Color::srgb_u8(82, 112, 67)),
                 tw!("z-10"),
+                component.0
             ),
             (
                 Text::new(text),
@@ -51,8 +52,9 @@ pub fn ui_text_display_green_with_text(h: &Handle<Image>, component: impl Bundle
                 },
                 tw!("absolute mt-[4px] ml-[4px]"),
                 TextColor(Color::srgb_u8(21, 24, 19)),
+                component.1
             )
         ],
-        component
+        // вадим я перетащил компонент внутрь я вообще не ебу к хуям он тут нужен вне текста 🤷‍♂️🤷‍♂️🤷‍♂️
     ))
 }

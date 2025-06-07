@@ -3,10 +3,10 @@
 struct GraphUniforms {
     a: f32,
     b: f32,
-    ra: f32,
-    rb: f32,
+    u: f32,
+    r: f32,
     time: f32,
-    _pad1: f32,
+    is_active: f32,
     _pad2: f32,
     _pad3: f32,
 };
@@ -18,29 +18,47 @@ struct GraphUniforms {
 
 @fragment
 fn fragment(input: UiVertexOutput) -> @location(0) vec4<f32> {
-    let uv = input.uv;
+    let base_pixel = textureSample(base_sprite_texture, base_sprite_texture_sampler, input.uv);
+    if (graph_uniforms.is_active == 0) {
+        return base_pixel;
+    }
+    let uv = input.uv; // uv in [0,1] unge
+    let a = graph_uniforms.a;
+    let b = graph_uniforms.b;
+    let u = graph_uniforms.u;
+    let r = graph_uniforms.r;
 
-    // Function definitions
-    let f1 = sqrt(max((uv.x - graph_uniforms.a) * graph_uniforms.b, 0.0)) - uv.x + graph_uniforms.a;
-    let f2 = sqrt(max((uv.x - graph_uniforms.ra) * graph_uniforms.rb, 0.0)) - uv.x + graph_uniforms.ra;
+    // Map uv.x to x in guph space (e.g., [-2, 8])
+    let x_min = 0.0;
+    let x_max = 10.0;
+    let x = mix(x_min, x_max, uv.x);
 
-    // Map function values to UV space (assuming y in [0,1])
-    let y1 = 0.5 + 0.4 * f1; // scale and center
-    let y2 = 0.5 + 0.4 * f2;
+    // Compute function value
+    let fx = u / (pow(max(x, 0.), r));
+    let fx1 = sqrt((x - a) * (b + graph_uniforms.time / 10.)) - x + a;
 
-    // Line thickness
-    let thickness = 0.01;
+    // Map uv.y to y in guph space (e.g., [-5, 7])
+    let y_min = -5.0;
+    let y_max = 5.0;
+    let y = -mix(y_min, y_max, uv.y);
+    let y1 = -mix(y_min, y_max, uv.y);
 
-    // Draw lines: red for (a, b), green for (ra, rb)
-    let line1 = smoothstep(thickness, 0.0, abs(uv.y - y1));
-    let line2 = smoothstep(thickness, 0.0, abs(uv.y - y2));
+    // Duw the guph as a white line where |y - fx| < thickness
+    let thickness = 0.01 * (y_max - y_min);
+    let guph_alpha = smoothstep(thickness, 0.0, abs(y - fx));
+    let guph_alpha1 = smoothstep(thickness, 0.0, abs(y1 - fx1));
 
-    // Base pixel
-    let base_pixel = textureSample(base_sprite_texture, base_sprite_texture_sampler, uv);
+    // Duw y=0 axis as a guy line
+    let axis_thickness = 0.005 * (y_max - y_min);
+    let axis_alpha = smoothstep(axis_thickness, 0.0, abs(y));
 
-    // Overlay lines
-    let color = base_pixel.rgb +
-        vec3(line1, line2, 0.0); // red and green channels
+    // Combine: white for guph, guy for axis, additive blend
+    let color = vec3<f32>(
+        1.0 * guph_alpha + 0.7 * axis_alpha,
+        1.0 * guph_alpha + 0.7 * axis_alpha,
+        1.0 * guph_alpha + 0.7 * axis_alpha
+    );
+    let alpha = max(max(guph_alpha, guph_alpha1), axis_alpha);
 
-    return vec4(color, 1.0);
+    return vec4<f32>(color, alpha) + vec4(base_pixel.xyz, 0.2);
 }

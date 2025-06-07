@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::{ConfigureLoadingState, LoadingStateConfig}, LoadingStateAppExt}};
 
-use crate::{core::states::AppLoadingAssetsSubState, ui::components::hack_button::{ui_hack_button_hover}};
+use crate::{core::states::AppLoadingAssetsSubState, ui::components::{hack_button::ui_hack_button_hover, ui_submit_button::ui_submit_button_hover}};
 
 
 
@@ -15,7 +15,7 @@ impl Plugin for UiSystemPlugin {
                 LoadingStateConfig::new(AppLoadingAssetsSubState::Loading)
                     .load_collection::<UiAssetCollection>(),
             )
-            .add_systems(Update, ui_hack_button_hover)
+            .add_systems(Update, (ui_hack_button_hover, ui_submit_button_hover))
         ;
     }
 }

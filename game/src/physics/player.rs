@@ -179,7 +179,7 @@ pub fn spawn_player(
 ){
     cmd.spawn((
         (
-        Transform::from_xyz(0.0, 200.0, 0.0),
+        Transform::from_xyz(0.0, 100.0, 0.0),
         Player::default(),
         // ActiveHooks::MODIFY_SOLVER_CONTACTS,
         Name::new("Player"),

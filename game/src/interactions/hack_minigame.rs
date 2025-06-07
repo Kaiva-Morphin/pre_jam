@@ -1,7 +1,7 @@
 use bevy::{platform::collections::HashSet, prelude::*};
 use bevy_tailwind::tw;
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::*, hack_button::*}, target::LowresUiContainer}, utils::debree::{get_random_range, Malfunction, MalfunctionType, Resolved}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::*}, hack_button::*}, target::LowresUiContainer}, utils::debree::{get_random_range, Malfunction, MalfunctionType, Resolved}};
 
 pub const HACK_GRID_SIZE: u32 = 6;
 pub const HACK_PIXEL_GRID_SIZE: u32 = 50;
@@ -190,6 +190,7 @@ pub fn update_hack_display(
                     failed = false;
                 };
                 malfunction.resolved.push(Resolved {resolved_type: curr_type.clone(), failed});
+                *prev_state = Interaction::default();
             }
         }
     }
