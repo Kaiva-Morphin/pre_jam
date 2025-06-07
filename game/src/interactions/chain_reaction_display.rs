@@ -1,7 +1,8 @@
 use bevy::{color::palettes::css::RED, prelude::*, render::{camera::RenderTarget, render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDescriptor, TextureUsages}}, sprite::{AlphaMode2d, Material2d}};
+use bevy_tailwind::tw;
 use pixel_utils::camera::PixelCamera;
 
-use crate::{ui::target::LowresUiContainer, utils::{custom_material_loader::SpriteAssets, debree::DebreeLevel}};
+use crate::{ui::{components::containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::DebreeLevel}};
 
 use super::{components::{InInteractionArray, InteractionTypes}, wave_modulator::WaveGraphMaterial};
 
@@ -31,6 +32,9 @@ impl UiMaterial for ChainGraphMaterial {
         CHAINGRAPH_MATERIAL_PATH.into()
     }
 }
+
+#[derive(Component)]
+pub struct ChainDisplayText;
 
 pub fn open_chain_graph_display(
     mut commands: Commands,
@@ -73,35 +77,64 @@ pub fn open_chain_graph_display(
                 ..default()
             };
             let sprite_handle = asset_server.add(canvas);
-            let entity = commands.spawn((
-                Node {
-                    width: Val::Percent(100.),
-                    height: Val::Percent(100.),
-                    align_self: AlignSelf::Center,
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    position_type: PositionType::Absolute,
-                    ..default()
-                },
-            )).with_child((
-                MaterialNode(chain_graph_material.add(
-                    ChainGraphMaterial {
-                        chain: 0.,
-                        sprite_handle,
-                        base_sprite_handle: sprite_assets.chain_graph_sprite.clone(),
-                        _webgl2_padding_8b: 0,
-                        _webgl2_padding_12b: 0,
-                        _webgl2_padding_16b: 0,
-                    })
-                ),
-                Node {
-                    width: Val::Px(200.),
-                    height: Val::Px(200.),
-                    ..default()
-                }
-            )).id();
+            let main = main_container_handle(&asset_server);
+            let sub = sub_container_handle(&asset_server);
+            let view = viewport_handle(&asset_server);
+            let text_bundle = text_display_green_handle(&asset_server);
+            let material = MaterialNode(chain_graph_material.add(
+                ChainGraphMaterial {
+                    chain: 0.,
+                    sprite_handle,
+                    base_sprite_handle: sprite_assets.chain_graph_sprite.clone(),
+                    _webgl2_padding_8b: 0,
+                    _webgl2_padding_12b: 0,
+                    _webgl2_padding_16b: 0,
+                })
+            );
+            let ui_entity = commands.spawn(
+            ui_main_container(&main, children![(
+                ui_viewport_container(&view, 
+                    children![(
+                        material,
+                        tw!("z-10 w-[128px] h-[128px]")
+                )]),)])
+            ).id();
+            let display_text = "Chain Reaction Progress 000 %";
+            let text_entity = commands.spawn(
+            ui_main_container(&main, children![
+                ui_text_display_green_with_text(&text_bundle, (ChainDisplayText, ChainDisplayText), display_text, &asset_server)
+                ])
+            ).id();
+
+            let entity = commands.spawn(
+                tw!("items-center justify-center w-full h-full"),
+            ).with_children(|cmd|{
+                cmd.spawn(ui_main_container(&main, ()))
+                .with_children(|cmd| {
+                    cmd.spawn(ui_sub_container(&sub, ()))
+                    .with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                        .add_child(ui_entity);
+                    });
+                    cmd.spawn(ui_sub_container(&sub, ()))
+                    .with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                        .add_child(text_entity);
+                    });
+                });
+            }).id();
             *already_spawned = Some(entity);
             commands.entity(*lowres_container).add_child(entity);
         }
+    }
+}
+
+pub fn update_chain_graph_display(
+    text: Query<&mut Text, With<ChainDisplayText>>,
+    debree_level: Res<DebreeLevel>,
+) {
+    for mut text in text {
+        let len = (debree_level.chain_reaction as i32).to_string().len();
+        text.0 = format!("Chain Reaction Progress {}{} %", "0".repeat(3 - len), debree_level.chain_reaction as i32);
     }
 }

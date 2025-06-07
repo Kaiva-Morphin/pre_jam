@@ -10,7 +10,7 @@ struct GraphUniforms {
     rc: f32,
     rd: f32,
     time: f32,
-    _pad1: f32,
+    is_active: f32,
     _pad2: f32,
     _pad3: f32,
 };
@@ -22,6 +22,12 @@ struct GraphUniforms {
 
 @fragment
 fn fragment(input: UiVertexOutput) -> @location(0) vec4<f32> {
+    let base_pixel = textureSample(base_sprite_texture, base_sprite_texture_sampler, input.uv);
+
+    if graph_uniforms.is_active == 0. {
+        return base_pixel;
+    }
+
     let x = input.uv.x * 2.0 * 3.1415926;
     let y = input.uv.y;
 
@@ -38,8 +44,6 @@ fn fragment(input: UiVertexOutput) -> @location(0) vec4<f32> {
 
     let line_f = smoothstep(thickness + aa, thickness - aa, dist_f);
     let line_t = smoothstep(thickness + aa, thickness - aa, dist_t);
-
-    let base_pixel = textureSample(base_sprite_texture, base_sprite_texture_sampler, input.uv);
 
     // Draw f as red, t as green, both as white where they overlap
     let color = vec4(line_f, line_t, 0.0, 0.0);

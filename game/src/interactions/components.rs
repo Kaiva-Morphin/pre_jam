@@ -65,6 +65,7 @@ pub enum InteractionTypes {
     CollisionMinigame,
     WarningInterface,
     HackMinigame,
+    WiresMinigame,
 }
 
 #[derive(Resource, Debug)]

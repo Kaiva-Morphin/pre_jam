@@ -27,6 +27,7 @@ pub fn ui_viewport_container(h: &Handle<Image>, component: impl Bundle) -> impl 
             padding: UiRect::all(Val::Px(5.0)),
             ..default()
         },
+        Name::new("UI container"),
         component
     )
 }

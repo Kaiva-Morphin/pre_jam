@@ -22,6 +22,8 @@ impl Plugin for SpacialAudioPlugin {
 pub struct SoundAssets {
     #[asset(path = "sounds/192343__zimbot__nastyalarmloop.wav")]
     pub alarm_sound: Handle<AudioSource>,
+    #[asset(path = "sounds/mem.mp3")]
+    pub faz_sound: Handle<AudioSource>,
 }
 
 #[derive(Component)]
@@ -46,7 +48,7 @@ fn play_alarm_speakers(
     malfunction: Res<Malfunction>,
     sound_assets: Res<SoundAssets>,
 ) {
-    if malfunction.is_changed() && malfunction.in_progress {
+    if malfunction.is_changed() && malfunction.in_progress && malfunction.added_new_malfunction {
         println!("play");
         for speaker_entity in speakers {
             commands.entity(speaker_entity).insert((

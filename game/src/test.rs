@@ -60,6 +60,7 @@ pub fn spawn(
     let text = text_display_green_handle(&asset_server);
     let main = main_container_handle(&asset_server);
     let sub = sub_container_handle(&asset_server);
+    panic!("ВАДИМ Я ПОМЕНЯЛ ui_text_display_green_with_text");
     commands.entity(*e).with_children(|cmd| {
         cmd.spawn((
             tw!("items-center justify-center w-full h-full"),
@@ -68,7 +69,7 @@ pub fn spawn(
                     (
                     tw!("flex flex-row items-center justify-center gap-px"),
                     children![
-                        ui_text_display_green_with_text(&text, (), "bebra :D", &asset_server), 
+                        // ui_text_display_green_with_text(&text, (), "bebra :D", &asset_server), 
                         ui_main_container(&sub, children![
                         (
                             tw!("flex flex-col items-center justify-center gap-px"),

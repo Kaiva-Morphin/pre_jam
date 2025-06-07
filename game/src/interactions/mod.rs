@@ -1,12 +1,10 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
-use chain_reaction_display::{open_chain_graph_display};
 use components::{InInteractionArray, InteractGlowEvent, KeyTimer, ScrollSelector};
 use systems::*;
-use wave_modulator::{open_wave_modulator_display};
 
-use crate::{core::states::{GlobalAppState, OnGame}, interactions::{collision_minigame::*, pipe_puzzle::*, warning_interface::*, wave_modulator::*}};
+use crate::{core::states::{GlobalAppState, OnGame}, interactions::{chain_reaction_display::*, collision_minigame::*, hack_minigame::*, pipe_puzzle::*, warning_interface::*, wave_modulator::*, wires_minigame::*}, ui::components::hack_button::ui_hack_button_hover};
 
 mod systems;
 pub mod components;
@@ -16,6 +14,7 @@ pub mod pipe_puzzle;
 pub mod collision_minigame;
 pub mod warning_interface;
 pub mod hack_minigame;
+pub mod wires_minigame;
 
 pub struct InteractionsPlugin;
 
@@ -30,12 +29,33 @@ impl Plugin for InteractionsPlugin {
         .insert_resource(WaveModulatorConsts::default())
         .insert_resource(CollisionMinigameConsts::default())
         .insert_resource(PipeGrid::default())
+        .insert_resource(HackGrid::default())
+        .insert_resource(Wires::default())
         .insert_resource(WarningTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .add_systems(Update, (
-            (interact, update_interactables, update_graphs_time, touch_spinny, interact_with_spinny,
-                (open_chain_graph_display, open_wave_modulator_display, update_pipes, open_pipe_puzzle_display, open_collision_minigame_display, interact_with_spinny_collision, open_warning_interface_display,
-                update_warning_interface_display)
-                .run_if(in_state(GlobalAppState::InGame))
+            (interact, update_interactables, update_graphs_time,
+                (update_pipes, open_pipe_puzzle_display, 
+                open_warning_interface_display,
+                update_warning_interface_display,
+                (
+                    open_chain_graph_display, update_chain_graph_display
+                ).chain(),
+                (
+                    generate_wave_modulator_consts, open_wave_modulator_display, touch_wavemod_spinny,
+                    interact_with_wavemod_spinny, update_wave_modulator_display
+                ).chain(),
+                (
+                    generate_collision_minigame_consts, open_collision_minigame_display, interact_with_spinny_collision,
+                    update_collision_minigame
+                ).chain(),
+                (
+                    init_hack_display, open_hack_display, update_hack_display.before(ui_hack_button_hover)
+                ).chain(),
+                (
+                    open_wires_display, touch_wires_inlet
+                ).chain(),
+            )
+            .run_if(in_state(GlobalAppState::InGame))
             ).chain(),
         ))
         .add_systems(OnGame, init_grid)
