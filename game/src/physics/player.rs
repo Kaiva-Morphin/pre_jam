@@ -30,8 +30,8 @@ impl Plugin for PlayerPlugin {
                 check_player_assets
             ).run_if(in_state(GlobalAppState::AssetLoading)))
             .add_systems(Update, (
-                tick_controllers,
-                update_controllers,
+                (update_controllers,
+                tick_controllers).chain(),
                 listen_events
             ).run_if(in_state(GlobalAppState::InGame)))
             .add_plugins(
@@ -57,6 +57,8 @@ pub struct PlayerAssetCollection {
     player_scene: Handle<Scene>,
 }
 
+pub const ASTRO_SRC : &str = "models/astro_test.glb";
+
 pub fn load_player_assets(
     asset_server: Res<AssetServer>,
     mut cmd: Commands,
@@ -66,7 +68,7 @@ pub fn load_player_assets(
     tasks.add("player_assets".to_string());
     let mut clips = HashMap::new();
     for a in PlayerAnimationNode::iter() {
-        let clip = asset_server.load(GltfAssetLabel::Animation(a as usize).from_asset("models/astro.glb"));
+        let clip = asset_server.load(GltfAssetLabel::Animation(a as usize).from_asset(ASTRO_SRC));
         clips.insert(a, clip);
     }
     let mut animation_graph = AnimationGraph::new();
@@ -81,7 +83,7 @@ pub fn load_player_assets(
             anims.insert(anim, idx);
         }
     }
-    let player_scene = asset_server.load(GltfAssetLabel::Scene(0).from_asset("models/astro.glb"));
+    let player_scene = asset_server.load(GltfAssetLabel::Scene(0).from_asset(ASTRO_SRC));
     cmd.insert_resource(
         PlayerAssetCollection {
             clips: anims,
@@ -119,6 +121,7 @@ pub struct PlayerConstants {
     pub run_speed: f32,
     pub climb_speed: f32,
     pub climb_out_speed: f32,
+    pub climb_sprint_multiplier: f32,
 
     pub max_horisontal_velocity: f32,
     pub max_vertical_velocity: f32,
@@ -149,6 +152,7 @@ impl Default for PlayerConstants {
             speed_loss: 350.0,
             walk_speed: 55.0,
             run_speed: 120.0,
+            climb_sprint_multiplier: 2.0,
             
             climb_speed: 20.0,
             climb_out_speed: 200.0,
@@ -179,19 +183,19 @@ pub fn spawn_player(
 ){
     cmd.spawn((
         (
-        Transform::from_xyz(0.0, 200.0, 0.0),
-        Player::default(),
-        // ActiveHooks::MODIFY_SOLVER_CONTACTS,
-        Name::new("Player"),
-        Collider::capsule(vec2(0.0, 22.0), vec2(0.0, -6.0), 8.0),
-        LockedAxes::ROTATION_LOCKED,
-        Sleeping::disabled(),
-        GravityScale(0.0),
-        REG_FRICTION,
-        CameraFocus{priority: 0},
-        Ccd::enabled(),
-        Visibility::default(),
-        InheritedVisibility::default(),
+            Transform::from_xyz(0.0, 100.0, 0.0),
+            Player::default(),
+            // ActiveHooks::MODIFY_SOLVER_CONTACTS,
+            Name::new("Player"),
+            Collider::capsule(vec2(0.0, 22.0), vec2(0.0, -6.0), 8.0),
+            LockedAxes::ROTATION_LOCKED,
+            Sleeping::disabled(),
+            GravityScale(0.0),
+            REG_FRICTION,
+            CameraFocus{priority: 0},
+            Ccd::enabled(),
+            Visibility::default(),
+            InheritedVisibility::default(),
         ),
         CollisionGroups::new(
         Group::from_bits(PLAYER_CG).unwrap(),
@@ -362,13 +366,15 @@ fn debug(
         ui.add(egui::Slider::new(&mut consts.climb_speed, 0.0..=1000.0));
         ui.label("Climb out speed");
         ui.add(egui::Slider::new(&mut consts.climb_out_speed, 0.0..=1000.0));
+        ui.label("climb_sprint_multiplier");
+        ui.add(egui::Slider::new(&mut consts.climb_sprint_multiplier, 0.0..=1000.0));
 
         ui.label("mesh_rot_attn");
         ui.add(egui::Slider::new(&mut consts.mesh_rot_attn, 0.0..=1000.0));
 
         ui.label("mesh_rot_weight");
         ui.add(egui::Slider::new(&mut consts.mesh_rot_weight, 0.0..=1000.0));
-
+        
         ui.label("mesh_vel_attn");
         ui.add(egui::Slider::new(&mut consts.mesh_vel_attn, 0.0..=1000.0));
         // ui.separator();
@@ -492,13 +498,14 @@ pub fn update_controllers(
                 if raw_dir.x > 0.0 {PI / 2.0} else {- PI / 2.0};
                 return;
             }
+            let mult = if keyboard.pressed(KeyCode::ShiftLeft) { consts.climb_sprint_multiplier } else { 1.0 };
             anim.target = PlayerAnimationNode::Climb;
-            anim.params.climb_speed = raw_dir.y;
-            player_vel.linvel.y = raw_dir.y * consts.climb_speed;
+            anim.params.climb_speed = raw_dir.y * mult;
+            player_vel.linvel.y = raw_dir.y * consts.climb_speed * mult;
             *mesh_turn = 0.0;
             player_mesh.rotation = Quat::from_axis_angle(Vec3::Y, *mesh_turn);
             if raw_dir.x != 0.0 && raw_dir.y == 0.0 {
-                player_vel.linvel.x = raw_dir.x * consts.climb_out_speed;
+                player_vel.linvel.x = raw_dir.x * consts.climb_out_speed  * mult;
                 player.state = PlayerState::Regular{accumulated_vel: 0.0};
                 *mesh_turn = if raw_dir.x.abs() < 0.1 { PI } else 
                 if raw_dir.x > 0.0 {PI / 2.0} else {- PI / 2.0};
@@ -603,7 +610,7 @@ pub fn update_controllers(
                     v
                 } else {
                     r
-                }             
+                }
             };
             *mesh_turn = mesh_turn.move_towards((t).clamp(-PI / 2.0, PI / 2.0), dt * consts.mesh_turn_speed * 0.2);
             
@@ -629,14 +636,14 @@ pub fn update_controllers(
 pub fn tick_controllers(
     time: Res<Time>,
     ctx: ReadRapierContext,
-    mut player: Single<(Entity, &mut Player, &mut Velocity, &mut Controller, &Collider, &Transform)>,
+    mut player: Single<(Entity, &mut Player, &mut Velocity, &mut Controller, &mut Friction, &Collider, &Transform)>,
     consts: Res<PlayerConstants>,
     mut overlay_events: EventWriter<DebugOverlayEvent>,
 ){
     overlay_text!(overlay_events;TopLeft;FIXED_DT:format!("Fixed dt: {:.1} ({:.1} fps)", time.delta_secs(), 1.0 / time.delta_secs()),(255, 255, 255););
     let dt = time.dt();
     let Ok(ctx) = ctx.single() else {return};
-    let (e, p, v, c, co, t) = &mut *player;
+    let (e, p, v, c, f, co, t) = &mut *player;
     c.time_in_air += dt;
     c.platform_velocity = None;
     let g = consts.gravity;
@@ -673,4 +680,19 @@ pub fn tick_controllers(
             c.jumping = false;
         }
     };
+    // anti wall-friction
+    let v = 'a: {
+        if let PlayerState::Spacewalk = p.state  {break 'a 0.2;}
+        if let Some((_, hit)) =
+            ctx.cast_shape(pos, 0.0, v.linvel * vec2(4.0, 0.0) * dt, 
+            &col, options, filter) {
+            let Some(_d) = hit.details else {break 'a 1.0;};
+            v.linvel.x = 0.0;
+            0.0
+        } else {
+            1.0
+        }
+    };
+    f.coefficient = v;
+
 }

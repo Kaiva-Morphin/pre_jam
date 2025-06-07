@@ -15,6 +15,7 @@ use crate::physics::player::{spawn_player, Player, PlayerPlugin};
 use crate::tilemap::plugin::MapPlugin;
 use crate::ui::components::containers::base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container};
 use crate::ui::components::containers::text_display::{text_display_green_handle, ui_text_display_green_with_text};
+use crate::ui::components::containers::viewport_container::viewport_handle;
 use crate::ui::components::hack_button::{hack_button_bundle, ui_hack_button, HackButton, HackButtonState};
 use crate::ui::target::LowresUiContainer;
 use crate::utils::background::StarBackgroundPlugin;

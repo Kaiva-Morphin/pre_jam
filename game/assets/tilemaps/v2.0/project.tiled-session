@@ -30,18 +30,21 @@
         },
         "autobg.tmx": {
             "scale": 4,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 69.625,
-                "y": 48.5
+                "x": 35.125,
+                "y": 10.25
             }
         },
         "main.tmx": {
-            "scale": 1.5,
+            "expandedObjectLayers": [
+                16
+            ],
+            "scale": 2,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": -97,
-                "y": -348
+                "x": -330.25,
+                "y": -341
             }
         },
         "main.tsx": {
@@ -57,6 +60,7 @@
         }
     },
     "last.imagePath": "R:/prog/pre_jam/game/assets/tilemaps/v2.0",
+    "last.objectTypesPath": "R:/prog/pre_jam/game/assets_raw/my_tiled_export_file.json",
     "map.fixedSize": false,
     "map.lastUsedFormat": "tmx",
     "map.layerDataFormat": "3",
@@ -65,6 +69,7 @@
     "openFiles": [
     ],
     "project": "project.tiled-project",
+    "property.type": "game::tilemap::plugin::MapObject:::Variant",
     "recentFiles": [
         "autobg.tmx",
         "main.tsx"

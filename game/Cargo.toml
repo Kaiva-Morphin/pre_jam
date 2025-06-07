@@ -43,3 +43,9 @@ path = "src/normalmaps.rs"
 [[bin]]
 name = "test"
 path = "src/test.rs"
+
+[[bin]]
+name = "shader_minimal"
+path = "src/shader_minimal.rs"
+
+

@@ -55,7 +55,7 @@ fn setup(
         height: (TARGET_HEIGHT as f32 * LIGHT_RESOLUTION * 2.0) as u32,
         depth_or_array_layers: 1,
     };
-
+    
 
 
 
@@ -129,7 +129,6 @@ fn setup(
     });
     commands.spawn((
         Mesh2d(meshes.add(Rectangle::default())),
-        
         MeshMaterial2d(blur),
         Transform::default().with_scale(vec3(TARGET_WIDTH as f32, TARGET_HEIGHT as f32, 1.0)).with_translation(Vec3::Z * 128.0),
     ));
@@ -191,7 +190,7 @@ impl Default for LightEmitter {
 
 impl Material2d for CustomMaterial {
     fn fragment_shader() -> ShaderRef {
-        "shaders/tilemap/light_sources.wgsl".into()
+        "shaders/tilemap/v0/light_sources.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode2d {
@@ -227,7 +226,7 @@ struct BlurMaterial {
 
 impl Material2d for BlurMaterial {
     fn fragment_shader() -> ShaderRef {
-        "shaders/tilemap/blur.wgsl".into()
+        "shaders/tilemap/v0/blur.wgsl".into()
     }
 
     fn alpha_mode(&self) -> AlphaMode2d {
