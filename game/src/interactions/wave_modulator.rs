@@ -200,7 +200,7 @@ pub fn open_wave_modulator_display(
     }
 }
 
-pub const NUM_SPINNY_STATES: f32 = 9.;
+pub const NUM_SPINNY_STATES: f32 = 8.;
 pub const SPINNY_SIZE: UVec2 = UVec2::splat(38);
 const ANGLE_PER_SPINNY_STATE: f32 = PI / NUM_SPINNY_STATES;
 
