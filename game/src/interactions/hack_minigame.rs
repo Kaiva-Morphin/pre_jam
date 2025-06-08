@@ -14,7 +14,7 @@ pub struct HackButtonBase {
     pub pos: UVec2,
 }
 
-pub fn open_hack_display( // TODO: breaks on the second solving try
+pub fn open_hack_display(
     mut commands: Commands,
     in_interaction_array: Res<InInteractionArray>,
     mut already_spawned: Local<Option<Entity>>,
@@ -164,6 +164,7 @@ pub fn update_hack_display(
             if ver_hor_lightup_condition {
                 hack.state = HackButtonState::Active;
                 if let Ok(interaction) = changed_interaction_query.get(entity) {
+                    // println!("{:?} {}", prev_state, mouse_button.just_released(MouseButton::Left));
                     if *prev_state == Interaction::Pressed && mouse_button.just_released(MouseButton::Left) {
                         if let Some(a) = &mut node.texture_atlas {
                             a.index = hack.get_idx(false, true);
@@ -193,6 +194,8 @@ pub fn update_hack_display(
                 };
                 malfunction.resolved.push(Resolved {resolved_type: curr_type.clone(), failed});
                 *prev_state = Interaction::default();
+                *selected_seq_pos = vec![];
+                *selected_seq_index = vec![];
             }
         }
     }

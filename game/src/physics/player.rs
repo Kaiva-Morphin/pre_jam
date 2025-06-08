@@ -6,7 +6,7 @@ use bevy_rapier2d::prelude::*;
 use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use utils::WrappedDelta;
 
-use crate::{camera::plugin::CameraFocus, core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::{animator::{PlayerAnimationNode, PlayerAnimations, PlayerAnimatorPlugin}, constants::*}, tilemap::{light::LightEmitter, plugin::{LadderCollider, SpacewalkCollider}}, utils::mouse::CursorPosition};
+use crate::{camera::plugin::CameraFocus, core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::components::InInteractionArray, physics::{animator::{PlayerAnimationNode, PlayerAnimations, PlayerAnimatorPlugin}, constants::*}, tilemap::{light::LightEmitter, plugin::{LadderCollider, SpacewalkCollider}}, utils::{mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
 use utils::MoveTowards;
 
 
@@ -512,10 +512,13 @@ pub fn update_controllers(
     
     mut consts: ResMut<PlayerConstants>,
 
+    mut sound_event: EventWriter<PlaySoundEvent>,
+
     mut mesh_turn: Local<f32>,
     mut mesh_rotation: Local<f32>,
     ladders: Res<NearestLadders>,
     mut time_since_climb: Local<f32>,
+    interactions: Res<InInteractionArray>,
 ){
     let dt = time.dt();
     let mut raw_dir = Vec2::ZERO;
@@ -655,7 +658,7 @@ pub fn update_controllers(
             
             let target = raw_dir.x * if keyboard.pressed(KeyCode::ShiftLeft) {consts.run_speed} else {consts.walk_speed};
 
-            if controller.is_on_floor() {
+            if controller.is_on_floor() && !interactions.in_any_interaction {
                 controller.horisontal_velocity = controller.horisontal_velocity.move_towards(target, consts.speed_gain * dt);
             } else {
                 controller.horisontal_velocity = controller.horisontal_velocity.move_towards(target, consts.speed_loss * dt);
@@ -678,8 +681,10 @@ pub fn update_controllers(
                 if player_vel.linvel.x.abs() < 1.0 {
                     anim.target = PlayerAnimationNode::Idle;
                 } else if player_vel.linvel.x.abs() < consts.walk_speed + 2.0{
+                    sound_event.write(PlaySoundEvent::Concrete1);
                     anim.target = PlayerAnimationNode::Walk;
                 } else {
+                    sound_event.write(PlaySoundEvent::Concrete1);
                     anim.target = PlayerAnimationNode::Run;
                 }
                 if sjp {

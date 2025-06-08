@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::{ActiveCollisionTypes, ActiveEvents, Collider, Colli
 use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 use shaders::components::*;
 
-use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState, OnGame}, interactions::{chain_reaction_display::ChainGraphMaterial, collision_minigame::CollisionGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, hack_minigame::{HACK_ATLAS_COLUMNS, HACK_ATLAS_ROWS, HACK_PIXEL_GRID_SIZE}, pipe_puzzle::PIPE_GRID_SIZE, warning_interface::{WARNING_GRID_COLUMNS, WARNING_GRID_ROWS, WARNING_GRID_SIZE}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::{animator::PlayerAnimations, constants::*, player::Player}, utils::{mouse::CursorPosition, spacial_audio::SoundAssets}};
+use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState, OnGame}, interactions::{chain_reaction_display::ChainGraphMaterial, collision_minigame::CollisionGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, hack_minigame::{HACK_ATLAS_COLUMNS, HACK_ATLAS_ROWS, HACK_PIXEL_GRID_SIZE}, pipe_puzzle::PIPE_GRID_SIZE, warning_interface::{WARNING_GRID_COLUMNS, WARNING_GRID_ROWS, WARNING_GRID_SIZE}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::{animator::PlayerAnimations, constants::*, player::Player}, tilemap::light::LightEmitter, utils::{mouse::CursorPosition, spacial_audio::SoundAssets}};
 
 
 
@@ -293,8 +293,23 @@ fn spawn_faz(
         Sprite::from_image(sprite_assets.faz.clone()),
         Transform::from_translation(Vec3::new(300., 100., 0.,)),
         Faz,
+        children![(
+            FazLight,
+            GlobalTransform::default(),
+            Transform::from_translation(vec3(0.0, -50.0, 0.0)),
+            LightEmitter{
+                radius_px: 100.0,
+                spot: 90.0,
+                color_and_rotation: vec4(1.0, 1.0, 1.0, 90.0),
+                intensity: 2.0,
+            }
+        )]
     ));
 }
+
+#[derive(Component)]
+pub struct FazLight;
+
 
 pub fn click_faz(
     windows: Single<&Window>,
@@ -306,7 +321,22 @@ pub fn click_faz(
     sound_assets: Res<SoundAssets>,
     mut p: Query<&mut Player>,
     mut r: ResMut<PlayerAnimations>,
+    mut faz_light : Query<&mut LightEmitter, With<FazLight>>,
+    t: Res<Time>,
 ){
+    for p in p.iter() {if p.is_dancing(){
+        info!("DANCE");
+        let h = (t.elapsed_secs() * 360.) % 360.0;
+        let c = Srgba::from(Color::hsl(h, 1.0, 0.5));
+        for mut l in faz_light.iter_mut() {
+            l.color_and_rotation = vec4(c.red, c.green, c.blue, 90.0);
+        }
+    } else {
+        for mut l in faz_light.iter_mut() {
+            l.color_and_rotation = vec4(1.0, 1.0, 1.0, 90.0);
+        }
+    }}
+
     let camera_transform = *cq;
     let window = *windows;
     let window_size = window.size();

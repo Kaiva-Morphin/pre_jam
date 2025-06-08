@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="27" nextobjectid="87">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="27" nextobjectid="88">
  <tileset firstgid="1" source="main.tsx"/>
  <layer id="18" name="SRC" width="30" height="20" visible="0" locked="1">
   <data encoding="base64" compression="zlib">
@@ -236,10 +236,10 @@
    eJztklEKgCAQBd/RultZ3iMt71FXqXM0goKIf0EU9GBYcPd9CCN9O73UDWBghAn26maD+G6hvl9ghQAzODir/gGu2Pui98gn/7w2eCA8EG4opNnyD2/ki5l7OBjdlC1my7+8w1/hr0zq3s0FKpMl1w==
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
-   eJztk09OwkAYxd+wYClBN5xBiQlwgR7AmMBdYE1CKwS4BYJ/uAQhAdSVO1x7AHWnS39DKx0mDb2AX/JL08m8N53ve5XiKhgFcsp473n1rnR/S1o0IWtfGzowgamzvtTheTVPfw4XUPX8+ugGUPS+t+zoXe2Vp79H+4T2GV5y7vwKPQghgps/D3QP8AjzDI8P+ISvY+bUEO0IxkBvgll8N50YqWRyxP9l+yf6J/q3yxb92z97rIUQZfSR+Yn5ifmJ+enSqEvfu2TL5ktbeINb6wszuEt8yI/Ij8iPyI86aK/B9f+Gn8RjxZ41bEz8D1h/O+Ni4nfGuadAfg88Kib1yKpl8mygq0PN07sebv0CTB1AxQ==
+   eJztk0tOAkEURW85YKhRJ+xBYoJsoBdASGAvMCbhI1F3gXzETRgSviNmMGYB6gyHnLIbKSoVewO85KTTlbq3ut67LcV1YRTJKeO9p9VWx/0V6aMMoX1VqEEXes76WKfn5QP6O8h5a4/oOpDxvvfa0x+0RU8/RDtHu4Blyp1X0IAmtKB98ED3BiN4D3h8whd8/2dOPaF9hhegN1E/vpsujXRlUsTnsv0T/RP9+80W/ft7NlhrQivQR+Yn5ifmJ+ane6M6fa+TLZsvrWEDr9YX+jBIfMiPyI/Ij8iPamhL4Prv4CfxmLBnCjMT/wPW3844k/jdcu4NkN8Tj6w5eoRqnDwL6B4g7+ldD7f2PQZAcQ==
   </chunk>
    <chunk x="64" y="-32" width="16" height="16">
-   eJxjYKAMLAPixUC8BIiXQvnLgTgbiHtJMGcxIyq/G4h7SDQDmzmEzGgH4g4gbgbiFiBuBeI2qDhIjI0RYkYRie6AgUNI7phMhn4mqH9A/tpMhn4lpPB4SIZ+JyT9jIy41eECSUh6FMnQj+x+RzL0I7vfmEz3fwHSX4H4GxZ55HSPLR+oMeLWSwwA6RUlw93E6gUACocghA==
+   eJxjYKAMLAPixUC8BIiXQvnLgTgbiHspMLcbiHsoNIOBCDPagbgDiJuBuAWIW4G4DSoOEmNjhJhRRKb9h5DcMZkM/UyMEHoxkN5Mhn4lRgT7IRn6nZD0MzLiVocLJCHpUSRDP7L7HcnQj+x+YzLd/wVIfwXib1jkkdM9tnygxohbLzEApFeUDHcTqxcAxp4fPA==
   </chunk>
    <chunk x="-48" y="-16" width="16" height="16">
    eJxjYCAPBAJxEJl6QYCJkQLNQKBEoX4nCvUnUajfBKg/gAIzPgLxJ8qcADZjFIxsAABJXgTK
@@ -361,7 +361,7 @@
    eJxjYCAePGRkYHgExI+B+AkjCRqhgJGJgYEJiJmBmAWI75FohiJQjxIQKwOxChD/I8MNo2AUwAAXhfq1qOIK+oI5wDwzFynfAAA58geA
   </chunk>
    <chunk x="32" y="-32" width="16" height="16">
-   eJztzkEKglAYReH7no3aRdqoLSTa0NqCUg3TLRT6diqV+7ADEUig4CQR+uEb+C4HlKTISjF2+FxppArOvL+3bCEaI/fEA3fU7EfeTzgP9ClbhoWV82Bh0LKXvFdwA/2V7YY1TQAfK6jnvvux9+/n0SfYdxywHNFfkHcU2Pzw/6fuXxnoLVs=
+   eJzt0k0OwUAYxvF3hgXlEj4WlBsQLHEFgiWuQNpxFCcTHwtfd+CfqGTS1CS1k3iTX5rOM0+TyVREpKNFuujhPYESCWHU671F1sZJiTnigD125BPWp5g5+iOyMbJaTAYaCg/ygPUQxtFfka1RpVNBGSXIh4n3086/n76/sfbG+2eeF1xxwz3hu1tHP8fd5+GhgGL0r/QxsAzhJfRr7K/DRwPNqD/HwrKE/+X57fmV/hNHKzQu
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
    eJyzZmJgsAFickE0UG8MBfqrgXprKNA/1MEcRgaGuYzEq49AC6s9QL17SdBPDrgDNP8uBXb8Aer9i6R/KtAP04B4OpnxvhWobxsQbydT/1WgvmtAfH0EpzsYAADFsw9w
@@ -525,16 +525,6 @@
    </properties>
    <point/>
   </object>
-  <object id="54" x="479" y="-422.667">
-   <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="color" type="color" value="#ffffffff"/>
-    <property name="intensity" type="float" value="0.9"/>
-    <property name="radius" type="float" value="200"/>
-    <property name="rotation" type="float" value="90"/>
-   </properties>
-   <point/>
-  </object>
   <object id="60" x="-134.333" y="-429.167">
    <properties>
     <property name="angle" type="float" value="180"/>
@@ -681,6 +671,16 @@
     <property name="color" type="color" value="#ffffffff"/>
     <property name="intensity" type="float" value="0.9"/>
     <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="87" x="566.333" y="-350.333">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ffffff00"/>
+    <property name="intensity" type="float" value="0.3"/>
+    <property name="radius" type="float" value="1"/>
     <property name="rotation" type="float" value="90"/>
    </properties>
    <point/>

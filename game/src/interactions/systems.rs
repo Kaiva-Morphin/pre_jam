@@ -12,10 +12,7 @@ use super::{chain_reaction_display::ChainGraphMaterial, components::{FKey, InInt
 pub fn interact(
     mut commands: Commands,
     mut mouse_wheel_events: EventReader<MouseWheel>,
-    mouse_button: Res<ButtonInput<MouseButton>>,
-    cursor_position: Res<CursorPosition>,
     mut collision_events: EventReader<CollisionEvent>,
-    mut writer: EventWriter<InteractGlowEvent>,
     mut interactable: Query<(&mut InInteraction, &Transform)>,
     texture_atlas_handles: Res<TextureAtlasHandles>,
     mut scroll_selector: ResMut<ScrollSelector>,
@@ -24,13 +21,10 @@ pub fn interact(
     mut in_interaction_array: ResMut<InInteractionArray>,
     player_entity: Single<Entity, With<PlayerSensor>>,
 ) {
-    // TODO: stop player in interaction
-    // println!("{:?}", in_interaction_array);
+    // TODO: STOP PLAYER
     if in_interaction_array.in_any_interaction {
         if keyboard.just_released(KeyCode::KeyF) {
             in_interaction_array.in_any_interaction = false;
-            //exit
-            // TODO: add "press E again to exit sign"
         }
         return;
     }
@@ -43,7 +37,7 @@ pub fn interact(
     let mut mouse_scroll_delta = 0.;
     for event in mouse_wheel_events.read() {
         let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {(1. / event.y).abs()};
-        mouse_scroll_delta += v;
+        mouse_scroll_delta = v;
     };
     if scroll_selector.selection_options.len() > 0 {
         let new;
@@ -51,8 +45,7 @@ pub fn interact(
             if scroll_selector.current_selected == 0 {
                 new = scroll_selector.selection_options.len() - 1;
             } else {
-                // TODO: fix this shit
-                new = (scroll_selector.current_selected - (mouse_scroll_delta as usize).min(scroll_selector.selection_options.len())) % scroll_selector.selection_options.len();
+                new = scroll_selector.current_selected - (-mouse_scroll_delta) as usize
             }
         } else {
             new = (scroll_selector.current_selected + mouse_scroll_delta as usize) % scroll_selector.selection_options.len();

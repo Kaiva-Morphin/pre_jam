@@ -1,10 +1,10 @@
 use bevy::{asset::LoadState, prelude::*};
 use bevy_ecs_tiled::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_rapier2d::prelude::{ActiveEvents, CoefficientCombineRule, CollisionGroups, Friction, Group, Sensor};
+use bevy_rapier2d::prelude::{ActiveEvents, CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, Sensor};
 use tiled::{ObjectShape, PropertyValue};
 
-use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::constants::{LADDERS_CG, PLATFORMS_CG, PLAYER_CG}, tilemap::light::LightEmitter, utils::debree::{Malfunction, MalfunctionType}};
+use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, physics::constants::{INTERACTABLE_CG, LADDERS_CG, PLATFORMS_CG, PLAYER_CG, PLAYER_SENSOR_CG}, tilemap::light::LightEmitter, utils::{custom_material_loader::SpriteAssets, debree::{Malfunction, MalfunctionType}}};
 
 
 pub struct MapPlugin;
@@ -25,9 +25,11 @@ impl Plugin for MapPlugin {
                 TiledMapPlugin(TiledMapPluginConfig { tiled_types_export_file: path}),
                 TiledPhysicsPlugin::<CustomRapierPhysicsBackend>::default(),
             ))
+            .insert_resource(Aboba::default())
             .register_type::<MapObject>()
+            .register_type::<LightEmitter>()
             .add_systems(Startup, spawn_map)
-            .add_systems(Update, (handle_layer_spawn, handle_object_spawn))
+            .add_systems(Update, ((handle_layer_spawn, hihihaha), handle_object_spawn.run_if(in_state(GlobalAppState::InGame))))
             // .add_observer(handle_layer_spawn)
             .add_systems(Update, (
                 check_map, event_map_created, 
@@ -77,16 +79,33 @@ pub struct LadderCollider;
 #[derive(Component)]
 pub struct SpacewalkCollider;
 
+#[derive(Resource, Default)]
+pub struct Aboba {
+    pub data: Vec<TiledObjectCreated>,
+}
+
+fn hihihaha(
+    mut e: EventReader<TiledObjectCreated>,
+    mut aboba: ResMut<Aboba>,
+) {
+    for e in e.read() {
+        aboba.data.push(e.clone());
+    }
+}
 
 fn handle_object_spawn(
     mut cmd: Commands,
     q_c: Query<
         (Entity, &Children)
     >,
-    mut e: EventReader<TiledObjectCreated>,
     map_asset: Res<Assets<TiledMap>>,
+    image_assets: Res<Assets<Image>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut interactable_materials: ResMut<Assets<InteractableMaterial>>,
+    sprite_assets: Res<SpriteAssets>,
+    mut aboba: ResMut<Aboba>,
 ) {
-    for e in e.read() {
+    for e in aboba.data.iter() {
         let Some(object) = e.get_object(&map_asset) else {continue;};
 
         if let Some(l) = LightEmitter::from_properties(&object.properties) {
@@ -101,34 +120,34 @@ fn handle_object_spawn(
                 ));
             }
         }
-        if let Some(m) = MalfunctionType::from_properties(&object.properties) {
-            info!("MALF: {:?}", object.properties);
-            let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
-            info!("MALF CHILD");
-            /*
-            EXISTS:
-                WARNING
-                ANTENNA
-                ENGINE
-                REACTOR
-                HACK
-                WAVE
-            */
-            info!("INSERTING SENSOR");
-            for c in object_children_with_collider {
-                cmd.entity(*c).insert((
-                    // LIKE THAT:
-                    Name::new("INSERTED"),
-                    Sensor,
-                    // LadderCollider,
-                    // ActiveEvents::COLLISION_EVENTS,
-                    // CollisionGroups{
-                    //     memberships: Group::from_bits(LADDERS_CG).unwrap(),
-                    //     filters: Group::from_bits(PLAYER_CG).unwrap(),
-                    // }
-                ));
-            }
-        }
+        // if let Some(m) = MalfunctionType::from_properties(&object.properties) {
+        //     info!("MALF: {:?}", object.properties);
+        //     let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
+        //     info!("MALF CHILD");
+        //     /*
+        //     EXISTS:
+        //         WARNING
+        //         ANTENNA
+        //         ENGINE
+        //         REACTOR
+        //         HACK
+        //         WAVE
+        //     */
+        //     info!("INSERTING SENSOR");
+        //     for c in object_children_with_collider {
+        //         cmd.entity(*c).insert((
+        //             // LIKE THAT:
+        //             Name::new("INSERTED"),
+        //             Sensor,
+        //             // LadderCollider,
+        //             // ActiveEvents::COLLISION_EVENTS,
+        //             // CollisionGroups{
+        //             //     memberships: Group::from_bits(LADDERS_CG).unwrap(),
+        //             //     filters: Group::from_bits(PLAYER_CG).unwrap(),
+        //             // }
+        //         ));
+        //     }
+        // }
     }
 }
 

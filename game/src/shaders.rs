@@ -12,6 +12,7 @@ use crate::core::states::OnGame;
 use crate::interactions::components::PlayerSensor;
 use crate::physics::constants::{INTERACTABLE_CG, PLAYER_SENSOR_CG};
 use crate::physics::player::{spawn_player, Player, PlayerPlugin};
+use crate::tilemap::light::LightPlugin;
 use crate::tilemap::plugin::MapPlugin;
 use crate::utils::background::StarBackgroundPlugin;
 use crate::utils::energy::EnergyPlugin;
@@ -36,8 +37,8 @@ fn main() {
             SwitchableEguiInspectorPlugin::default(),
             SwitchableRapierDebugPlugin::default(),
             DebugOverlayPlugin::enabled(),
-            SpacialAudioPlugin,
             EnergyPlugin,
+            LightPlugin,
         ))
         .add_systems(OnGame, spawn.after(spawn_player))  //.before(shaders::compute::setup)
         .run();

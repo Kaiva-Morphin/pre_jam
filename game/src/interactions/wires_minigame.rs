@@ -213,6 +213,49 @@ pub fn touch_wires_inlet(
         wires.locked_id = None;
     }
     let mut need_remove = mouse_button.just_released(MouseButton::Left);
+    for (_container_entity, cursor_rel_pos, node) in wires_container {
+        if let Some(wire_id) = wires.locked_id {
+            if let Some(rel_pos) = cursor_rel_pos.normalized {
+                let size = node.size;
+                let Some(start) = wires.socket_positions.get(&wire_id) else {warn!("SOCKET POS NOT FOUND"); continue;};
+                let start = start / ui_scale.0 + size / 2.0 / ui_scale.0 ;
+                let end = rel_pos * node.size / ui_scale.0;
+
+                let delta = end - start;
+                let distance = delta.length();
+                let angle = delta.y.atan2(delta.x);
+                
+                for (wire, child) in grabbed_wire_rot {
+                    for c in child.iter() {
+                        let Ok(c) = grabbed_wire_size.get(c) else {continue;};
+                        commands.entity(c).insert((
+                            Node {
+                                margin: UiRect {
+                                    top: Val::Px(-5.), ..default()
+                                },
+                                min_width: Val::Px(distance),
+                                height: Val::Px(10.),
+                                ..default()
+                            },
+                        ));
+                    }
+                    commands.entity(wire).insert((
+                        Transform::from_rotation(Quat::from_rotation_z(angle)),
+                        Node {
+                            position_type: PositionType::Absolute,
+                            max_height: Val::Px(0.),
+                            max_width: Val::Px(10.),
+                            left: Val::Px(start.x),
+                            top: Val::Px(start.y),
+                            width: Val::Px(10.),
+                            height: Val::Px(0.),
+                            ..default()
+                        },
+                    ));
+                }
+            }
+        }
+    }
     for (_e, cursor_rel_pos, wire, global_transform, transform, node) in wires_q {
         if let Some(_rel_pos) = cursor_rel_pos.normalized {
             if cursor_rel_pos.mouse_over() &&
@@ -315,49 +358,7 @@ pub fn touch_wires_inlet(
         };
     }   
 
-    for (_container_entity, cursor_rel_pos, node) in wires_container {
-        if let Some(wire_id) = wires.locked_id {
-            if let Some(rel_pos) = cursor_rel_pos.normalized {
-                let size = node.size;
-                let Some(start) = wires.socket_positions.get(&wire_id) else {warn!("SOCKET POS NOT FOUND"); continue;};
-                let start = start / ui_scale.0 + size / 2.0 / ui_scale.0 ;
-                let end = rel_pos * node.size / ui_scale.0;
-
-                let delta = end - start;
-                let distance = delta.length();
-                let angle = delta.y.atan2(delta.x);
-                
-                for (wire, child) in grabbed_wire_rot {
-                    for c in child.iter() {
-                        let Ok(c) = grabbed_wire_size.get(c) else {continue;};
-                        commands.entity(c).insert((
-                            Node {
-                                margin: UiRect {
-                                    top: Val::Px(-5.), ..default()
-                                },
-                                min_width: Val::Px(distance),
-                                height: Val::Px(10.),
-                                ..default()
-                            },
-                        ));
-                    }
-                    commands.entity(wire).insert((
-                        Transform::from_rotation(Quat::from_rotation_z(angle)),
-                        Node {
-                            position_type: PositionType::Absolute,
-                            max_height: Val::Px(0.),
-                            max_width: Val::Px(10.),
-                            left: Val::Px(start.x),
-                            top: Val::Px(start.y),
-                            width: Val::Px(10.),
-                            height: Val::Px(0.),
-                            ..default()
-                        },
-                    ));
-                }
-            }
-        }
-    }
+    
 }
 
 

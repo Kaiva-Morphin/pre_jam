@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use bevy::{prelude::*, render::render_resource::{AsBindGroup, ShaderRef}, sprite::{AlphaMode2d, Material2d}};
+use tiled::PropertyValue;
 
 #[derive(Component)]
 pub struct Interactable;
@@ -66,6 +69,22 @@ pub enum InteractionTypes {
     WarningInterface,
     HackMinigame,
     WiresMinigame,
+}
+
+impl InteractionTypes {
+    pub fn from_properties(properties: &HashMap<String, PropertyValue>) -> Option<Self> {
+        let Some(PropertyValue::StringValue(s)) = properties.get("type") else {return None};
+        match s.as_str() {
+            "MAINFRAME" => None,
+            "HACK" => Some(Self::HackMinigame),
+            "REACTOR" => Some(Self::WiresMinigame),
+            "ENGINE" => Some(Self::CollisionMinigame),
+            "ANTENNA" => Some(Self::WaveModulator),
+            "WARNING" => Some(Self::WarningInterface),
+            "CHAIN" => Some(Self::ChainReactionDisplay),
+            _ => None
+        }
+    }
 }
 
 #[derive(Resource, Debug)]

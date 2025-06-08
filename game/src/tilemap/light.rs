@@ -74,12 +74,15 @@ impl LightEmitter {
 
 #[derive(Component, Debug, Default, Reflect)]
 #[derive(ShaderType, Clone, Copy)]
+#[reflect(Component, Default)]
 pub struct LightEmitter {
     pub radius_px: f32,
     pub spot: f32,
     pub color_and_rotation: Vec4,
     pub intensity: f32,
 }
+
+
 
 #[derive(ShaderType, Debug, Clone, Copy)]
 #[repr(C)]

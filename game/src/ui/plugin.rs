@@ -28,4 +28,8 @@ pub struct UiAssetCollection {
     pub main_container: Handle<Image>,
     #[asset(path = "ui/sub_container.png")]
     pub sub_container: Handle<Image>,
+    #[asset(path = "ui/wire_plug.png")]
+    pub wire_plug: Handle<Image>,
+    #[asset(path = "ui/text_display_green.png")]
+    pub text_display_green: Handle<Image>,
 }

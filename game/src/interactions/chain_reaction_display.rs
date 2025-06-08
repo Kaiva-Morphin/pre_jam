@@ -44,6 +44,7 @@ pub fn open_chain_graph_display(
     asset_server: Res<AssetServer>,
     lowres_container: Single<Entity, With<LowresUiContainer>>,
     mut event_writer: EventWriter<PlaySoundEvent>,
+    
 ) {
     // println!("{:?} {:?}", in_interaction_array, already_spawned);
     if let Some(entity) = *already_spawned {
