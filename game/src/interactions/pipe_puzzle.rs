@@ -29,8 +29,7 @@ pub fn open_pipe_puzzle_display(
             for y in 0..ROWS {
                 for x in 0..COLS {
                     let pipe = pipes.get_pipe(x, y);
-                    info!("Pipe added: {:?}", pipe);
-                    let index = pipe.map(|v|v.get_index()).unwrap_or(15);
+                    info!("Pipe added: {x} {y} {:?}", pipe);
                     children.push(commands.spawn((
                         Node {
                             width: Val::Px(50.),
@@ -44,7 +43,7 @@ pub fn open_pipe_puzzle_display(
                             pipes_atlas_handles.image_handle.clone(),
                             TextureAtlas{
                                 layout: pipes_atlas_handles.layout_handle.clone(),
-                                index
+                                index: pipe.as_ref().map(|v|v.get_index()).unwrap_or(15)
                             },
                         ),
                         PipeEntity{
@@ -84,19 +83,20 @@ pub fn init_grid(
 }
 
 pub fn update_pipes(
-    pipe_image_nodes: Query<(&PipeEntity, &mut ImageNode, &Interaction), Changed<Interaction>>,
+    mut pipe_image_nodes: Query<(&mut PipeEntity, &mut ImageNode, &Interaction), Changed<Interaction>>,
+    mut pipes: ResMut<PipeMinigame>,
 ){
-    // mut minigame.is_loaded {
-    //     for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
-    //         if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
-    //             let conn = &mut minigame.data[pipe.flat_id];
-    //             if *pipe_interaction == Interaction::Pressed {
-    //                 conn.rotate();
-    //             }
-    //             texture_atlas.index = conn.rot_state + conn.conn_type * 4;
-    //         }
-    //     }
-    // }
+    for (mut pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes.iter_mut() {
+        if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
+            if *pipe_interaction == Interaction::Pressed {
+                pipes.rotate(pipe.position);
+                if let Some(p) = pipes.get_pipe(pipe.position.x as usize, pipe.position.y as usize) {
+                    texture_atlas.index = p.get_index();
+                }
+                info!("Pipes solved! {}", pipes.is_solved())
+            }
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -120,6 +120,17 @@ pub struct Pipe {
 pub struct PipeEntity {
     pipe: Option<Pipe>,
     position: UVec2
+}
+
+impl PipeEntity {
+    fn rotate(&mut self){
+        if let Some(p) = &mut self.pipe {
+            p.rotation = (p.rotation + 1) % 4;
+        }
+    }
+    fn get_index(&self) -> usize {
+        self.pipe.as_ref().map(|v|v.get_index()).unwrap_or(15)
+    }
 }
 
 
@@ -236,8 +247,8 @@ fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
     None
 }
 
-const ROWS: usize = 2;
-const COLS: usize = 2;
+const ROWS: usize = 5;
+const COLS: usize = 5;
 
 impl Pipe {
     fn get_index(&self) -> usize {
@@ -251,19 +262,19 @@ impl Pipe {
             }
             PipeType::TEE => {
                 match self.rotation {
-                    0 => 9,
-                    1 => 6,
-                    2 => 1,
-                    3 => 4,
+                    0 => 1,
+                    1 => 4,
+                    2 => 9,
+                    3 => 6,
                     _ => 15
                 }
             }
             PipeType::CORNER => {
                 match self.rotation {
-                    0 => 10,
-                    1 => 2,
-                    2 => 0,
-                    3 => 8,
+                    0 => 0,
+                    1 => 8,
+                    2 => 10,
+                    3 => 2,
                     _ => 15
                 }
             }
@@ -375,6 +386,12 @@ pub struct PipeMinigame {
 }
 
 impl PipeMinigame {
+    pub fn rotate(&mut self, pos: UVec2) {
+        let Some(grid) = self.grid.get_mut(pos.y as usize) else {return;};
+        let Some(v) = grid.get_mut(pos.x as usize) else {return;};
+        let Some(p) = v else {return;};
+        p.rotation = (p.rotation + 1) % 4;
+    }
     pub fn fill_solved(&mut self) {
         let start_r = random_u32() as usize % ROWS;
         let start_c = random_u32() as usize % COLS;
@@ -415,7 +432,6 @@ impl PipeMinigame {
         }
     }
     pub fn shuffle(&mut self) {
-        // Для каждой клетки с плиткой меняем rotation случайно
         for row in self.grid.iter_mut() {
             for cell in row.iter_mut() {
                 if let Some(pipe) = cell {
@@ -428,23 +444,33 @@ impl PipeMinigame {
     pub fn is_solved(&self) -> bool {
         for r in 0..ROWS {
             for c in 0..COLS {
-                if let Some(pipe) = &self.grid[r][c] {
-                    let sides = pipe.get_sides();
-                    for ((nr, nc), side_to_neighbor) in neighbors(r, c) {
-                        if let Some(neighbor) = &self.grid[nr][nc] {
-                            let opposite = opposite_side(side_to_neighbor);
-                            let neighbor_sides = neighbor.get_sides();
-                            let connected = sides.contains(&side_to_neighbor) && neighbor_sides.contains(&opposite);
-                            if !connected {
-                                return false;
-                            }
-                        }
+                let pipe = match &self.grid[r][c] {
+                    Some(p) => p,
+                    None => continue,
+                };
+
+                let sides = pipe.get_sides();
+
+                for ((nr, nc), side_to_neighbor) in neighbors(r, c) {
+                    if nr >= ROWS || nc >= COLS {
+                        continue;
+                    }
+                    let neighbor = match &self.grid[nr][nc] {
+                        Some(n) => n,
+                        None => continue, 
+                    };
+                    let neighbor_sides = neighbor.get_sides();
+                    let opposite = opposite_side(side_to_neighbor);
+
+                    if sides.contains(&side_to_neighbor) != neighbor_sides.contains(&opposite) {
+                        return false;
                     }
                 }
             }
         }
         true
     }
+
 
     pub fn clear(&mut self) {
         for row in self.grid.iter_mut() {
@@ -469,6 +495,7 @@ impl Default for PipeMinigame {
             grid: vec![vec![None; COLS]; ROWS],
         };
         s.fill_solved();
+        s.shuffle();
         s
     }
 }

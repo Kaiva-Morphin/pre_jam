@@ -105,6 +105,8 @@ fn handle_object_spawn(
     mut meshes: ResMut<Assets<Mesh>>,
     mut interactable_materials: ResMut<Assets<InteractableMaterial>>,
     sprite_assets: Res<SpriteAssets>,
+
+    // FUCKING FUCK YARO
     mut aboba: ResMut<Aboba>,
 ) {
     for e in aboba.data.iter() {
@@ -151,6 +153,7 @@ fn handle_object_spawn(
         //     }
         // }
     }
+    aboba.data  = vec![];
 }
 
 
