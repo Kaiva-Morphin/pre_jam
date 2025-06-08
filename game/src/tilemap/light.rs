@@ -189,7 +189,8 @@ impl Material2d for CompositorMaterial {
 const COMPOSITOR_LAYER: RenderLayers = RenderLayers::layer(10);
 const SCENE_OCCLUDER_LAYER: RenderLayers = RenderLayers::layer(20);
 const LIGHT_LAYER: RenderLayers = RenderLayers::layer(30);
-const BG_LAYER: RenderLayers = RenderLayers::layer(24);
+const BG_LAYER : RenderLayers = RenderLayers::layer(24);
+const LIT_OVERLAY_LAYER : RenderLayers = RenderLayers::layer(26);
 const LIGHT_RESOLUTION : f32 = 1.0;
 
 
@@ -301,11 +302,13 @@ fn setup(
         SCENE_OCCLUDER_LAYER
     ));
 
+    let (_e, pc3d) = &mut *pixel_camera3d;
+    pc3d.target = RenderTarget::Image(retarget_handle.clone().into());
+
     let (pixel_camera_e, pixel_camera) = &mut *pixel_camera;
     pixel_camera.target = RenderTarget::Image(retarget_handle.clone().into());
 
-    let (pixel_camera_e, pixel_camera) = &mut *pixel_camera3d;
-    pixel_camera.target = RenderTarget::Image(retarget_handle.clone().into());
+    
 
     cmd.entity(*pixel_camera_e).with_children(|cmd|{
         cmd.spawn((
@@ -320,20 +323,20 @@ fn setup(
             PIXEL_PERFECT_LAYERS,
             Msaa::Off,
         ));
-        cmd.spawn((
-            Name::new("Bg Camera"),
-            Camera2d,
-            SyncCamera,
-            Camera {
-                target: RenderTarget::Image(bg_handle.clone().into()),
-                order: -18,
-                msaa_writeback: false,
-                ..default()
-            },
-            BG_LAYER
-        ));
     });
-    
+    cmd.spawn((
+        Name::new("Bg Camera"),
+        Camera2d,
+        SyncCamera,
+        Camera {
+            target: RenderTarget::Image(bg_handle.clone().into()),
+            order: -18,
+            msaa_writeback: false,
+            ..default()
+        },
+        BG_LAYER
+    ));
+
     let mut light_texture = Image {
         texture_descriptor: TextureDescriptor {
             label: Some("light_texture"),
@@ -355,7 +358,7 @@ fn setup(
         Camera2d,
         Camera {
             target: RenderTarget::Image(light_handle.clone().into()),
-            order: -18,
+            order: -17,
             msaa_writeback: false,
             ..default()
         },
@@ -384,6 +387,9 @@ fn setup(
             1.0,
         )),
     ));
+
+
+
 
     cmd.spawn((
         Mesh2d(meshes.add(Rectangle::default())),

@@ -24,7 +24,7 @@ struct LightEmitter {
 @group(2) @binding(2) var scene_sampler: sampler;
 @group(2) @binding(3) var scene: texture_2d<f32>;
 
-@group(2) @binding(4) var noise_smpr: sampler;
+@group(2) @binding(4) var noise_sampler: sampler;
 @group(2) @binding(5) var noise: texture_3d<f32>;
 
 fn apply_kernel(
@@ -53,6 +53,9 @@ fn apply_kernel(
 }
 @fragment
 fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
+    if true {
+        return textureSample(noise, noise_sampler, vec3(uv, in.time));
+    }
     let px_size = vec2(f32(in.width), f32(in.height));
     let px_uv = uv * px_size - px_size * 0.5;
     let aspect = f32(in.height) / f32(in.width);
@@ -109,9 +112,12 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
         // SHADOW TRACING
         var occlusion = 0.0;
         var samples = 0.0;
+        var occlusion_in_a_row = 0;
+        let max_occ_in_a_row = 1;
         for (var i = 0.0; i < MAX_SAMPLES; i = i + 1.0) {
             let walked = i * step;
             if walked >= dist {
+                occlusion_in_a_row = 0;
                 break;
             }
             let p = light_pos + dir * walked;
@@ -119,12 +125,21 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
             let v = textureSample(scene, scene_sampler, u).a;
             occlusion += v;
             samples += 1.0;
+            
+            if v > 0.0 {
+                occlusion_in_a_row += 1;
+                return vec4(1.0, 0.0, 0.0, 1.0);
+                // if occlusion_in_a_row > max_occ_in_a_row {
+                    // break;
+                // }
+            }
         }
+        
 
         let v = 1.0 - clamp(occlusion / samples, 0.0, 1.0);
         let falloff = pow(1.0 - clamp(dist / light_radius, 0.0, 1.0), 2.0);
         if v > 0.8 {
-            let noise_val = pow(textureSample(noise, noise_smpr, vec3(uv * aspect * 1.4, in.time * 0.3)).r, 2.0);
+            let noise_val = pow(textureSample(noise, noise_sampler, vec3(uv * aspect * 1.4, in.time * 0.3)).r, 2.0);
             let d = clamp((dist / light_radius * angular_noise_d), 0.0, 1.0);
 
             // let edge_blend = smoothstep(0.85, 1.0, 1.0 - falloff * angular_falloff);

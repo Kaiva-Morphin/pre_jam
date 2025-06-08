@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::{ActiveCollisionTypes, ActiveEvents, Collider, Colli
 use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 use shaders::components::*;
 
-use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState, OnGame}, interactions::{chain_reaction_display::ChainGraphMaterial, collision_minigame::CollisionGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, hack_minigame::{HACK_ATLAS_COLUMNS, HACK_ATLAS_ROWS, HACK_PIXEL_GRID_SIZE}, pipe_puzzle::PIPE_GRID_SIZE, warning_interface::{WARNING_GRID_COLUMNS, WARNING_GRID_ROWS, WARNING_GRID_SIZE}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::constants::*, utils::{mouse::CursorPosition, spacial_audio::SoundAssets}};
+use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState, OnGame}, interactions::{chain_reaction_display::ChainGraphMaterial, collision_minigame::CollisionGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, hack_minigame::{HACK_ATLAS_COLUMNS, HACK_ATLAS_ROWS, HACK_PIXEL_GRID_SIZE}, pipe_puzzle::PIPE_GRID_SIZE, warning_interface::{WARNING_GRID_COLUMNS, WARNING_GRID_ROWS, WARNING_GRID_SIZE}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::{animator::PlayerAnimations, constants::*, player::Player}, utils::{mouse::CursorPosition, spacial_audio::SoundAssets}};
 
 
 
@@ -304,6 +304,8 @@ pub fn click_faz(
     faz: Single<(&Transform, Entity), With<Faz>>,
     mouse_button: Res<ButtonInput<MouseButton>>,
     sound_assets: Res<SoundAssets>,
+    mut p: Query<&mut Player>,
+    mut r: ResMut<PlayerAnimations>,
 ){
     let camera_transform = *cq;
     let window = *windows;
@@ -333,6 +335,9 @@ pub fn click_faz(
                     spatial_scale: None,
                 },
             ));
+            for mut p in p.iter_mut() {
+                p.try_dance(&mut r, crate::physics::animator::PlayerAnimationNode::HeadSpin);
+            }
         }
     }
 }

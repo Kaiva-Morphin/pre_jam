@@ -93,7 +93,29 @@ fn handle_object_spawn(
             cmd.entity(e.entity).with_child((l, GlobalTransform::IDENTITY, Transform::default()));
         }
         if let Some(m) = MalfunctionType::from_properties(&object.properties) {
-            
+            let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
+            /*
+            EXISTS:
+                WARNING
+                ANTENNA
+                ENGINE
+                REACTOR
+                HACK
+                WAVE
+            */
+            info!("INSERTING SENSOR");
+            for c in object_children_with_collider {
+                cmd.entity(*c).insert((
+                    // LIKE THAT:
+                    Sensor,
+                    // LadderCollider,
+                    // ActiveEvents::COLLISION_EVENTS,
+                    // CollisionGroups{
+                    //     memberships: Group::from_bits(LADDERS_CG).unwrap(),
+                    //     filters: Group::from_bits(PLAYER_CG).unwrap(),
+                    // }
+                ));
+            }
         }
     }
 }
