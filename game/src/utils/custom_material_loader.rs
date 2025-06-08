@@ -296,7 +296,7 @@ pub fn interactable_bundle(
         Transform::from_translation(sprite_data.pos.extend(0.)),
         Name::new("Interactable"),
         Interactable,
-        Collider::cuboid(width as f32 / 4., height as f32 / 4.),
+        // Collider::cuboid(width as f32 / 4., height as f32 / 4.),
         // ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
         CollisionGroups::new(
             Group::from_bits(INTERACTABLE_CG).unwrap(),
