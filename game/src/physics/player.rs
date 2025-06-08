@@ -724,8 +724,8 @@ pub fn update_controllers(
         }
         PlayerState::Spacewalk => {
             anim.target = PlayerAnimationNode::Float;
-            let ang_dir = keyboard.pressed(KeyCode::KeyA) as usize as f32 - keyboard.pressed(KeyCode::KeyD) as usize as f32;
-            raw_dir.x = keyboard.pressed(KeyCode::KeyE) as usize as f32 - keyboard.pressed(KeyCode::KeyQ) as usize as f32;
+            let ang_dir = keyboard.pressed(KeyCode::KeyQ) as usize as f32 - keyboard.pressed(KeyCode::KeyE) as usize as f32;
+            raw_dir.x = keyboard.pressed(KeyCode::KeyA) as usize as f32 - keyboard.pressed(KeyCode::KeyD) as usize as f32;
             let target = player_vel.angvel + ang_dir * dt * consts.spacewalk_ang_speed;
             if target.abs() > player_vel.angvel.abs() {
                 player_vel.angvel = target.clamp(-consts.spacewalk_max_angvel, consts.spacewalk_max_angvel);
