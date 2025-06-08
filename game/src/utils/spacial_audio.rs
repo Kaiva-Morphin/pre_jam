@@ -16,7 +16,7 @@ impl Plugin for SpacialAudioPlugin {
                 .load_collection::<SoundAssets>(),
         )
         .add_event::<PlaySoundEvent>()
-        .add_systems(OnGame, spawn_alarm_speakers)
+        .add_systems(OnGame, (spawn_alarm_speakers, play_main_theme))
         .add_systems(Update, (play_sounds, play_alarm_speakers).run_if(in_state(GlobalAppState::InGame)))
         ;
     }
@@ -48,6 +48,8 @@ pub struct SoundAssets {
     pub open_wires_sound: Handle<AudioSource>,
     #[asset(path = "sounds/wire.wav")]
     pub wires_sound: Handle<AudioSource>,
+    #[asset(path = "sounds/main.mp3")]
+    pub main_theme: Handle<AudioSource>,
 }
 
 #[derive(Component)]
@@ -182,4 +184,22 @@ fn sound_bundle(
             spatial_scale: None,
         },
     )
+}
+
+fn play_main_theme(
+    mut commands: Commands,
+    sound_assets: Res<SoundAssets>,
+) {
+    commands.spawn((
+        AudioPlayer::new(sound_assets.main_theme.clone()),
+        PlaybackSettings {
+            mode: PlaybackMode::Loop,
+            volume: Volume::Linear(1.),
+            speed: 1.0,
+            paused: false,
+            muted: false,
+            spatial: false,
+            spatial_scale: None,
+        },
+    ));
 }

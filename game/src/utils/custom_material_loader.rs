@@ -25,6 +25,8 @@ pub struct SpriteAssets {
     pub warning_atlas: Handle<Image>,
     #[asset(path = "atlases/Warning.png")]
     pub hack_atlas: Handle<Image>,
+    #[asset(path = "ui/malf.png")]
+    pub malf_atlas: Handle<Image>,
 
     #[asset(path = "interactables/ChainGraph.png")]
     pub chain_graph_sprite: Handle<Image>,
@@ -74,6 +76,7 @@ impl Plugin for SpritePreloadPlugin {
         .insert_resource(SpinnyAtlasHandles::default())
         .insert_resource(PipesAtlasHandles::default())
         .insert_resource(WarningAtlasHandles::default())
+        .insert_resource(MalfAtlasHandles::default())
         .add_event::<SpritePreloadEvent>()
         .add_systems(OnGame, (preload_sprites, create_atlases, spawn_faz))
         .add_systems(Update, (spawn_sprites, click_faz).run_if(in_state(GlobalAppState::InGame)));
@@ -106,9 +109,18 @@ pub struct WarningAtlasHandles {
     pub image_handle: Handle<Image>,
 }
 
+#[derive(Resource, Default)]
+pub struct MalfAtlasHandles {
+    pub layout_handle: Handle<TextureAtlasLayout>,
+    pub image_handle: Handle<Image>,
+}
+
 pub const KEYS_ATLAS_COLUMNS: u32 = 3;
 pub const KEYS_ATLAS_ROWS: u32 = 1;
 pub const KEYS_ATLAS_SIZE: u32 = KEYS_ATLAS_COLUMNS * KEYS_ATLAS_ROWS;
+
+pub const MALF_ATLAS_COLUMNS: u32 = 6;
+pub const MALF_ATLAS_ROWS: u32 = 2;
 
 pub fn create_atlases(
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
@@ -116,6 +128,7 @@ pub fn create_atlases(
     mut spinny_atlas_handles: ResMut<SpinnyAtlasHandles>,
     mut pipes_atlas_handles: ResMut<PipesAtlasHandles>,
     mut warning_atlas_handles: ResMut<WarningAtlasHandles>,
+    mut malf_atlas_handles: ResMut<MalfAtlasHandles>,
     sprite_assets: Res<SpriteAssets>,
 ) {
     // f key
@@ -173,6 +186,17 @@ pub fn create_atlases(
     // );
     // let hack_handle = texture_atlases.add(hack_atlas);
     // hack_atlas_handles.layout_handle = hack_handle;
+    // malf
+    malf_atlas_handles.image_handle = sprite_assets.malf_atlas.clone();
+    let malf_handle = TextureAtlasLayout::from_grid(
+        UVec2::splat(48),
+        MALF_ATLAS_COLUMNS,
+        MALF_ATLAS_ROWS,
+        None,
+        None
+    );
+    let malf_handle: Handle<TextureAtlasLayout> = texture_atlases.add(malf_handle);
+    malf_atlas_handles.layout_handle = malf_handle;
 }
 
 pub struct SpritePreloadData {

@@ -12,10 +12,12 @@ pub struct DebreePlugin;
 impl Plugin for DebreePlugin {
     fn build(&self, app: &mut App) {
         app
+        .add_event::<GameEndEvent>()
         .insert_resource(DebreeLevel::default())
         .insert_resource(Malfunction::default())
         .insert_resource(DebreeTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
-        .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions, tick_malfunctions).run_if(in_state(GlobalAppState::InGame)));
+        .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions,
+            tick_malfunctions, end_game).run_if(in_state(GlobalAppState::InGame)));
     }
 }
 
@@ -52,7 +54,7 @@ pub fn debree_level_management(
     debree_level.malfunction_probability = debree_level.level;
     debree_level.malfunction_probability = 0.;
     // malfunc prob is perframe
-    debree_level.chain_reaction = time.elapsed_secs_wrapped();
+    debree_level.chain_reaction = 0.7 / debree_level.level;
     overlay_text!(
         overlay_events;
         TopLeft;
@@ -172,8 +174,11 @@ pub fn manage_malfunctions(
 
 pub fn get_random_range(mi: f32, ma: f32) -> f32 {
     let rand = getrandom::u32().unwrap() as f32 / (u32::MAX as f32);
-    mi + rand * (ma + 1. - mi)
+    mi + rand * (ma - mi) // TODO: IS THERE MA + 1????
 }
+
+const WAVE_COST: f32 = 10.;
+const HACK_COST: f32 = 10.;
 
 pub fn resolve_malfunctions(
     mut malfunction: ResMut<Malfunction>,
@@ -188,9 +193,11 @@ pub fn resolve_malfunctions(
             match to_be_resolved {
                 MalfunctionType::Hack => {
                     if resolved.failed {
-                        println!("failed hack"); // inc debree level
+                        debree_level.const_add += HACK_COST;
+                        println!("failed hack");
                     } else {
-                        println!("resolved hack"); // rev
+                        debree_level.const_add -= HACK_COST;
+                        println!("resolved hack");
                     }
                 },
                 MalfunctionType::Collision => {
@@ -205,14 +212,17 @@ pub fn resolve_malfunctions(
                         energy.generated *= 0.9;
                         println!("failed reactor");
                     } else {
+                        energy.generated *= 1.1;
                         println!("resolved reactor");
                     }
                 },
                 MalfunctionType::Waves => {
                     if resolved.failed {
-                        println!("failed waves"); // inc debree level
+                        debree_level.const_add += WAVE_COST;
+                        println!("failed waves");
                     } else {
-                        println!("resolved waves"); // rev
+                        debree_level.const_add -= WAVE_COST;
+                        println!("resolved waves");
                     }
                 },
                 MalfunctionType::NoMalfunction => {unreachable!()}
@@ -244,4 +254,20 @@ pub fn tick_malfunctions(
             });
         }
     }
+}
+
+#[derive(Event)]
+pub struct GameEndEvent;
+
+pub fn end_game(
+    debree_level: Res<DebreeLevel>,
+    time: Res<Time>,
+    mut event_reader: EventReader<GameEndEvent>
+) {
+    for _event in event_reader.read() {
+        println!("END {}", time.elapsed_secs());
+    }
+    // if debree_level.chain_reaction >= 100. {
+    //     println!("END {}", time.elapsed_secs());
+    // }
 }

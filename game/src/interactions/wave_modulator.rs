@@ -221,24 +221,25 @@ pub struct SpinnyIds {
 pub struct WaveGraph;
 
 pub fn touch_wavemod_spinny(
-    spinny_q: Query<(&RelativeCursorPosition, &SpinnyIds)>,
+    spinny_q: Query<(&RelativeCursorPosition, &mut SpinnyIds)>,
     mouse_button: Res<ButtonInput<MouseButton>>,
     mut spinny: ResMut<Spinny>,
 ) {
     if mouse_button.just_released(MouseButton::Left) {
         spinny.is_locked = false;
     }
-    for (cursor_rel_pos, spiddy_id) in spinny_q {
+    for (cursor_rel_pos, mut spinny_id) in spinny_q {
         if let Some(rel_pos) = cursor_rel_pos.normalized {
             let changed_pos = (rel_pos - Vec2::ONE / 2.) * -2.;
             if (changed_pos.x * changed_pos.x + changed_pos.y * changed_pos.y) < 1. &&
             mouse_button.just_pressed(MouseButton::Left) {
                 spinny.is_locked = true;
-                spinny.locked_id = spiddy_id.id;
+                spinny.locked_id = spinny_id.id;
             }
-            if spinny.is_locked && spinny.locked_id == spiddy_id.id {
+            if spinny.is_locked && spinny.locked_id == spinny_id.id {
                 let angle = changed_pos.to_angle();
                 spinny.angle = angle;
+                spinny_id.angle = angle;
             }
         }
     }
@@ -263,9 +264,9 @@ pub fn interact_with_wavemod_spinny(
         if spinny.angle < 0. {
             return;
         }
-        let snapped_state = (spinny.angle / ANGLE_PER_SPINNY_STATE).floor() as usize;
         for (spinny_id, mut spinny_image_node) in spinny_q {
             if spinny_id.id == spinny.locked_id {
+                let snapped_state = (spinny.angle / ANGLE_PER_SPINNY_STATE).floor() as usize;
                 if let Some(material) = material_assets.get_mut(*material_handle) {
                     if modulator_consts.is_loaded {
                         let mut is_active = 0.;

@@ -10,12 +10,14 @@ use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::
 pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
-        #[cfg(not(target_arch = "wasm32"))]
-        let mut d = std::env::current_dir().unwrap();
-        #[cfg(not(target_arch = "wasm32"))]
-        d.push("assets_raw/objects.json");
-        #[cfg(not(target_arch = "wasm32"))]
-        let path = Some(d);
+        let path = None;
+
+        // #[cfg(not(target_arch = "wasm32"))]
+        // let mut d = std::env::current_dir().unwrap();
+        // #[cfg(not(target_arch = "wasm32"))]
+        // d.push("assets_raw/objects.json");
+        // #[cfg(not(target_arch = "wasm32"))]
+        // let path = Some(d);
         #[cfg(target_arch = "wasm32")]
         let path = None;
 

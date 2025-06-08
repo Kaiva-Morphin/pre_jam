@@ -5,7 +5,7 @@ use bevy_tailwind::tw;
 use debug_utils::overlay_text;
 use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::text_display_green_handle, viewport_container::viewport_handle}, spinny::ui_spinny, ui_submit_button::submit_button_bundle, wire_inlet::{ui_wire_inlet, wire_inlet_bundle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::{get_random_range, Malfunction}, mouse::CursorPosition}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::text_display_green_handle, viewport_container::viewport_handle}, spinny::ui_spinny, ui_submit_button::submit_button_bundle, wire_inlet::{ui_wire_inlet, wire_inlet_bundle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::{get_random_range, Malfunction, Resolved}, mouse::CursorPosition}};
 
 
 
@@ -207,6 +207,7 @@ pub fn touch_wires_inlet(
 
     grabbed_wire_rot: Query<(Entity, &Children), With<GrabbedWireRot>>,
     grabbed_wire_size: Query<Entity, With<GrabbedWire>>,
+    mut malfunction: ResMut<Malfunction>,
 ) {
     let prev_locked = wires.locked_id.clone();
     if mouse_button.just_released(MouseButton::Left) {
@@ -322,9 +323,15 @@ pub fn touch_wires_inlet(
                     for (_container_entity, _cursor_rel_pos, node) in wires_container {
                         info!("Try connect: {} -> {}", locked_id, wire.id);
                         if wires.task.get(&locked_id) != Some(&wire.id) {
-                            info!("LOOSE");
+                            malfunction.resolved.push(Resolved {
+                                resolved_type: crate::utils::debree::MalfunctionType::Reactor,
+                                failed: true,
+                            });
                         } else if wires.connected.len() == wires.task.len() {
-                            info!("WIN");
+                            malfunction.resolved.push(Resolved {
+                                resolved_type: crate::utils::debree::MalfunctionType::Reactor,
+                                failed: false,
+                            });
                         };
                         let Some(start) = wires.socket_positions.get(&locked_id) else {warn!("SOCKET POS NOT FOUND"); continue;};
                         let Some(end) = wires.socket_positions.get(&wire.id) else {warn!("SOCKET POS NOT FOUND"); continue;};
