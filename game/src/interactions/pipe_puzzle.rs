@@ -84,20 +84,19 @@ pub fn init_grid(
 }
 
 pub fn update_pipes(
-    pipe_image_nodes: Query<(&Pipe, &mut ImageNode, &Interaction), Changed<Interaction>>,
-    mut pipe_grid: ResMut<PipeGrid>,
-) {
-    if pipe_grid.is_loaded {
-        for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
-            if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
-                let conn = &mut pipe_grid.data[pipe.flat_id];
-                if *pipe_interaction == Interaction::Pressed {
-                    conn.rotate();
-                }
-                texture_atlas.index = conn.rot_state + conn.conn_type * 4;
-            }
-        }
-    }
+    pipe_image_nodes: Query<(&PipeEntity, &mut ImageNode, &Interaction), Changed<Interaction>>,
+){
+    // mut minigame.is_loaded {
+    //     for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
+    //         if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
+    //             let conn = &mut minigame.data[pipe.flat_id];
+    //             if *pipe_interaction == Interaction::Pressed {
+    //                 conn.rotate();
+    //             }
+    //             texture_atlas.index = conn.rot_state + conn.conn_type * 4;
+    //         }
+    //     }
+    // }
 }
 
 #[derive(Clone, Copy, Debug)]
