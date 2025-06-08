@@ -35,8 +35,8 @@ pub fn open_pipe_puzzle_display(
                         Node {
                             width: Val::Px(50.),
                             height: Val::Px(50.),
-                            left: Val::Px(SINGLE_PIPE_TEX_SIZE * x as f32),
-                            bottom: Val::Px(SINGLE_PIPE_TEX_SIZE * y as f32),
+                            left: Val::Px(PIPE_GRID_SIZE * x as f32),
+                            bottom: Val::Px(PIPE_GRID_SIZE * y as f32),
                             position_type: PositionType::Absolute,
                             ..default()
                         },
@@ -84,13 +84,12 @@ pub fn init_grid(
 }
 
 pub fn update_pipes(
-    // pipe_image_nodes: Query<(&Pipe, &mut ImageNode, &Interaction), Changed<Interaction>>,
-    // mut pipe_grid: ResMut<PipeGrid>,
-) {
-    // if pipe_grid.is_loaded {
+    pipe_image_nodes: Query<(&PipeEntity, &mut ImageNode, &Interaction), Changed<Interaction>>,
+){
+    // mut minigame.is_loaded {
     //     for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
     //         if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
-    //             let conn = &mut pipe_grid.data[pipe.flat_id];
+    //             let conn = &mut minigame.data[pipe.flat_id];
     //             if *pipe_interaction == Interaction::Pressed {
     //                 conn.rotate();
     //             }
@@ -124,7 +123,6 @@ pub struct PipeEntity {
 }
 
 
-
 impl Pipe {
     pub fn get_sides(&self) -> Vec<PipeSide> {
         let dirs: Vec<u8> = match self.variant {
@@ -140,6 +138,7 @@ impl Pipe {
             .collect()
     }
 }
+
 
 impl PipeType {
     pub fn all() -> &'static [PipeType] {
@@ -237,8 +236,8 @@ fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
     None
 }
 
-const ROWS: usize = 10;
-const COLS: usize = 10;
+const ROWS: usize = 2;
+const COLS: usize = 2;
 
 impl Pipe {
     fn get_index(&self) -> usize {
