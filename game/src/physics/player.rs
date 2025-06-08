@@ -279,6 +279,19 @@ pub struct Player {
     pub state: PlayerState
 }
 
+impl Player {
+    pub fn try_dance(&mut self, anims : &mut ResMut<PlayerAnimations>, target: PlayerAnimationNode) {
+        match &self.state {
+            PlayerState::Regular { accumulated_vel: _ } => {},
+            PlayerState::Dance => {return;},
+            PlayerState::Climbing { ladder: _ } => {return;},
+            PlayerState::Spacewalk => {return;},
+        }
+        anims.target = target;
+        self.state = PlayerState::Dance;
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum PlayerState {
     Regular{
@@ -522,10 +535,10 @@ pub fn update_controllers(
             player.state = PlayerState::Regular { accumulated_vel: 0.0 };
             consts.gravity = PlayerConstants::default().gravity;
             *exiting_spacewalk = true;
-            cmd.entity(*player_e).insert((
-                // LockedAxes::ROTATION_LOCKED,
-                // REG_FRICTION,
-            ));
+            // cmd.entity(*player_e).insert((
+            //     // LockedAxes::ROTATION_LOCKED,
+            //     // REG_FRICTION,
+            // ));
             // transform.rotation = Quat::IDENTITY;
             cmd.entity(*player_e).insert(
                 CollisionGroups{

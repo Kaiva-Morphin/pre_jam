@@ -21,10 +21,10 @@ struct LightEmitter {
 
 @group(2) @binding(1) var<uniform> emitters: array<LightEmitter, 64>;
 
-@group(2) @binding(2) var scene_sampler: sampler;
-@group(2) @binding(3) var scene: texture_2d<f32>;
+@group(2) @binding(2) var occluders_sampler: sampler;
+@group(2) @binding(3) var occluders: texture_2d<f32>;
 
-@group(2) @binding(4) var noise_smpr: sampler;
+@group(2) @binding(4) var noise_sampler: sampler;
 @group(2) @binding(5) var noise: texture_3d<f32>;
 
 fn apply_kernel(
@@ -41,14 +41,14 @@ fn apply_kernel(
         for (var y = -halfKernel; y <= halfKernel; y++) {
             let offset = vec2<f32>(f32(x), f32(y)) * texelSize;
             let dist = length(vec2<f32>(f32(x), f32(y)));
-            let alpha = textureSample(scene, scene_sampler, uv + offset * global_offset).a;
+            let alpha = textureSample(occluders, occluders_sampler, uv + offset * global_offset).a;
             // air adds more shadow
             let weight = (1.0 - alpha) / (dist + 1.0); // prevent div by 0
             total += weight;
             weight_sum += 1.0 / (dist + 1.0);
         }
     }
-    var result_global = total / weight_sum * textureSample(scene, scene_sampler, uv).a;
+    var result_global = total / weight_sum * textureSample(occluders, occluders_sampler, uv).a;
     return result_global;
 }
 @fragment
@@ -109,22 +109,25 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
         // SHADOW TRACING
         var occlusion = 0.0;
         var samples = 0.0;
+        var occlusion_in_a_row = 0;
         for (var i = 0.0; i < MAX_SAMPLES; i = i + 1.0) {
             let walked = i * step;
             if walked >= dist {
+                occlusion_in_a_row = 0;
                 break;
             }
             let p = light_pos + dir * walked;
             let u = (p + px_size * 0.5) / px_size;
-            let v = textureSample(scene, scene_sampler, u).a;
+            let v = textureSample(occluders, occluders_sampler, u).a;
             occlusion += v;
             samples += 1.0;
         }
+        
 
         let v = 1.0 - clamp(occlusion / samples, 0.0, 1.0);
         let falloff = pow(1.0 - clamp(dist / light_radius, 0.0, 1.0), 2.0);
         if v > 0.8 {
-            let noise_val = pow(textureSample(noise, noise_smpr, vec3(uv * aspect * 1.4, in.time * 0.3)).r, 2.0);
+            let noise_val = pow(textureSample(noise, noise_sampler, vec3(uv * aspect * 1.4, in.time * 0.3)).r, 2.0);
             let d = clamp((dist / light_radius * angular_noise_d), 0.0, 1.0);
 
             // let edge_blend = smoothstep(0.85, 1.0, 1.0 - falloff * angular_falloff);
@@ -142,7 +145,7 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
     // if uv.y > 0.5 {
     // return vec4(total_light, result_global);
 
-
+    
 
     // return vec4(res, 1.0);
     return vec4(total_light, result_global);

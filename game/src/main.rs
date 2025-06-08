@@ -17,6 +17,7 @@ use crate::physics::player::{spawn_player, Player, PlayerPlugin};
 use crate::tilemap::light::LightPlugin;
 use crate::tilemap::plugin::MapPlugin;
 use crate::utils::background::StarBackgroundPlugin;
+use crate::utils::energy::EnergyPlugin;
 
 mod core;
 mod ui;
@@ -35,6 +36,7 @@ fn main() {
             PlayerPlugin,
             LightPlugin,
             MapPlugin,
+            EnergyPlugin,
             SwitchableEguiInspectorPlugin::default(),
             SwitchableRapierDebugPlugin::default(),
             DebugOverlayPlugin::default(),

@@ -28,7 +28,7 @@ impl WireMinigame {
         )));
     }
     pub fn get_color(&self, idx: usize) -> Color {
-        *self.colors.get(&idx).unwrap()
+        self.colors.get(&idx).copied().unwrap_or(Color::WHITE)
     }
 }
 
@@ -79,6 +79,7 @@ pub fn refresh_game(
                 i += 1;
             }
         };
+        let mut i = 0;
         used.insert(a);
         while used.contains(&((b + WIRES) % WIRE_SOCKETS)) {
             b = (b + 1) % if allow_unordered {WIRE_SOCKETS} else {WIRES};
@@ -103,8 +104,9 @@ pub fn refresh_game(
         g.calc_color(a, i);
         g.calc_color(b, i);
         g.task.insert(a, b);
+        g.task.insert(b, a);
     }
-    info!("Task: {:?}", g.task);
+    // info!("Task: {:?}", g.task);
 }
 
 
