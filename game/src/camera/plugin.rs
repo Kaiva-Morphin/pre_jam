@@ -84,6 +84,7 @@ pub fn camera_controller(
             **mode = CameraMode::Following;
         }
     }
+    
     let mut m_dt = Vec3::ZERO;
     for event in mouse_wheel_events.read() {
         overlay_text!(overlay_events;BottomLeft;MOUSE_EVENT:format!("Mouse event {:?}", event),(255, 255, 255););
@@ -106,10 +107,12 @@ pub fn camera_controller(
                 m_dt.z = 0.0;
                 
                 if state.is_spacewalking() {
-                    camera_transform.translation = target.translation();
+                    // camera_transform.translation = camera_transform.translation.exp_decay(target.translation(), CAMERA_FOLLOW_SPEED * 3.0, dt);
+                    camera_transform.translation.smooth_nudge(&target.translation(), CAMERA_FOLLOW_SPEED, dt);
+                    // camera_transform.translation = target.translation();
                     camera_transform.rotation = target.rotation();  
                 } else {
-                    camera_transform.translation = camera_transform.translation.exp_decay(target.translation(), CAMERA_FOLLOW_SPEED, dt);
+                    // camera_transform.translation = camera_transform.translation.exp_decay(target.translation(), CAMERA_FOLLOW_SPEED, dt);
                     camera_transform.translation.smooth_nudge(&target.translation(), CAMERA_FOLLOW_SPEED, dt);
                     camera_transform.rotation = camera_transform.rotation.slerp(target.rotation(), dt * 5.0);
                 }

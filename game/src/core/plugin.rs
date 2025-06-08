@@ -6,7 +6,7 @@ use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, prelude::{BevyPhy
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::platforms::PlatformsPlugin, ui::{plugin::UiSystemPlugin, target::UiRetargetPlugin}, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin}};
+use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::platforms::PlatformsPlugin, ui::{plugin::UiSystemPlugin, target::UiRetargetPlugin}, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin, spacial_audio::SpacialAudioPlugin}};
 
 const AUDIO_SCALE: f32 = 1. / 100.0;
 
@@ -17,7 +17,7 @@ impl Plugin for CorePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugins((
-                DefaultPlugins
+                (DefaultPlugins
                     .set(WindowPlugin {
                         primary_window: Some(Window {
                             // resolution: WindowResolution::new(1000., 1000.),
@@ -43,10 +43,10 @@ impl Plugin for CorePlugin {
                 GameStatesPlugin,
                 PixelCameraPlugin,
                 CameraControllerPlugin,
-                UiSystemPlugin,
-                PlatformsPlugin,
+                UiSystemPlugin),
                 UiRetargetPlugin,
                 CursorPlugin,
+                SpacialAudioPlugin,
                 bevy_framepace::FramepacePlugin,
                 InteractionsPlugin,
                 CursorPositionPlugin,

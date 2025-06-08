@@ -44,6 +44,9 @@ impl PixelCameraVars {
     pub fn scale(&self) -> f32 {
         self.scale
     }
+    pub fn true_pixel(&self) -> bool {
+        self.true_pixel
+    }
 }
 
 #[derive(Component)]
@@ -54,7 +57,11 @@ pub struct PixelCamera;
 #[derive(Component)]
 pub struct PixelCamera3d;
 
-
+#[derive(Resource)]
+pub struct PixelTarget{
+    pub image: Handle<Image>,
+    pub size: Extent3d
+}
 
 pub fn setup_camera(
     mut commands: Commands,
@@ -89,9 +96,9 @@ pub fn setup_camera(
     commands.spawn((
         Camera2d,
         Camera {
-            order: -2,
+            order: -20,
             target: RenderTarget::Image(image_handle.clone().into()),
-            clear_color: ClearColorConfig::Custom(Srgba::rgb(0.0, 0.0, 0.0).into()),
+            clear_color: ClearColorConfig::Custom(Color::srgba(0.0, 0.0, 0.0, 0.0)),
             // hdr: true,
             msaa_writeback: false,
             ..default()
@@ -114,9 +121,10 @@ pub fn setup_camera(
         Camera3d::default(),
         Projection::Orthographic(OrthographicProjection::default_2d()),
         OrthographicProjection::default_2d().compute_frustum(&GlobalTransform::from(Transform::default())),
+        DirectionalLight::default(),
         Msaa::Off,
         Camera {
-            order: -1,
+            order: -10,
             target: RenderTarget::Image(image_handle.clone().into()),
             clear_color: ClearColorConfig::None,
             ..default()
@@ -126,7 +134,7 @@ pub fn setup_camera(
         // PIXEL_PERFECT_LAYERS,
     ));
 
-    commands.spawn((Sprite::from_image(image_handle), PixelCanvas, HIGH_RES_LAYERS));
+    commands.spawn((Sprite::from_image(image_handle.clone()), PixelCanvas, HIGH_RES_LAYERS));
 
     commands.spawn((
         Camera2d,
@@ -142,6 +150,7 @@ pub fn setup_camera(
         RenderCamera, 
         HIGH_RES_LAYERS
     ));
+    commands.insert_resource(PixelTarget{image: image_handle, size: canvas_size});
 }
 
 #[derive(Resource)]

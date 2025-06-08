@@ -2,6 +2,7 @@ use std::{collections::VecDeque, time::Duration};
 
 use bevy::prelude::*;
 use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
+use tiled::PropertyValue;
 use utils::WrappedDelta;
 
 use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, warning_interface::WarningData}, utils::{custom_material_loader::SpriteAssets, energy::Energy}};
@@ -92,6 +93,20 @@ pub enum MalfunctionType {
     Collision,
     Hack,
     Waves,
+}
+
+impl MalfunctionType {
+    pub fn from_properties(properties: &HashMap<String, PropertyValue>) -> Option<Self> {
+        let Some(PropertyValue::StringValue(s)) = properties.get("type") else {return None};
+        match s.as_str() {
+            "MAINFRAME" => None,
+            "HACK" => Some(Self::Hack),
+            "REACTOR" => Some(Self::Reactor),
+            "ENGINE" => Some(Self::Collision),
+            "ANTENNA" => Some(Self::Waves),
+            _ => None
+        }
+    }
 }
 
 const MALFUNCTION_TYPES_NUM: usize = 5;

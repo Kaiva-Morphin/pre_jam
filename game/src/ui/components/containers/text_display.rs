@@ -56,5 +56,6 @@ pub fn ui_text_display_green_with_text(h: &Handle<Image>, component: (impl Bundl
             )
         ],
         // вадим я перетащил компонент внутрь я вообще не ебу к хуям он тут нужен вне текста 🤷‍♂️🤷‍♂️🤷‍♂️
+        // 💪💪💪 дада legend
     ))
 }

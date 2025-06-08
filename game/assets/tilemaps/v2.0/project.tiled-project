@@ -10,5 +10,49 @@
     "properties": [
     ],
     "propertyTypes": [
+        {
+            "color": "#ff000000",
+            "drawFill": true,
+            "id": 5,
+            "members": [
+            ],
+            "name": "game::tilemap::light::LightOccluderLayer",
+            "type": "class",
+            "useAs": [
+                "property"
+            ]
+        },
+        {
+            "color": "#ff000000",
+            "drawFill": true,
+            "id": 6,
+            "members": [
+                {
+                    "name": ":variant",
+                    "propertyType": "game::tilemap::plugin::MapObject:::Variant",
+                    "type": "string",
+                    "value": "Ladder"
+                }
+            ],
+            "name": "game::tilemap::plugin::MapObject",
+            "type": "class",
+            "useAs": [
+                "property"
+            ]
+        },
+        {
+            "id": 7,
+            "name": "game::tilemap::plugin::MapObject:::Variant",
+            "storageType": "string",
+            "type": "enum",
+            "values": [
+                "Ladder",
+                "Interactable",
+                "PlayerSpawn",
+                "Light",
+                "Platform"
+            ],
+            "valuesAsFlags": false
+        }
     ]
 }

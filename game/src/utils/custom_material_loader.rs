@@ -41,7 +41,7 @@ pub struct SpriteAssets {
     pub collision_interactable: Handle<Image>,
     #[asset(path = "interactables/warning.png")]
     pub warning_interactable: Handle<Image>,
-    #[asset(path = "interactables/wire.png")]
+    #[asset(path = "ui/wire.png")]
     pub wire: Handle<Image>,
 
     #[asset(path = "interactables/ururur.png")]
