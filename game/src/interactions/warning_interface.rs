@@ -155,14 +155,15 @@ pub struct WarningTimer {
 }
 
 pub fn update_warning_interface_display(
-    // mut image_node: Single<&mut ImageNode, With<WarningScreen>>,
     mut warning_timer: ResMut<WarningTimer>,
     time: Res<Time>,
     malfunction: Res<Malfunction>,
     energy: Res<Energy>,
     text: Query<&mut Text, With<SurplusText>>,
     timer_text: Query<(&mut Text, &TimerText), Without<SurplusText>>,
-    mut mini_image_nodes: Query<(&mut ImageNode, &MalfMini)>,
+    warning_text: Query<&mut Text, (Without<SurplusText>, Without<TimerText>)>,
+    mini_image_nodes: Query<(&mut ImageNode, &MalfMini)>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     warning_timer.timer.tick(Duration::from_secs_f32(time.dt()));
     for mut text in text {
@@ -199,28 +200,15 @@ pub fn update_warning_interface_display(
                 node_index += 6;
                 if warning_timer.timer.elapsed_secs() < warning_timer.timer.duration().as_secs_f32() / 2. {
                     node_index = 0;
+                    event_writer.write(PlaySoundEvent::Beep);
                 }
             }
             atlas.index = node_index;
         }
     }
     if malfunction.in_progress {
-    //     if let Some(atlas) = &mut image_node.texture_atlas {
-    //         warning_timer.timer.tick(Duration::from_secs_f32(time.dt()));
-    //         let mut color = 2;
-    //         if !malfunction.warning_data.is_empty() {
-    //             let mut sub_color = true;
-    //             for warning_data in malfunction.warning_data.iter() {
-    //                 if !warning_data.color {
-    //                     sub_color = false;
-    //                     break;
-    //                 }
-    //             }
-    //             color = sub_color as usize;
-    //         }
-    //         if warning_timer.timer.finished() {
-    //             atlas.index = 2 * color + (atlas.index + 1) % 2;
-    //         }
-    //     }
+        for mut text in warning_text {
+            text.0 = malfunction.warning_data[malfunction.warning_data.len() - 1].text.clone();
+        }
     }
 }

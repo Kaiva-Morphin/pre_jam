@@ -27,8 +27,8 @@ pub const HIGH_RES_LAYERS: RenderLayers = RenderLayers::layer(1);
 
 
 pub const SCALE : u32 = 1;
-pub const TARGET_WIDTH: u32 = 720 * SCALE;
-pub const TARGET_HEIGHT: u32 = 405 * SCALE;
+pub const TARGET_WIDTH: u32 = (720 as f32 * 0.8) as u32;
+pub const TARGET_HEIGHT: u32 = (405 as f32 * 0.8) as u32;
 
 #[derive(Component)]
 pub struct RenderCamera;

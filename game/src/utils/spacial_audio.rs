@@ -50,6 +50,8 @@ pub struct SoundAssets {
     pub wires_sound: Handle<AudioSource>,
     #[asset(path = "sounds/main.mp3")]
     pub main_theme: Handle<AudioSource>,
+    #[asset(path = "sounds/Retro Beeep 06.wav")]
+    pub beep_sound: Handle<AudioSource>,
 }
 
 #[derive(Component)]
@@ -71,21 +73,22 @@ fn spawn_alarm_speakers(
 fn play_alarm_speakers(
     mut commands: Commands,
     speakers: Query<Entity, With<AlarmSpeaker>>,
-    malfunction: Res<Malfunction>,
+    mut malfunction: ResMut<Malfunction>,
     sound_assets: Res<SoundAssets>,
 ) {
+    // TODO: IF FLYING => DISABLE
     if malfunction.is_changed() && malfunction.in_progress && malfunction.added_new_malfunction {
-        println!("play");
+        malfunction.added_new_malfunction = false;
         for speaker_entity in speakers {
             commands.entity(speaker_entity).insert((
-                // AudioPlayer::new(sound_assets.alarm_sound.clone()),
+                AudioPlayer::new(sound_assets.alarm_sound.clone()),
                 PlaybackSettings {
                     mode: PlaybackMode::Remove,
                     volume: Volume::Linear(0.2),
                     speed: 1.0,
                     paused: false,
                     muted: false,
-                    spatial: false,
+                    spatial: true,
                     spatial_scale: None,
                 },
             ));
@@ -105,6 +108,7 @@ pub enum PlaySoundEvent {
     Concrete2,
     OpenWires,
     WireClick,
+    Beep,
 }
 
 pub fn play_sounds(
@@ -137,46 +141,50 @@ fn match_sounds(
 ) {
     match event {
         PlaySoundEvent::HackButtonPress => {
-            commands.spawn(sound_bundle(sound_assets.hack_press_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.hack_press_sound.clone(), 1.));
         },
         PlaySoundEvent::HackButtonRelease => {
-            commands.spawn(sound_bundle(sound_assets.hack_release_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.hack_release_sound.clone(), 1.));
         },
         PlaySoundEvent::SubmitButtonPress => {
-            commands.spawn(sound_bundle(sound_assets.submit_press_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.submit_press_sound.clone(), 1.));
         },
         PlaySoundEvent::SubmitButtonRelease => {
-            commands.spawn(sound_bundle(sound_assets.submit_release_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.submit_release_sound.clone(), 1.));
         },
         PlaySoundEvent::SpinnyClick => {
-            commands.spawn(sound_bundle(sound_assets.spinny_click_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.spinny_click_sound.clone(), 1.));
         },
         PlaySoundEvent::OpenUi => {
-            commands.spawn(sound_bundle(sound_assets.open_ui_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.open_ui_sound.clone(), 1.));
         },
         PlaySoundEvent::Concrete1 => {
-            commands.spawn(sound_bundle(sound_assets.concrete_1_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.concrete_1_sound.clone(), 1.));
         }, // delta 440ms
         PlaySoundEvent::Concrete2 => {
-            commands.spawn(sound_bundle(sound_assets.concrete_2_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.concrete_2_sound.clone(), 1.));
         },
         PlaySoundEvent::OpenWires => {
-            commands.spawn(sound_bundle(sound_assets.open_wires_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.open_wires_sound.clone(), 1.));
         },
         PlaySoundEvent::WireClick => {
-            commands.spawn(sound_bundle(sound_assets.wires_sound.clone()));
+            commands.spawn(sound_bundle(sound_assets.wires_sound.clone(), 1.));
+        },
+        PlaySoundEvent::Beep => {
+            commands.spawn(sound_bundle(sound_assets.beep_sound.clone(), 0.2));
         },
     }
 }
 
 fn sound_bundle(
     handle: Handle<AudioSource>,
+    volume: f32,
 ) -> impl Bundle {
     (
         AudioPlayer::new(handle),
         PlaybackSettings {
             mode: PlaybackMode::Despawn,
-            volume: Volume::Linear(1.),
+            volume: Volume::Linear(volume),
             speed: 1.0,
             paused: false,
             muted: false,
