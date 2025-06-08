@@ -259,15 +259,19 @@ fn handle_object_spawn(
 
 fn handle_layer_spawn(
     mut cmd: Commands,
-    q_c: Query<
-        (Entity, &Children)
-    >,
+    mut t_q: Query<&mut Transform>,
+    q_c: Query<(Entity, &Children)>,
     mut e: EventReader<TiledLayerCreated>,
     map_asset: Res<Assets<TiledMap>>,
 ) {
     for e in e.read(){
+
         let Some(layer) = e.get_layer(&map_asset) else {continue};
         let Ok((_e, c)) = q_c.get(e.entity) else {continue;};
+        if let Ok(mut t) = t_q.get_mut(e.entity) {
+            t.translation.z *= 0.1;
+        }
+        
         // LEGACY CODE :p
         match layer.name.as_str() {
             "LADDERS" => {

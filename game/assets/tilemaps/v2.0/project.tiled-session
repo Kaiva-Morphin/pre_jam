@@ -69,7 +69,7 @@
     "openFiles": [
     ],
     "project": "project.tiled-project",
-    "property.type": "bool",
+    "property.type": "string",
     "recentFiles": [
         "main.tmx",
         "autobg.tmx",

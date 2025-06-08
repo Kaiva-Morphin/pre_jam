@@ -235,7 +235,6 @@ pub fn click_faz(
     t: Res<Time>,
 ){
     for p in p.iter() {if p.is_dancing(){
-        info!("DANCE");
         let h = (t.elapsed_secs() * 360.) % 360.0;
         let c = Srgba::from(Color::hsl(h, 1.0, 0.5));
         for mut l in faz_light.iter_mut() {
