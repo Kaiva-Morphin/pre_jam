@@ -221,6 +221,7 @@ fn spawn_faz(
 pub struct FazLight;
 
 
+
 pub fn click_faz(
     windows: Single<&Window>,
     v: Res<pixel_utils::camera::PixelCameraVars>,
