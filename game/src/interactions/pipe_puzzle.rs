@@ -29,21 +29,26 @@ pub fn open_pipe_puzzle_display(
             for y in 0..ROWS {
                 for x in 0..COLS {
                     let pipe = pipes.get_pipe(x, y);
+                    info!("Pipe added: {:?}", pipe);
+                    let index = pipe.map(|v|v.get_index()).unwrap_or(15);
                     children.push(commands.spawn((
                         Node {
                             width: Val::Px(50.),
                             height: Val::Px(50.),
-                            left: Val::Px(PIPE_GRID_SIZE * x as f32),
-                            bottom: Val::Px(PIPE_GRID_SIZE * y as f32),
+                            left: Val::Px(SINGLE_PIPE_TEX_SIZE * x as f32),
+                            bottom: Val::Px(SINGLE_PIPE_TEX_SIZE * y as f32),
                             position_type: PositionType::Absolute,
                             ..default()
                         },
                         ImageNode::from_atlas_image(
                             pipes_atlas_handles.image_handle.clone(),
-                            TextureAtlas::from(pipes_atlas_handles.layout_handle.clone())
+                            TextureAtlas{
+                                layout: pipes_atlas_handles.layout_handle.clone(),
+                                index
+                            },
                         ),
                         PipeEntity{
-                            pipe,
+                            pipe: pipe.cloned(),
                             position: uvec2(x as u32, y as u32), 
                         },
                         Button,
@@ -95,7 +100,7 @@ pub fn update_pipes(
     // }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum PipeType {
     SINGLE,
     LINE,
@@ -107,7 +112,7 @@ pub enum PipeType {
 type PipeRotation = u8;
 type PipeSide = u8;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Pipe {
     variant: PipeType,
     rotation: PipeRotation 
@@ -234,6 +239,48 @@ fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
 
 const ROWS: usize = 10;
 const COLS: usize = 10;
+
+impl Pipe {
+    fn get_index(&self) -> usize {
+        match self.variant {
+            PipeType::LINE => {
+                match self.rotation % 2 {
+                    0 => 7,
+                    1 => 13,
+                    _ => 15,
+                }
+            }
+            PipeType::TEE => {
+                match self.rotation {
+                    0 => 9,
+                    1 => 6,
+                    2 => 1,
+                    3 => 4,
+                    _ => 15
+                }
+            }
+            PipeType::CORNER => {
+                match self.rotation {
+                    0 => 10,
+                    1 => 2,
+                    2 => 0,
+                    3 => 8,
+                    _ => 15
+                }
+            }
+            PipeType::SINGLE => {
+                match self.rotation {
+                    0 => 3,
+                    1 => 12,
+                    2 => 11,
+                    3 => 14,
+                    _ => 15
+                }
+            }
+            PipeType::CROSS => {5}
+        }
+    }
+}
 
 fn filter_grid_corners(pos: (usize, usize), inc_sides: &[u8]) -> Vec<u8> {
     let (r, c) = pos;
@@ -407,9 +454,9 @@ impl PipeMinigame {
             }
         }
     }
-    pub fn get_pipe(&self, x: usize, y: usize) -> Option<Pipe> {
+    pub fn get_pipe(&self, x: usize, y: usize) -> Option<&Pipe> {
         if x < COLS && y < ROWS {
-            self.grid[y][x].clone()
+            self.grid[y][x].as_ref()
         } else {
             None
         }
