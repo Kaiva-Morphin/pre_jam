@@ -123,7 +123,21 @@ pub struct PipeEntity {
 }
 
 
-
+impl Pipe {
+    pub fn get_sides(&self) -> Vec<PipeSide> {
+        let dirs: Vec<u8> = match self.variant {
+            PipeType::SINGLE => vec![0],
+            PipeType::LINE => vec![0, 2],
+            PipeType::CORNER => vec![0, 1],
+            PipeType::TEE => vec![0, 1, 3],
+            PipeType::CROSS => vec![0, 1, 2, 3],
+        };
+        
+        dirs.into_iter()
+            .map(|d| (d + self.rotation) % 4)
+            .collect()
+    }
+}
 
 
 impl PipeType {

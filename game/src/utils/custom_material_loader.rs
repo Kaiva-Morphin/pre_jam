@@ -19,7 +19,7 @@ pub struct SpriteAssets {
     pub key_f_atlas: Handle<Image>,
     #[asset(path = "ui/pipes.png")]
     pub pipes_atlas: Handle<Image>,
-    #[asset(path = "atlases/spinny.png")]
+    #[asset(path = "ui/spinner.png")]
     pub spinny_atlas: Handle<Image>,
     #[asset(path = "atlases/Warning.png")]
     pub warning_atlas: Handle<Image>,
