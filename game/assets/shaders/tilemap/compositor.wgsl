@@ -130,7 +130,17 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
     // return vec4(noise, noise, noise, 1.0); 
     // return vec4(scene + tiles, 1.0);
     var out = bg;
-    // return vec4(mix(bg, scene + tiles + bg, scene_color.a + tile_mask), 1.0);
+
+
+    let rf = sqrt(dot(((uv - 0.5)), (uv - 0.5))) * 1.3;
+    let rf2_1 = rf * rf + 1.0;
+
+    let vignette = 1.0 / (rf2_1 * rf2_1 * rf2_1);
+
+
+
+
+    return vec4(mix(bg * vignette, (scene + tiles * vignette), scene_color.a + tile_mask), 1.0);
     // let result = mix(lights, occluders_color, clamp(lights, vec3(0.0), vec3(1.0)));
     // mix(0.0, lights.r, 1.0 - clamp(lights.r, 0.0, 1.0)),
     // return vec4(
@@ -147,7 +157,7 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
         // return vec4(mask, 1.0);
     // }
 
-    return vec4(textureSample(light, light_sampler, uv).rgb,1.0);
+    // return vec4(textureSample(light, light_sampler, uv).aaa,1.0);
     // let r = textureSample(occluders, occluders_sampler, uv);
     // return vec4(r.aaa, 1.0);
     // let s = textureSample(occluders, occluders_sampler, uv);

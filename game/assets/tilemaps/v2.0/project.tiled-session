@@ -69,7 +69,7 @@
     "openFiles": [
     ],
     "project": "project.tiled-project",
-    "property.type": "string",
+    "property.type": "game::tilemap::light::LightOccluderLayer",
     "recentFiles": [
         "autobg.tmx",
         "main.tsx"

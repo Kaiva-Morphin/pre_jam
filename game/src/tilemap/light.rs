@@ -120,7 +120,7 @@ struct LightMaterial {
     lights: [RelativeLightEmitter; MAX_EMITTERS],
     #[sampler(2)]
     #[texture(3)]
-    scene_texture: Handle<Image>,
+    occluders_texture: Handle<Image>,
     #[sampler(4)]
     #[texture(5, dimension = "3d")]
     noise_texture: Handle<Image>,
@@ -228,6 +228,7 @@ fn setup(
             mip_level_count: 1,
             sample_count: 1,
             usage: TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_DST
                 | TextureUsages::RENDER_ATTACHMENT,
             view_formats: &[],
         },
@@ -373,7 +374,7 @@ fn setup(
         NoFrustumCulling,
         MeshMaterial2d(materials.add(LightMaterial {
             time: 0.0,
-            scene_texture: occluders_texture_handle.clone(),
+            occluders_texture: occluders_texture_handle.clone(),
             emitters: 0,
             noise_texture: noise_handle.clone(),
             width: size.width,

@@ -125,6 +125,9 @@
   </data>
  </layer>
  <layer id="10" name="WALL_INNER" width="30" height="20">
+  <properties>
+   <property name="occluder" type="class" propertytype="game::tilemap::light::LightOccluderLayer"/>
+  </properties>
   <data encoding="base64" compression="zlib">
    <chunk x="-48" y="-48" width="16" height="16">
    eJxjYBgFo2BkgktM5Ov9CNT7iQL9gswMDELM5Os3BOo1okB/IFBvEBADAIoaA/c=
@@ -259,6 +262,9 @@
   </data>
  </layer>
  <layer id="3" name="COLLIDERS" width="30" height="20">
+  <properties>
+   <property name="occluder" type="class" propertytype="game::tilemap::light::LightOccluderLayer"/>
+  </properties>
   <data encoding="base64" compression="zlib">
    <chunk x="-48" y="-48" width="16" height="16">
    eJxjYBgFo2BoAjcK9bpSoF+RAr2DST8AIIsBVg==
@@ -469,9 +475,9 @@
   <object id="66" x="-513.606" y="-362.5">
    <properties>
     <property name="angle" type="float" value="0"/>
-    <property name="color" type="color" value="#ff1aff00"/>
-    <property name="intensity" type="float" value="2"/>
-    <property name="radius" type="float" value="200"/>
+    <property name="color" type="color" value="#ff6eff00"/>
+    <property name="intensity" type="float" value="3"/>
+    <property name="radius" type="float" value="250"/>
     <property name="rotation" type="float" value="45"/>
    </properties>
    <point/>

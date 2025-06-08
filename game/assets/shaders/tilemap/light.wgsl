@@ -21,8 +21,8 @@ struct LightEmitter {
 
 @group(2) @binding(1) var<uniform> emitters: array<LightEmitter, 64>;
 
-@group(2) @binding(2) var scene_sampler: sampler;
-@group(2) @binding(3) var scene: texture_2d<f32>;
+@group(2) @binding(2) var occluders_sampler: sampler;
+@group(2) @binding(3) var occluders: texture_2d<f32>;
 
 @group(2) @binding(4) var noise_sampler: sampler;
 @group(2) @binding(5) var noise: texture_3d<f32>;
@@ -41,21 +41,18 @@ fn apply_kernel(
         for (var y = -halfKernel; y <= halfKernel; y++) {
             let offset = vec2<f32>(f32(x), f32(y)) * texelSize;
             let dist = length(vec2<f32>(f32(x), f32(y)));
-            let alpha = textureSample(scene, scene_sampler, uv + offset * global_offset).a;
+            let alpha = textureSample(occluders, occluders_sampler, uv + offset * global_offset).a;
             // air adds more shadow
             let weight = (1.0 - alpha) / (dist + 1.0); // prevent div by 0
             total += weight;
             weight_sum += 1.0 / (dist + 1.0);
         }
     }
-    var result_global = total / weight_sum * textureSample(scene, scene_sampler, uv).a;
+    var result_global = total / weight_sum * textureSample(occluders, occluders_sampler, uv).a;
     return result_global;
 }
 @fragment
 fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
-    if true {
-        return textureSample(noise, noise_sampler, vec3(uv, in.time));
-    }
     let px_size = vec2(f32(in.width), f32(in.height));
     let px_uv = uv * px_size - px_size * 0.5;
     let aspect = f32(in.height) / f32(in.width);
@@ -113,7 +110,6 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
         var occlusion = 0.0;
         var samples = 0.0;
         var occlusion_in_a_row = 0;
-        let max_occ_in_a_row = 1;
         for (var i = 0.0; i < MAX_SAMPLES; i = i + 1.0) {
             let walked = i * step;
             if walked >= dist {
@@ -122,17 +118,9 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
             }
             let p = light_pos + dir * walked;
             let u = (p + px_size * 0.5) / px_size;
-            let v = textureSample(scene, scene_sampler, u).a;
+            let v = textureSample(occluders, occluders_sampler, u).a;
             occlusion += v;
             samples += 1.0;
-            
-            if v > 0.0 {
-                occlusion_in_a_row += 1;
-                return vec4(1.0, 0.0, 0.0, 1.0);
-                // if occlusion_in_a_row > max_occ_in_a_row {
-                    // break;
-                // }
-            }
         }
         
 
@@ -157,7 +145,7 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
     // if uv.y > 0.5 {
     // return vec4(total_light, result_global);
 
-
+    
 
     // return vec4(res, 1.0);
     return vec4(total_light, result_global);
