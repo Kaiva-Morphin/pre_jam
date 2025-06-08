@@ -54,7 +54,7 @@ pub fn debree_level_management(
     debree_level.malfunction_probability = debree_level.level;
     debree_level.malfunction_probability = 0.;
     // malfunc prob is perframe
-    debree_level.chain_reaction = 0.7 / debree_level.level;
+    debree_level.chain_reaction = debree_level.level / 0.7;
     overlay_text!(
         overlay_events;
         TopLeft;
@@ -69,7 +69,8 @@ pub fn debree_level_management(
         if debree_level.chain_reaction_graph.len() >= CHAIN_GRAPH_LENGTH * 4 {
             debree_level.chain_reaction_graph.pop_front();
         }
-        debree_level.chain_reaction_graph.push_back(t);
+        let cr = debree_level.chain_reaction;
+        debree_level.chain_reaction_graph.push_back(cr);
     }
 }
 
@@ -113,7 +114,7 @@ pub fn manage_malfunctions(
     mut malfunction: ResMut<Malfunction>,
     sprite_assets: Res<SpriteAssets>,
 ) {
-    if (getrandom::u32().unwrap() as f32 / u32::MAX as f32) < debree_level.malfunction_probability || keyboard.just_pressed(KeyCode::KeyP) {
+    if (getrandom::u32().unwrap() as f32 / u32::MAX as f32) < debree_level.malfunction_probability || keyboard.just_released(KeyCode::KeyP) {
         malfunction.in_progress = true;
         let mut available_for_malfunction = vec![];
         for malf_type in ALL_MALFUNCTION_TYPES.iter() {
