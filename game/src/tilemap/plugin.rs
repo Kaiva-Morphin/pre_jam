@@ -123,6 +123,8 @@ fn handle_object_spawn(
                     SpacewalkCollider
                 ));
             }
+        if let Some(PropertyValue::BoolValue(true)) = object.properties.get("speaker") {
+
         }
         // if let Some(m) = MalfunctionType::from_properties(&object.properties) {
         //     info!("MALF: {:?}", object.properties);

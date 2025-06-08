@@ -390,7 +390,7 @@ pub fn click_faz(
                 },
             ));
             for mut p in p.iter_mut() {
-                p.try_dance(&mut r, crate::physics::animator::PlayerAnimationNode::HeadSpin);
+                p.try_dance(&mut r, crate::physics::animator::PlayerAnimationNode::random_dance());
             }
         }
     }
