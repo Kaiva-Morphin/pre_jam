@@ -245,7 +245,7 @@ pub fn click_faz(
             l.color_and_rotation = vec4(1.0, 1.0, 1.0, 90.0);
         }
     }}
-    
+
     let camera_transform = *cq;
     let window = *windows;
     let window_size = window.size();
