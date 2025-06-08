@@ -7,7 +7,7 @@ use crate::utils::spacial_audio::{PlaySoundEvent, SoundAssets};
 
 pub const HACK_BUTTON_SRC: &str = "ui/hack_button.png";
 pub fn hack_button_bundle(a: &Res<AssetServer>, t: &mut ResMut<Assets<TextureAtlasLayout>>) -> (Handle<Image>, Handle<TextureAtlasLayout>) {
-    let layout = TextureAtlasLayout::from_grid(UVec2::splat(48), 6, 6, None, None);
+    let layout = TextureAtlasLayout::from_grid(UVec2::splat(48), 8, 6, None, None);
     (a.load(HACK_BUTTON_SRC),
     t.add(layout))
 }
@@ -43,19 +43,19 @@ impl HackButton {
     pub fn get_idx(&self, hovered: bool, pressed: bool) -> usize {
         match self.state {
             HackButtonState::Disabled => {
-                0 + if pressed {18} else {0}
+                0 + if pressed {8 * 3} else {0}
             },
             HackButtonState::Enabled => {
-                self.index + 1 + if pressed {18} else {0}
+                self.index + 1 + if pressed {8 * 3} else {0}
             },
             HackButtonState::Active => {
                 if hovered && !pressed{
-                    return self.index + 1 + 12;
+                    return self.index + 1 + 8 * 2;
                 }
-                self.index + 1 + 6 + if pressed {18 + 6} else {0}
+                self.index + 1 + 8 + if pressed {8 * 3 + 8} else {0}
             },
             HackButtonState::SuperActive => {
-                self.index + 1 + 12 + if pressed {18} else {0}
+                self.index + 1 + 16 + if pressed {8 * 3} else {0}
             },
         }
     }
@@ -99,10 +99,12 @@ pub fn ui_hack_button_hover(
     }
 }
 
-pub const HACK_BUTTON_NAMES : [&'static str ; 5] = [
+pub const HACK_BUTTON_NAMES : [&'static str ; 7] = [
     "AA",
     "5E",
     "2D",
     "3G",
-    "4A"
+    "4A",
+    "24",
+    "5D"
 ];
