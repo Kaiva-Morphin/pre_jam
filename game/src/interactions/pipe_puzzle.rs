@@ -35,8 +35,8 @@ pub fn open_pipe_puzzle_display(
                         Node {
                             width: Val::Px(50.),
                             height: Val::Px(50.),
-                            left: Val::Px(SINGLE_PIPE_TEX_SIZE * x as f32),
-                            bottom: Val::Px(SINGLE_PIPE_TEX_SIZE * y as f32),
+                            left: Val::Px(PIPE_GRID_SIZE * x as f32),
+                            bottom: Val::Px(PIPE_GRID_SIZE * y as f32),
                             position_type: PositionType::Absolute,
                             ..default()
                         },
@@ -84,20 +84,20 @@ pub fn init_grid(
 }
 
 pub fn update_pipes(
-    // pipe_image_nodes: Query<(&Pipe, &mut ImageNode, &Interaction), Changed<Interaction>>,
-    // mut pipe_grid: ResMut<PipeGrid>,
+    pipe_image_nodes: Query<(&Pipe, &mut ImageNode, &Interaction), Changed<Interaction>>,
+    mut pipe_grid: ResMut<PipeGrid>,
 ) {
-    // if pipe_grid.is_loaded {
-    //     for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
-    //         if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
-    //             let conn = &mut pipe_grid.data[pipe.flat_id];
-    //             if *pipe_interaction == Interaction::Pressed {
-    //                 conn.rotate();
-    //             }
-    //             texture_atlas.index = conn.rot_state + conn.conn_type * 4;
-    //         }
-    //     }
-    // }
+    if pipe_grid.is_loaded {
+        for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
+            if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
+                let conn = &mut pipe_grid.data[pipe.flat_id];
+                if *pipe_interaction == Interaction::Pressed {
+                    conn.rotate();
+                }
+                texture_atlas.index = conn.rot_state + conn.conn_type * 4;
+            }
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -125,21 +125,7 @@ pub struct PipeEntity {
 
 
 
-impl Pipe {
-    pub fn get_sides(&self) -> Vec<PipeSide> {
-        let dirs: Vec<u8> = match self.variant {
-            PipeType::SINGLE => vec![0],
-            PipeType::LINE => vec![0, 2],
-            PipeType::CORNER => vec![0, 1],
-            PipeType::TEE => vec![0, 1, 3],
-            PipeType::CROSS => vec![0, 1, 2, 3],
-        };
-        
-        dirs.into_iter()
-            .map(|d| (d + self.rotation) % 4)
-            .collect()
-    }
-}
+
 
 impl PipeType {
     pub fn all() -> &'static [PipeType] {
@@ -237,8 +223,8 @@ fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
     None
 }
 
-const ROWS: usize = 10;
-const COLS: usize = 10;
+const ROWS: usize = 2;
+const COLS: usize = 2;
 
 impl Pipe {
     fn get_index(&self) -> usize {
