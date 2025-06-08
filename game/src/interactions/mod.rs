@@ -31,7 +31,7 @@ impl Plugin for InteractionsPlugin {
         .insert_resource(Spinny::default())
         .insert_resource(WaveModulatorConsts::default())
         .insert_resource(CollisionMinigameConsts::default())
-        .insert_resource(PipeGrid::default())
+        .insert_resource(PipeMinigame::default())
         .insert_resource(HackGrid::default())
         .insert_resource(WireMinigame::default())
         .insert_resource(WarningTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})

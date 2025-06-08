@@ -519,8 +519,10 @@ pub fn update_controllers(
     ladders: Res<NearestLadders>,
     mut time_since_climb: Local<f32>,
     interactions: Res<InInteractionArray>,
+    mut time_since_sound: Local<f32>,
 ){
     let dt = time.dt();
+    *time_since_sound += dt;
     let mut raw_dir = Vec2::ZERO;
     keyboard.pressed(KeyCode::KeyA).then(|| raw_dir.x -= 1.0);
     keyboard.pressed(KeyCode::KeyD).then(|| raw_dir.x += 1.0);
@@ -681,10 +683,24 @@ pub fn update_controllers(
                 if player_vel.linvel.x.abs() < 1.0 {
                     anim.target = PlayerAnimationNode::Idle;
                 } else if player_vel.linvel.x.abs() < consts.walk_speed + 2.0{
-                    sound_event.write(PlaySoundEvent::Concrete1);
+                    if *time_since_sound > 0.5 {
+                        if getrandom::u32().unwrap() % 2 == 0 {
+                            sound_event.write(PlaySoundEvent::Concrete1);
+                        } else {
+                            sound_event.write(PlaySoundEvent::Concrete2);
+                        }
+                        *time_since_sound = 0.0;
+                    }
                     anim.target = PlayerAnimationNode::Walk;
                 } else {
-                    sound_event.write(PlaySoundEvent::Concrete1);
+                    if *time_since_sound > 0.25 {
+                        if getrandom::u32().unwrap() % 2 == 0 {
+                            sound_event.write(PlaySoundEvent::Concrete1);
+                        } else {
+                            sound_event.write(PlaySoundEvent::Concrete2);
+                        }
+                        *time_since_sound = 0.0;
+                    }
                     anim.target = PlayerAnimationNode::Run;
                 }
                 if sjp {

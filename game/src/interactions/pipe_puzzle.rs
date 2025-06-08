@@ -2,12 +2,10 @@ use bevy::{platform::collections::HashSet, prelude::*};
 
 use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::target::LowresUiContainer, utils::custom_material_loader::PipesAtlasHandles};
 
-#[derive(Component)]
-pub struct Pipe {
-    pub flat_id: usize,
-}
+// WIBECODE RULES 🤘🧑‍🎤
 
-pub const PIPE_GRID_SIZE: f32 = 50.;
+pub const SINGLE_PIPE_TEX_SIZE : f32 = 16.;
+const PIPE_GRID_SIZE : f32 = 50.0;
 
 pub fn open_pipe_puzzle_display(
     mut commands: Commands,
@@ -15,7 +13,11 @@ pub fn open_pipe_puzzle_display(
     mut already_spawned: Local<Option<Entity>>,
     lowres_container: Single<Entity, With<LowresUiContainer>>,
     pipes_atlas_handles: Res<PipesAtlasHandles>,
+
+    pipes: Res<PipeMinigame>,
+
 ) {
+
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
             commands.entity(entity).despawn();
@@ -24,8 +26,9 @@ pub fn open_pipe_puzzle_display(
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction {
             let mut children = vec![];
-            for y in 0..GRID_SIZE {
-                for x in 0..GRID_SIZE {
+            for y in 0..ROWS {
+                for x in 0..COLS {
+                    let pipe = pipes.get_pipe(x, y);
                     children.push(commands.spawn((
                         Node {
                             width: Val::Px(50.),
@@ -39,7 +42,10 @@ pub fn open_pipe_puzzle_display(
                             pipes_atlas_handles.image_handle.clone(),
                             TextureAtlas::from(pipes_atlas_handles.layout_handle.clone())
                         ),
-                        Pipe {flat_id: x + y * GRID_SIZE},
+                        PipeEntity{
+                            pipe,
+                            position: uvec2(x as u32, y as u32), 
+                        },
                         Button,
                     )).id());
                 }
@@ -63,182 +69,360 @@ pub fn open_pipe_puzzle_display(
     }
 }
 
-const GRID_SIZE: usize = 5;
-/*
-conns: is it connected to [up, right, down, left]
-0: | [1,0,1,0]
-1: L [1,1,0,0]
-2: T [0,1,1,1]
-3: + [1,1,1,1]
-*/
-const CONNECTIONS: [[usize; 4]; 4] = [
-    [1,0,1,0],
-    [1,1,0,0],
-    [0,1,1,1],
-    [1,1,1,1],
-];
 
-#[derive(Default, Clone)]
-pub struct Connection {
-    pub conn_type: usize,
-    pub rot_state: usize,
-    pub neighbors: [usize; 4],
-}
 
-impl Connection {
-    fn random() -> Self {
-        let conn_type = ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * 3.) as usize;
-        Self {
-            conn_type,
-            rot_state: 0,
-            neighbors: CONNECTIONS[conn_type],
-        }
-    }
-    fn rotate(&mut self) {
-        self.rot_state = (self.rot_state + 1) % 4;
-        self.neighbors = [self.neighbors[3], self.neighbors[0], self.neighbors[1], self.neighbors[2]];
-    }
-    fn default() -> Self {
-        Self {
-            conn_type: 0,
-            rot_state: 0,
-            neighbors: [0,0,0,0],
-        }
-    }
-}
-
-#[derive(Resource, Default)]
-pub struct PipeGrid {
-    pub data: Vec<Connection>,
-    pub is_loaded: bool,
-}
 
 pub fn init_grid(
-    mut pipe_grid: ResMut<PipeGrid>,
+    
 ) {
-    pipe_grid.data = vec![Connection::default(); GRID_SIZE * GRID_SIZE];
-    pipe_grid.is_loaded = true;
-    let mut final_path = vec![];
-
-    let directions = [[0, 1], [1, 0], [0, -1], [-1, 0]]; // up, right, down, left
-
-    'outer: loop {
-        let mut visited = vec![false; GRID_SIZE * GRID_SIZE];
-        let mut path = vec![[0, 0]];
-        visited[0] = true;
-        let mut curr = [0, 0];
-        let goal = [GRID_SIZE as i32 - 1, GRID_SIZE as i32 - 1];
-
-        for _ in 0..(GRID_SIZE * GRID_SIZE * 4) {
-            // Find all valid moves
-            let mut moves = vec![];
-            for dir in directions {
-                let nx = curr[0] + dir[0];
-                let ny = curr[1] + dir[1];
-                if nx >= 0 && nx < GRID_SIZE as i32 && ny >= 0 && ny < GRID_SIZE as i32 {
-                    let idx = nx as usize + ny as usize * GRID_SIZE;
-                    if !visited[idx] {
-                        moves.push([nx, ny]);
-                    }
-                }
-            }
-            if moves.is_empty() {
-                // Dead end, restart
-                break;
-            }
-            let next = moves[((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * moves.len() as f32) as usize];
-            let idx = next[0] as usize + next[1] as usize * GRID_SIZE;
-            visited[idx] = true;
-            path.push(next);
-            curr = next;
-            if curr == goal {
-                final_path = path;
-                break 'outer;
-            }
-        }
-        // If we exit the for loop without reaching the goal, restart
-    }
-
-    for pos in 1..final_path.len() {
-        let prev = final_path[pos - 1];
-        let curr = final_path[pos];
-        let curr_flat = curr[0] as usize + curr[1] as usize * GRID_SIZE;
-        let prev_flat = prev[0] as usize + prev[1] as usize * GRID_SIZE;
-        let d = [curr[0] - prev[0], curr[1] - prev[1]];
-        if d[0] < 0 {
-            pipe_grid.data[curr_flat].neighbors[3] = 1;
-            pipe_grid.data[prev_flat].neighbors[1] = 1;
-        } else if d[0] > 0 {
-            pipe_grid.data[curr_flat].neighbors[1] = 1;
-            pipe_grid.data[prev_flat].neighbors[3] = 1;
-        }
-        if d[1] < 0 {
-            pipe_grid.data[curr_flat].neighbors[2] = 1;
-            pipe_grid.data[prev_flat].neighbors[0] = 1;
-        } else if d[1] > 0 {
-            pipe_grid.data[curr_flat].neighbors[0] = 1;
-            pipe_grid.data[prev_flat].neighbors[2] = 1;
-        }
-        let conn = &mut pipe_grid.data[curr_flat];
-        let (conn_type, rot) = match conn.neighbors {
-            [1,0,1,0] => (0, 0), // |
-            [0,1,0,1] => (0, 1), // -
-            [1,1,0,0] => (1, 0), // L
-            [0,1,1,0] => (1, 1), // L
-            [0,0,1,1] => (1, 2), // L
-            [1,0,0,1] => (1, 3), // L
-            [1,1,1,0] => (2, 0), // T
-            [0,1,1,1] => (2, 1), // T
-            [1,0,1,1] => (2, 2), // T
-            [1,1,0,1] => (2, 3), // T
-            [1,1,1,1] => (3, 0), // +
-            // Handle endpoints (single connection)
-            [1,0,0,0] => (0, 0), // treat as vertical
-            [0,1,0,0] => (0, 1), // treat as horizontal
-            [0,0,1,0] => (0, 0), // treat as vertical
-            [0,0,0,1] => (0, 1), // treat as horizontal
-            a => panic!("{:?} {:?}", a, pos)
-        };
-        conn.conn_type = conn_type;
-        conn.rot_state = rot;
-        let conn = &mut pipe_grid.data[prev_flat];
-        let (conn_type, rot) = match conn.neighbors {
-            [1,0,1,0] => (0, 0), // |
-            [0,1,0,1] => (0, 1), // -
-            [1,1,0,0] => (1, 0), // L
-            [0,1,1,0] => (1, 1), // L
-            [0,0,1,1] => (1, 2), // L
-            [1,0,0,1] => (1, 3), // L
-            [1,1,1,0] => (2, 0), // T
-            [0,1,1,1] => (2, 1), // T
-            [1,0,1,1] => (2, 2), // T
-            [1,1,0,1] => (2, 3), // T
-            [1,1,1,1] => (3, 0), // +
-            // Handle endpoints (single connection)
-            [1,0,0,0] => (0, 0), // treat as vertical
-            [0,1,0,0] => (0, 1), // treat as horizontal
-            [0,0,1,0] => (0, 0), // treat as vertical
-            [0,0,0,1] => (0, 1), // treat as horizontal
-            a => panic!("{:?} {:?}", a, pos)
-        };
-        conn.conn_type = conn_type;
-        conn.rot_state = rot;
-    }
+    
 }
 
 pub fn update_pipes(
-    pipe_image_nodes: Query<(&Pipe, &mut ImageNode, &Interaction), Changed<Interaction>>,
-    mut pipe_grid: ResMut<PipeGrid>,
+    // pipe_image_nodes: Query<(&Pipe, &mut ImageNode, &Interaction), Changed<Interaction>>,
+    // mut pipe_grid: ResMut<PipeGrid>,
 ) {
-    if pipe_grid.is_loaded {
-        for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
-            if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
-                let conn = &mut pipe_grid.data[pipe.flat_id];
-                if *pipe_interaction == Interaction::Pressed {
-                    conn.rotate();
-                }
-                texture_atlas.index = conn.rot_state + conn.conn_type * 4;
+    // if pipe_grid.is_loaded {
+    //     for (pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes {
+    //         if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
+    //             let conn = &mut pipe_grid.data[pipe.flat_id];
+    //             if *pipe_interaction == Interaction::Pressed {
+    //                 conn.rotate();
+    //             }
+    //             texture_atlas.index = conn.rot_state + conn.conn_type * 4;
+    //         }
+    //     }
+    // }
+}
+
+#[derive(Clone, Copy)]
+pub enum PipeType {
+    SINGLE,
+    LINE,
+    CORNER,
+    TEE,
+    CROSS
+}
+
+type PipeRotation = u8;
+type PipeSide = u8;
+
+#[derive(Clone)]
+pub struct Pipe {
+    variant: PipeType,
+    rotation: PipeRotation 
+}
+#[derive(Component, Clone)]
+pub struct PipeEntity {
+    pipe: Option<Pipe>,
+    position: UVec2
+}
+
+
+
+impl Pipe {
+    pub fn get_sides(&self) -> Vec<PipeSide> {
+        let dirs: Vec<u8> = match self.variant {
+            PipeType::SINGLE => vec![0],
+            PipeType::LINE => vec![0, 2],
+            PipeType::CORNER => vec![0, 1],
+            PipeType::TEE => vec![0, 1, 3],
+            PipeType::CROSS => vec![0, 1, 2, 3],
+        };
+        
+        dirs.into_iter()
+            .map(|d| (d + self.rotation) % 4)
+            .collect()
+    }
+}
+
+impl PipeType {
+    pub fn all() -> &'static [PipeType] {
+        // статический срез всех вариантов PipeType
+        &[
+            PipeType::SINGLE,
+            PipeType::LINE,
+            PipeType::CORNER,
+            PipeType::TEE,
+            PipeType::CROSS,
+        ]
+    }
+}
+
+pub fn get_sides(pipe_type: &PipeType, rotation: PipeRotation) -> Vec<PipeSide> {
+    let dirs = match pipe_type {
+        PipeType::SINGLE => vec![0],
+        PipeType::LINE => vec![0, 2],
+        PipeType::CORNER => vec![0, 1],
+        PipeType::TEE => vec![0, 1, 3],
+        PipeType::CROSS => vec![0, 1, 2, 3],
+    };
+    dirs.into_iter().map(|d| (d + rotation) % 4).collect()
+}
+
+pub fn get_candidates(optional: &[PipeSide], include: &[PipeSide]) -> Vec<Pipe> {
+    use std::collections::HashSet;
+
+    let allowed_sides: HashSet<_> = optional.iter().chain(include.iter()).cloned().collect();
+    let include_set: HashSet<_> = include.iter().cloned().collect();
+
+    let mut candidates: Vec<_> = Vec::new();
+
+    for pipe_type in PipeType::all() {
+        for rotation in 0..4 {
+            let sides: HashSet<_> = get_sides(pipe_type, rotation).into_iter().collect();
+            if !include_set.is_subset(&sides) {
+                continue;
+            }
+            if !sides.is_subset(&allowed_sides) {
+                continue;
+            }
+
+            candidates.push(Pipe{variant: *pipe_type, rotation});
+        }
+    }
+
+    candidates
+}
+
+fn random_u32() -> u32 {
+    getrandom::u32().unwrap()
+}
+
+
+
+fn pipe_weight(pipe_type: PipeType) -> usize {
+    match pipe_type {
+        PipeType::SINGLE => 10,
+        PipeType::LINE => 10,
+        PipeType::CORNER => 40,
+        PipeType::TEE => 20,
+        PipeType::CROSS => 10,
+    }
+}
+
+fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
+    if candidates.is_empty() {
+        return None;
+    }
+
+    let weights: Vec<usize> = candidates.iter()
+        .map(|pipe| pipe_weight(pipe.variant))
+        .collect();
+
+    let total_weight: usize = weights.iter().sum();
+    if total_weight == 0 {
+        return None;
+    }
+
+    // Получаем случайное число в диапазоне [0, total_weight)
+    let rnd = (random_u32() as usize) % total_weight;
+
+    // Находим индекс, соответствующий rnd
+    let mut acc = 0;
+    for (i, w) in weights.iter().enumerate() {
+        acc += *w;
+        if rnd < acc {
+            return Some(candidates[i].clone());
+        }
+    }
+
+    // Some(candidates[candidates.len() - 1])
+    warn!("No candidate!");
+    None
+}
+
+const ROWS: usize = 10;
+const COLS: usize = 10;
+
+fn filter_grid_corners(pos: (usize, usize), inc_sides: &[u8]) -> Vec<u8> {
+    let (r, c) = pos;
+    let mut allowed = Vec::new();
+
+    for &side in inc_sides {
+        match side {
+            0 if r == 0 => continue,
+            1 if c == COLS - 1 => continue,
+            2 if r == ROWS - 1 => continue,
+            3 if c == 0 => continue,
+            _ => allowed.push(side),
+        }
+    }
+
+    allowed
+}
+
+fn neighbors(r: usize, c: usize) -> Vec<((usize, usize), u8)> {
+    let mut result = Vec::new();
+
+    if r > 0 {
+        result.push(((r - 1, c), 0));
+    }
+    if c < COLS - 1 {
+        result.push(((r, c + 1), 1));
+    }
+    if r < ROWS - 1 {
+        result.push(((r + 1, c), 2));
+    }
+    if c > 0 {
+        result.push(((r, c - 1), 3));
+    }
+
+    result
+}
+
+fn opposite_side(side: u8) -> u8 {
+    (side + 2) % 4
+}
+
+
+fn allowed_sides_grid_corners(pos: (usize, usize), sides: &mut Vec<u8>) -> Vec<u8> {
+    let (r, c) = pos;
+    let mut allowed = sides.clone();
+
+    if r == 0 {
+        allowed.retain(|&s| s != 0); 
+    }
+    if c == COLS - 1 {
+        allowed.retain(|&s| s != 1); 
+    }
+    if r == ROWS - 1 {
+        allowed.retain(|&s| s != 2); 
+    }
+    if c == 0 {
+        allowed.retain(|&s| s != 3); 
+    }
+
+    allowed
+}
+
+fn get_include_exclude_sides(
+    r: usize,
+    c: usize,
+    grid: &Vec<Vec<Option<Pipe>>>,
+) -> (Vec<u8>, Vec<u8>) {
+    let mut include = Vec::new();
+    let mut exclude = Vec::new();
+
+    for ((nr, nc), side_to_neighbor) in neighbors(r, c).into_iter() {
+        if let Some(neighbor_tile) = &grid[nr][nc] {
+            let opposite = opposite_side(side_to_neighbor);
+            let neighbor_sides = get_sides(&neighbor_tile.variant, neighbor_tile.rotation);
+
+            if neighbor_sides.contains(&opposite) {
+                include.push(side_to_neighbor);
+            } else {
+                exclude.push(side_to_neighbor);
             }
         }
+    }
+
+    (include, exclude)
+}
+
+
+
+
+#[derive(Resource)]
+pub struct PipeMinigame {
+    grid: Vec<Vec<Option<Pipe>>>,    
+}
+
+impl PipeMinigame {
+    pub fn fill_solved(&mut self) {
+        let start_r = random_u32() as usize % ROWS;
+        let start_c = random_u32() as usize % COLS;
+
+        let allowed = allowed_sides_grid_corners((start_r, start_c), &mut vec![0, 1, 2, 3]);
+        let candidates = get_candidates(&allowed, &[]);
+        if candidates.is_empty() {
+            panic!("No candidates for start cell");
+        }
+
+        let first = pick_candidate(&candidates).expect("No candidate for first");
+        self.grid[start_r][start_c] = Some(first);
+
+        let mut queue = vec![(start_r, start_c)];
+
+        while let Some((r, c)) = queue.pop() {
+            for ((nr, nc), _) in neighbors(r, c) {
+                if self.grid[nr][nc].is_some() {
+                    continue;
+                }
+
+                let (include, exclude) = get_include_exclude_sides(nr, nc, &self.grid);
+                let allowed = allowed_sides_grid_corners((nr, nc), &mut vec![0, 1, 2, 3]);
+
+                let optional: Vec<u8> = allowed
+                    .into_iter()
+                    .filter(|s| !include.contains(s) && !exclude.contains(s))
+                    .collect();
+
+                let candidates = get_candidates(&optional, &include);
+                if candidates.is_empty() {
+                    continue;
+                }
+
+                self.grid[nr][nc] = pick_candidate(&candidates);
+                queue.push((nr, nc));
+            }
+        }
+    }
+    pub fn shuffle(&mut self) {
+        // Для каждой клетки с плиткой меняем rotation случайно
+        for row in self.grid.iter_mut() {
+            for cell in row.iter_mut() {
+                if let Some(pipe) = cell {
+                    pipe.rotation = (random_u32() % 4) as u8;
+                }
+            }
+        }
+    }
+
+    pub fn is_solved(&self) -> bool {
+        for r in 0..ROWS {
+            for c in 0..COLS {
+                if let Some(pipe) = &self.grid[r][c] {
+                    let sides = pipe.get_sides();
+                    for ((nr, nc), side_to_neighbor) in neighbors(r, c) {
+                        if let Some(neighbor) = &self.grid[nr][nc] {
+                            let opposite = opposite_side(side_to_neighbor);
+                            let neighbor_sides = neighbor.get_sides();
+                            let connected = sides.contains(&side_to_neighbor) && neighbor_sides.contains(&opposite);
+                            if !connected {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        true
+    }
+
+    pub fn clear(&mut self) {
+        for row in self.grid.iter_mut() {
+            for cell in row.iter_mut() {
+                *cell = None;
+            }
+        }
+    }
+    pub fn get_pipe(&self, x: usize, y: usize) -> Option<Pipe> {
+        if x < COLS && y < ROWS {
+            self.grid[y][x].clone()
+        } else {
+            None
+        }
+    }
+}
+
+
+impl Default for PipeMinigame {
+    fn default() -> Self {
+        let mut s = Self {
+            grid: vec![vec![None; COLS]; ROWS],
+        };
+        s.fill_solved();
+        s
     }
 }
