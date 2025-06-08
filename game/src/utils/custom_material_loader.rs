@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::{ActiveCollisionTypes, ActiveEvents, Collider, Colli
 use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 use shaders::components::*;
 
-use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState, OnGame}, interactions::{chain_reaction_display::ChainGraphMaterial, collision_minigame::CollisionGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, hack_minigame::{HACK_ATLAS_COLUMNS, HACK_ATLAS_ROWS, HACK_PIXEL_GRID_SIZE}, pipe_puzzle::PIPE_GRID_SIZE, warning_interface::{WARNING_GRID_COLUMNS, WARNING_GRID_ROWS, WARNING_GRID_SIZE}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::{animator::PlayerAnimations, constants::*, player::Player}, tilemap::light::LightEmitter, utils::{mouse::CursorPosition, spacial_audio::SoundAssets}};
+use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState, OnGame}, interactions::{chain_reaction_display::ChainGraphMaterial, collision_minigame::CollisionGraphMaterial, components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, hack_minigame::{HACK_ATLAS_COLUMNS, HACK_ATLAS_ROWS, HACK_PIXEL_GRID_SIZE}, pipe_puzzle::SINGLE_PIPE_TEX_SIZE, warning_interface::{WARNING_GRID_COLUMNS, WARNING_GRID_ROWS, WARNING_GRID_SIZE}, wave_modulator::{WaveGraphMaterial, NUM_SPINNY_STATES, SPINNY_SIZE}}, physics::{animator::PlayerAnimations, constants::*, player::Player}, tilemap::light::LightEmitter, utils::{mouse::CursorPosition, spacial_audio::SoundAssets}};
 
 
 
@@ -143,7 +143,7 @@ pub fn create_atlases(
     // pipes
     pipes_atlas_handles.image_handle = sprite_assets.pipes_atlas.clone();
     let pipes_atlas = TextureAtlasLayout::from_grid(
-        UVec2::splat(PIPE_GRID_SIZE as u32),
+        UVec2::splat(SINGLE_PIPE_TEX_SIZE as u32),
         4,
         4,
         None,
