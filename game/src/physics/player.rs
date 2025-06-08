@@ -6,7 +6,7 @@ use bevy_rapier2d::prelude::*;
 use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use utils::WrappedDelta;
 
-use crate::{camera::plugin::CameraFocus, core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::{animator::{PlayerAnimationNode, PlayerAnimations, PlayerAnimatorPlugin}, constants::*}, tilemap::{light::LightEmitter, plugin::LadderCollider}, utils::mouse::CursorPosition};
+use crate::{camera::plugin::CameraFocus, core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::{animator::{PlayerAnimationNode, PlayerAnimations, PlayerAnimatorPlugin}, constants::*}, tilemap::{light::LightEmitter, plugin::{LadderCollider, SpacewalkCollider}}, utils::mouse::CursorPosition};
 use utils::MoveTowards;
 
 
@@ -276,7 +276,8 @@ pub fn spawn_player(
 
 #[derive(Component, Clone, Debug)]
 pub struct Player {
-    pub state: PlayerState
+    pub state: PlayerState,
+    pub exiting_spacewalk: bool
 }
 
 impl Player {
@@ -311,21 +312,59 @@ pub struct NearestLadders{
 
 pub fn listen_events(
     mut collision_events: EventReader<CollisionEvent>,
-    q: Query<&GlobalTransform, With<LadderCollider>>,
-    mut l: ResMut<NearestLadders>
+    q_l: Query<&GlobalTransform, (Without<Player>, With<LadderCollider>, Without<SpacewalkCollider>)>,
+    q_s: Query<&GlobalTransform, (Without<Player>, With<SpacewalkCollider>, Without<LadderCollider>)>,
+    mut l: ResMut<NearestLadders>,
+    mut player: Query<(Entity, &mut Player, &GlobalTransform, &mut Velocity), (Without<SpacewalkCollider>, Without<LadderCollider>)>,
+    mut consts: ResMut<PlayerConstants>,
+    mut anim: ResMut<PlayerAnimations>,
+    mut cmd: Commands,
+
 ){
     for collision_event in collision_events.read() {
         let (s, m, i) = match collision_event {
             CollisionEvent::Started(s, m, _) => (s, m, true),
             CollisionEvent::Stopped(s, m, _) => (s, m, false),
         };
-        let Ok((t, e)) = q.get(*s).map(|v|(v, *s)).or(q.get(*m).map(|v|(v, *m))) else {continue;};
-        if i {
-            l.ladders.insert(e, Ladder{x_pos: t.translation().x, entity: e});
-        } else {
-            l.ladders.remove(&e);
+        if let Ok((t, e)) = q_l.get(*s).map(|v|(v, *s)).or(q_l.get(*m).map(|v|(v, *m))) {
+             if i {
+                l.ladders.insert(e, Ladder{x_pos: t.translation().x, entity: e});
+            } else {
+                l.ladders.remove(&e);
+            }
         }
-    }
+        if let Ok((t, _e)) = q_s.get(*s).map(|v|(v, *s)).or(q_s.get(*m).map(|v|(v, *m))) {
+            for (e, mut p, pt, mut player_vel) in player.iter_mut() {
+                if !i {
+                    if p.is_spacewalking() {
+                        if pt.translation().x < t.translation().x {
+                            p.state = PlayerState::Regular { accumulated_vel: 0.0 };
+                            consts.gravity = PlayerConstants::default().gravity;
+                            p.exiting_spacewalk = true;
+                            cmd.entity(e).insert(
+                                CollisionGroups{
+                                    memberships: Group::from_bits(PLAYER_CG).unwrap(),
+                                    filters: Group::from_bits(PLAYER_DEFAULT_CG).unwrap(),
+                                }
+                            );
+                        }
+                    } else if pt.translation().x > t.translation().x {
+                        p.state = PlayerState::Spacewalk;
+                        consts.gravity = Vec2::ZERO;
+                        p.exiting_spacewalk = false;
+                        player_vel.angvel = 0.0;
+                        cmd.entity(e).insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_X);
+                        cmd.entity(e).insert(
+                            CollisionGroups{
+                                memberships: Group::from_bits(PLAYER_CG).unwrap(),
+                                filters: Group::from_bits(PLAYER_DEFAULT_CG & !PLATFORMS_CG).unwrap(),
+                            }
+                        );
+                    }
+                }
+            }
+        }
+    };
 }
 
 
@@ -354,6 +393,7 @@ impl Default for Player {
     fn default() -> Self {
         Self {
             state: PlayerState::Regular{accumulated_vel: 0.0},
+            exiting_spacewalk: false
         }
     }
 }
@@ -476,7 +516,6 @@ pub fn update_controllers(
     mut mesh_rotation: Local<f32>,
     ladders: Res<NearestLadders>,
     mut time_since_climb: Local<f32>,
-    mut exiting_spacewalk: Local<bool>,
 ){
     let dt = time.dt();
     let mut raw_dir = Vec2::ZERO;
@@ -502,15 +541,15 @@ pub fn update_controllers(
 
 
 
-    if !player.is_spacewalking() && *exiting_spacewalk {
+    if !player.is_spacewalking() && player.exiting_spacewalk {
         let current_angle = transform.rotation.to_euler(EulerRot::XYZ).2;
         let angle_diff = -current_angle; 
         // info!("Angle: {}", );
-        if angle_diff.abs() < 0.01 {
+        if angle_diff.abs() < 0.02 {
             transform.rotation = Quat::IDENTITY;
             player_vel.angvel = 0.0;
             cmd.entity(*player_e).insert(LockedAxes::ROTATION_LOCKED);
-            *exiting_spacewalk = false;
+            player.exiting_spacewalk = false;
         } else {
             player_vel.angvel = angle_diff.signum() * 3.0;
         }
@@ -522,7 +561,7 @@ pub fn update_controllers(
             // cmd.entity(*player_e).insert((
             //     Friction::coefficient(1.0),
             // ));
-            *exiting_spacewalk = false;
+            player.exiting_spacewalk = false;
             player_vel.angvel = 0.0;
             cmd.entity(*player_e).insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_X);
             cmd.entity(*player_e).insert(
@@ -534,7 +573,7 @@ pub fn update_controllers(
         } else {
             player.state = PlayerState::Regular { accumulated_vel: 0.0 };
             consts.gravity = PlayerConstants::default().gravity;
-            *exiting_spacewalk = true;
+            player.exiting_spacewalk = true;
             // cmd.entity(*player_e).insert((
             //     // LockedAxes::ROTATION_LOCKED,
             //     // REG_FRICTION,
@@ -548,6 +587,7 @@ pub fn update_controllers(
             );
         }
     }
+
     if !player.is_climbing() {
         *time_since_climb += dt;
     } else {

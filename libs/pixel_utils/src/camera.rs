@@ -127,6 +127,7 @@ pub fn setup_camera(
             order: -10,
             target: RenderTarget::Image(image_handle.clone().into()),
             clear_color: ClearColorConfig::None,
+            msaa_writeback: false,
             ..default()
         },
         PixelCamera3d,

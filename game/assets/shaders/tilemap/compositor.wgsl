@@ -5,7 +5,11 @@ struct Inputs {
     time: f32,
     width: u32,
     height: u32,
-    _b: u32,
+    rotation_z: f32,
+    position_x: f32,
+    position_y: f32,
+    debree_inf: f32,
+    _pad: u32,
 }
 
 @group(2) @binding(0) var<uniform> in: Inputs;
@@ -19,8 +23,8 @@ struct Inputs {
 @group(2) @binding(5) var scene_sampler: sampler;
 @group(2) @binding(6) var scene: texture_2d<f32>;
 
-@group(2) @binding(7) var noise: texture_3d<f32>;
-@group(2) @binding(8) var noise_smpr: sampler;
+@group(2) @binding(7) var noise_smpr: sampler;
+@group(2) @binding(8) var noise: texture_3d<f32>;
 
 @group(2) @binding(9) var bg_sampler: sampler;
 @group(2) @binding(10) var bg: texture_2d<f32>;
@@ -38,9 +42,64 @@ fn white_noise_3d(pos: vec3<f32>) -> f32 {
     return fract(sin_val);
 }
 
+fn rotate2D(p: vec2<f32>, angle: f32) -> vec2<f32> {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec2<f32>(
+        p.x * c - p.y * s,
+        p.x * s + p.y * c
+    );
+}
 
 @fragment
 fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
+
+    let resolution = vec2<f32>(f32(in.width), f32(in.height));
+    var puv = (vec2(in.position_x, in.position_y) / resolution);
+
+    // // Move UV from 0..1 to -1..1 space for parallax math
+    let centered_uv = puv * 2.0 - 1.0;
+
+    // // Simulate depth with multiple parallax layers
+    var ccolor = textureSample(bg, bg_sampler, puv).rgb;
+
+    // // Parallax layers
+    let num_layers = 10;
+    for (var i = 0; i < num_layers; i = i + 1) {
+        let depth = f32(i + 1) / f32(num_layers); // 0.1 to 1.0
+        let layer_time = in.time * (0.2 + depth);
+        let parallax_offset = rotate2D(
+            vec2<f32>(in.position_x, in.position_y) * (1.0 - depth),
+            in.rotation_z
+        );
+
+        // World-space debris position
+        let debris_pos = centered_uv * depth * 2.0 + parallax_offset;
+
+        // Use noise to determine debris opacity
+        let noise_coord = vec3<f32>(debris_pos * 3.0, layer_time * 0.1);
+        let n = textureSample(noise, noise_smpr, noise_coord).r;
+
+        // Threshold and fade
+        let debris = smoothstep(0.55, 0.58, n); // small particles
+        let fade = 1.0 - depth;
+        let debris_col = vec3<f32>(0.8, 0.9, 1.0) * debris * fade * 0.3;
+
+        ccolor += debris_col;
+    }
+    // if true {
+    //     return vec4<f32>(ccolor, 1.0);
+    // }
+
+
+
+
+
+
+
+
+
+
     let width = f32(in.width);
     let height = f32(in.height);
     let texelSize = vec2<f32>(1.0 / f32(in.width), 1.0 / f32(in.height)) * 2.0;

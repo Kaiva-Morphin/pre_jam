@@ -2,7 +2,7 @@ use bevy::{asset::LoadState, prelude::*};
 use bevy_ecs_tiled::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_rapier2d::prelude::{ActiveEvents, CoefficientCombineRule, CollisionGroups, Friction, Group, Sensor};
-use tiled::ObjectShape;
+use tiled::{ObjectShape, PropertyValue};
 
 use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::constants::{LADDERS_CG, PLATFORMS_CG, PLAYER_CG}, tilemap::light::LightEmitter, utils::debree::{Malfunction, MalfunctionType}};
 
@@ -74,7 +74,8 @@ pub fn spawn_map(
 #[derive(Component)]
 pub struct LadderCollider;
 
-
+#[derive(Component)]
+pub struct SpacewalkCollider;
 
 
 fn handle_object_spawn(
@@ -87,13 +88,23 @@ fn handle_object_spawn(
 ) {
     for e in e.read() {
         let Some(object) = e.get_object(&map_asset) else {continue;};
-        let ObjectShape::Point(_, _)= object.shape else {continue;};
 
         if let Some(l) = LightEmitter::from_properties(&object.properties) {
             cmd.entity(e.entity).with_child((l, GlobalTransform::IDENTITY, Transform::default()));
         }
-        if let Some(m) = MalfunctionType::from_properties(&object.properties) {
+        if let Some(PropertyValue::BoolValue(true)) = object.properties.get("spacewalk") {
             let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
+            for c in object_children_with_collider {
+                cmd.entity(*c).insert((
+                    Sensor,
+                    SpacewalkCollider
+                ));
+            }
+        }
+        if let Some(m) = MalfunctionType::from_properties(&object.properties) {
+            info!("MALF: {:?}", object.properties);
+            let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
+            info!("MALF CHILD");
             /*
             EXISTS:
                 WARNING
@@ -107,6 +118,7 @@ fn handle_object_spawn(
             for c in object_children_with_collider {
                 cmd.entity(*c).insert((
                     // LIKE THAT:
+                    Name::new("INSERTED"),
                     Sensor,
                     // LadderCollider,
                     // ActiveEvents::COLLISION_EVENTS,

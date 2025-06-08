@@ -53,7 +53,7 @@
    eJxjYBgFo2B4AAUy8EjXDwD3vAgh
   </chunk>
    <chunk x="-16" y="-48" width="16" height="16">
-   eJxjYBgFo2DoAgUi8UDrR8Y2g0g/ANesCBU=
+   eJxjYBgFo2DoAgUi8UDrR8Y2NNBvQ6Z+AN3MCDE=
   </chunk>
    <chunk x="16" y="-48" width="16" height="16">
    eJxjYBgFo2BkAAUseKTrBwC5jwMh
@@ -71,16 +71,16 @@
    eJzF0l1uAVEYxvEz557Uxx2aboCUumuJDRDFNohiGxpf29Cg3UZRbINQ7nzEf5KRGScTZG68yS+ZnHmfvOfMHCHMenLAWvfO31o77HFwmA9qQoTwqJlrE56nmOEXQ7yxvlXm7RVL+lb4xxobzLEw8gHtfF5I8SCF8MALH/xwwS3N+Zc80xdFDC+II4yINOdfkqXvHTnkUUAaGWl/flWZvg9UUEUNRZSk/flVPfqaaKGNDur4NPKv+ndEAkkb1v/3TeYHXXwZ+dQVTqph2bOT0s/cx8CSP925Ecb40+zvpPr+CEudUW4=
   </chunk>
    <chunk x="-16" y="-32" width="16" height="16">
-   eJzN0VsOQDAQBdDpOlBdCI19WLO33aBxJyGqqUd9ucnJfDC9HoqIVKCMjry5v6TrfN37S5YHxjPtJOKe9Ey2Z4LZ6XjqZ/wPU4hwVux0vOnnfWmdZz70874UZyH9/PxanOUO7ZlMbd+vCPS3DHiXESqooYEWOujFcf0qK73fQko=
+   eJzN0FsKgCAQBVBdR2UupKR9tObe7aaS7kCRitrjqwuHgXScVDLGJBRHfYL2njG/hfbXLJxYf6zvL9luaE81k/E44ankzAKrM+NuPqH3ziHBWakz48l86hfGefrDfOoX3PZmPv2/4rbSoTyVyOP9qpf+lgl3maGBFjroYYCRX+uh7PZOQp4=
   </chunk>
    <chunk x="0" y="-32" width="16" height="16">
    eJxjYBgFQxnEAnEcEMcDcQIQy0MxseK1QFwHxPVA3ADEVUBcQ4L4XCCeB8TzgXgBEM8C4jkkiO8F4n1AvB+IDyC5k1jxUUAZAABkOiAJ
   </chunk>
    <chunk x="16" y="-32" width="16" height="16">
-   eJxjYCAeKGDBpABK9cthwUMFyOPAhIACAQwzJxaI44A4HogToGI2ROivAuIaIK4F4jogrgfiBgZI2BKjfxYQzwHiuUA8D4jnA/ECEvTD3L8XiPcB8X4gPkCC+wkBWQKYWGAPxQ5o9FACv4H4DxD/BeJ/UD4A6wob3A==
+   eJzV0N0JgzAUQOEsomaQgi7izxzSqnOIWhdRu1dVPND4IpEk9CkHvocEbrhECPukhkv/zocavhTdMCUNzndSZMhRqLuHxXyJJ16oUKMRv7+1mW/RoceAN0aH+XP/CTMWfBz2NxUY2BYryYVPfbFiw67OB+yaG94=
   </chunk>
    <chunk x="32" y="-32" width="16" height="16">
-   eJxTYGBgUBhALEchxgXkkTA5gFj98hRihVFMEZalEDsAsT0FNC7wD4h/A/EfPGrwATlGBgZpIJZhxK8OZP5fNPuI4cPYADRsK2Y=
+   eJxTYGBgUBhALEchxgXkkTA5gFj98hRihVFMEZalEDsAsT0B2gEPHxf4B8S/gfgPHjX4gBwjA4M0EMsw4lcHMv8vmn3E8GFsADYUK2g=
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
    eJxTYGBgUGAgHyhQqF8OiocqkEfD+EAUAyK8CGF0QKw+ZGxDpr6hpF8WCwaJowNc+h2A2B6JJgTQ9Q80+AvE/yjQDwAmnBDt
@@ -195,6 +195,9 @@
   </data>
  </layer>
  <layer id="7" name="SUBWALL" width="30" height="20">
+  <properties>
+   <property name="occluder" type="class" propertytype="game::tilemap::light::LightOccluderLayer"/>
+  </properties>
   <data encoding="base64" compression="zlib">
    <chunk x="-48" y="-48" width="16" height="16">
    eJxjYBgFo2Bogo8MDA6U6P1EgX4TRgaHAEby9SdRoBcEnCjUrwTVDwA6jgYk
@@ -355,10 +358,10 @@
    eJwzY2JgMAdickEYUG84BfrLgHrLKdA/CogDcxgZGOYykq9/D1DvXhz6xYDxJ86EoEkFZtA0aEZmWoSlQXLTIiwNjsS0CABecglS
   </chunk>
    <chunk x="16" y="-32" width="16" height="16">
-   eJxjYCAePGRkYHgExI+B+AkjCRqhgJGJgYEJiJmBmAWI75FohiJQjxIQKwOxChD/I8MNo2AUjGQwB5hn5iLlGwAPogdM
+   eJxjYCAePGRkYHgExI+B+AkjCRqhgJGJgYEJiJmBmAWI75FohiJQjxIQKwOxChD/I8MNo2AUwAAXhfq1qOIK+oI5wDwzFynfAAA58geA
   </chunk>
    <chunk x="32" y="-32" width="16" height="16">
-   eJzty8EJg0AURdH3RxtJtIsETR8RtY+E8XcqavowF8RNQMF1/HAWM48rSUWQSjywXjSpg9vyvrHd8TH5hBEDevaa/wbtTv9kq5AGeYIAw8we+e/gO/2L7Y2cJsMVF2jjfvujd/Zn/w/9Fy3sKa0=
+   eJztzkEKglAYReH7no3aRdqoLSTa0NqCUg3TLRT6diqV+7ADEUig4CQR+uEb+C4HlKTISjF2+FxppArOvL+3bCEaI/fEA3fU7EfeTzgP9ClbhoWV82Bh0LKXvFdwA/2V7YY1TQAfK6jnvvux9+/n0SfYdxywHNFfkHcU2Pzw/6fuXxnoLVs=
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
    eJyzZmJgsAFickE0UG8MBfqrgXprKNA/1MEcRgaGuYzEq49AC6s9QL17SdBPDrgDNP8uBXb8Aer9i6R/KtAP04B4OpnxvhWobxsQbydT/1WgvmtAfH0EpzsYAADFsw9w
@@ -684,12 +687,6 @@
   </object>
  </objectgroup>
  <objectgroup id="26" name="INTERACTABLES">
-  <object id="51" x="413.333" y="-629.333">
-   <properties>
-    <property name="type" value="ANTENNA"/>
-   </properties>
-   <point/>
-  </object>
   <object id="74" x="1041.75" y="-364.341" width="35.6364" height="41.4545">
    <properties>
     <property name="type" value="WARNING"/>
@@ -710,7 +707,7 @@
     <property name="type" value="ENGINE"/>
    </properties>
   </object>
-  <object id="79" x="383.75" y="-653" width="59" height="40.5">
+  <object id="79" x="381.75" y="-664" width="74" height="54.5">
    <properties>
     <property name="type" value="ANTENNA"/>
    </properties>
@@ -720,6 +717,10 @@
     <property name="type" value="WAVE"/>
    </properties>
   </object>
-  <object id="86" x="-194.909" y="-597.705" width="108.545" height="138.182"/>
+  <object id="86" x="-94.0604" y="-597.705" width="37.4238" height="138.182">
+   <properties>
+    <property name="spacewalk" type="bool" value="true"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
