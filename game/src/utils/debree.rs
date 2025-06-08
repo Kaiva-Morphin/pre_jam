@@ -15,7 +15,7 @@ impl Plugin for DebreePlugin {
         .insert_resource(DebreeLevel::default())
         .insert_resource(Malfunction::default())
         .insert_resource(DebreeTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
-        .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions).run_if(in_state(GlobalAppState::InGame)));
+        .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions, tick_malfunctions).run_if(in_state(GlobalAppState::InGame)));
     }
 }
 
@@ -80,6 +80,7 @@ pub struct Resolved {
 pub struct Malfunction {
     pub in_progress: bool,
     pub malfunction_types: Vec<MalfunctionType>,
+    pub malfunction_timers: Vec<Timer>,
     pub warning_data: Vec<WarningData>,
     pub resolved: Vec<Resolved>,
     pub added_new_malfunction: bool,
@@ -133,6 +134,7 @@ pub fn manage_malfunctions(
                     text: "Reactor malfunctioned!".to_string(),
                     handle: sprite_assets.reactor_mini.clone(),
                 });
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
             MalfunctionType::Collision => {
                 malfunction.malfunction_types.push(malfunc_type);
@@ -141,6 +143,7 @@ pub fn manage_malfunctions(
                     text: "The ship is on a trajectory to collide with debree!".to_string(),
                     handle: sprite_assets.reactor_mini.clone(),
                 });
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
             MalfunctionType::Hack => {
                 malfunction.malfunction_types.push(malfunc_type);
@@ -149,6 +152,7 @@ pub fn manage_malfunctions(
                     text: "A sattelite is on a collision trajectory!".to_string(),
                     handle: sprite_assets.reactor_mini.clone(),
                 });
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
             MalfunctionType::Waves => {
                 malfunction.malfunction_types.push(malfunc_type);
@@ -157,6 +161,7 @@ pub fn manage_malfunctions(
                     text: "Antenna malfunctioned!".to_string(),
                     handle: sprite_assets.reactor_mini.clone(),
                 });
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
             MalfunctionType::NoMalfunction => unreachable!()
         };
@@ -178,6 +183,7 @@ pub fn resolve_malfunctions(
         for resolved in malfunction.resolved.clone() {
             let index = malfunction.malfunction_types.iter().position(|r| r == &resolved.resolved_type).unwrap();
             let to_be_resolved = malfunction.malfunction_types.remove(index);
+            malfunction.malfunction_timers.remove(index);
             match to_be_resolved {
                 MalfunctionType::Hack => {
                     if resolved.failed {
@@ -214,6 +220,27 @@ pub fn resolve_malfunctions(
         malfunction.resolved = vec![];
         if malfunction.malfunction_types.is_empty() {
             malfunction.in_progress = false;
+        }
+    }
+}
+
+pub const TIME_TO_RESOLVE: f32 = 60.;
+
+pub fn tick_malfunctions(
+    mut malfunction: ResMut<Malfunction>,
+    time: Res<Time>,
+) {
+    // TODO: check for resolved errors and nulling locals after failing
+    for idx in 0..malfunction.malfunction_types.len() {
+        let timer = &mut malfunction.malfunction_timers[idx];
+        timer.tick(Duration::from_secs_f32(time.dt()));
+        if timer.finished() {
+            let resolved_type = malfunction.malfunction_types[idx].clone();
+            println!("FAILED DUE TO TIME {:?}", resolved_type);
+            malfunction.resolved.push(Resolved {
+                resolved_type,
+                failed: true,
+            });
         }
     }
 }

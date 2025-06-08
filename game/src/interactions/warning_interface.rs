@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use bevy_tailwind::tw;
 use utils::WrappedDelta;
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpriteAssets, WarningAtlasHandles}, debree::Malfunction, energy::{Energy, ENGINE_THRESHOLD}, spacial_audio::PlaySoundEvent}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpriteAssets, WarningAtlasHandles}, debree::{Malfunction, MalfunctionType, TIME_TO_RESOLVE}, energy::{Energy, ENGINE_THRESHOLD}, spacial_audio::PlaySoundEvent}};
 
 pub const WARNING_GRID_COLUMNS: u32 = 2;
 pub const WARNING_GRID_ROWS: u32 = 2;
@@ -25,6 +25,11 @@ pub struct WarningText;
 
 #[derive(Component)]
 pub struct SurplusText;
+
+#[derive(Component, Clone)]
+pub struct TimerText {
+    pub malfunction_type: MalfunctionType,
+}
 
 pub fn open_warning_interface_display(
     mut commands: Commands,
@@ -66,6 +71,36 @@ pub fn open_warning_interface_display(
                 ])
             ).id();
 
+            let mut children = vec![];
+            for i in 0..4 { // TODO: ADD PIPES
+                let malfunction_type;
+                match i {
+                    0 => {
+                        malfunction_type = MalfunctionType::Collision;
+                    }
+                    1 => {
+                        malfunction_type = MalfunctionType::Hack;
+                    }
+                    2 => {
+                        malfunction_type = MalfunctionType::Reactor;
+                    }
+                    3 => {
+                        malfunction_type = MalfunctionType::Waves;
+                    }
+                    // 0 => {
+                        
+                    // }
+                    _ => {unreachable!()}
+                }
+                let text = TimerText {
+                    malfunction_type,
+                };
+                children.push(commands.spawn(
+                ui_main_container(&main, children![
+                    ui_text_display_green_with_text(&text_bundle, (text.clone(), text), "NaN", &asset_server)
+                ])).id());
+            }
+
             // let warning_atlas = commands.spawn()
             // (
                     //     // color warning screen
@@ -96,6 +131,11 @@ pub fn open_warning_interface_display(
                         cmd.spawn(tw!("items-center justify-center w-full h-full"),)
                         .add_child(surplus_text_entity);
                     });
+                    cmd.spawn(ui_sub_container(&sub, ()))
+                    .with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                        .add_children(&children);
+                    });
                 });
             }).id();
             *already_spawned = Some(entity);
@@ -110,15 +150,23 @@ pub struct WarningTimer {
 }
 
 pub fn update_warning_interface_display(
-    mut image_node: Single<&mut ImageNode, With<WarningScreen>>,
+    // mut image_node: Single<&mut ImageNode, With<WarningScreen>>,
     mut warning_timer: ResMut<WarningTimer>,
     time: Res<Time>,
     malfunction: Res<Malfunction>,
     energy: Res<Energy>,
     text: Query<&mut Text, With<SurplusText>>,
+    timer_text: Query<(&mut Text, &TimerText), Without<SurplusText>>,
 ) {
     for mut text in text {
         text.0 = format!("Power Surplus : {} GW", energy.surplus - ENGINE_THRESHOLD);
+    }
+    for (mut text, timer_text) in timer_text {
+        let mut time = "NaN".to_string();
+        if let Some(index) = malfunction.malfunction_types.iter().position(|r| r == &timer_text.malfunction_type) {
+            time = format!("{:.1}", TIME_TO_RESOLVE - malfunction.malfunction_timers[index].elapsed_secs());
+        }
+        text.0 = time;
     }
     if malfunction.in_progress {
     //     if let Some(atlas) = &mut image_node.texture_atlas {

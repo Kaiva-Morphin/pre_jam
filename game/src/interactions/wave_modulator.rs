@@ -118,7 +118,7 @@ pub fn open_wave_modulator_display(
             for i in 0..4 {
                 children.push(commands.spawn(
                 ui_main_container(&main, children![(
-                    ui_spinny(&(spinny_atlas_handles.image_handle.clone(), spinny_atlas_handles.layout_handle.clone()), SpinnyIds { id: i }, ()),
+                    ui_spinny(&(spinny_atlas_handles.image_handle.clone(), spinny_atlas_handles.layout_handle.clone()), SpinnyIds { id: i, angle: 0. }, ()),
                 )])).id());
             };
 
@@ -214,6 +214,7 @@ pub struct Spinny {
 #[derive(Component)]
 pub struct SpinnyIds {
     pub id: usize,
+    pub angle: f32,
 }
 
 #[derive(Component)]

@@ -111,7 +111,7 @@ pub fn open_collision_minigame_display(
             for i in 0..2 {
                 children.push(commands.spawn(
                 ui_main_container(&main, children![(
-                    ui_spinny(&(spinny_atlas_handles.image_handle.clone(), spinny_atlas_handles.layout_handle.clone()), SpinnyIds { id: i }, ()),
+                    ui_spinny(&(spinny_atlas_handles.image_handle.clone(), spinny_atlas_handles.layout_handle.clone()), SpinnyIds { id: i, angle: 0. }, ()),
                 )])).id());
             }
             let mut is_active = 0.;
@@ -339,14 +339,35 @@ pub fn update_collision_minigame(
     mut submited: Local<bool>,
     mut prev: Local<Interaction>,
     spinny: Res<Spinny>,
-    spinny_q: Query<&SpinnyIds>,
+    mut spinny_q: Query<&mut SpinnyIds>,
     mut energy: ResMut<Energy>,
+    mut cost: Local<f32>,
 ) {
     let mut in_progress = false;
     if malfunction.malfunction_types.contains(&MalfunctionType::Collision) {
         in_progress = true;
     }
-    let mut cost = 0.;
+    
+    const COST_PER_ANG: f32 = 0.5;
+    if spinny.angle >= 0. {
+        let mut t_cost = 0.;
+        for mut spinny_id in spinny_q.iter_mut() {
+            if spinny.locked_id == spinny_id.id {
+                spinny_id.angle = spinny.angle;
+            }
+            let snapped = (spinny_id.angle / ANGLE_PER_COLLISION_SPINNY_STATE).floor();
+            match spinny_id.id {
+                0 => {
+                    t_cost += COST_PER_ANG * snapped
+                }
+                1 => {
+                    t_cost += COST_PER_ANG * snapped * 2.
+                }
+                _ => unreachable!()
+            } 
+        }
+        *cost = t_cost;
+    }
     for (interaction, mut node) in
         &mut interaction_query
     {
@@ -355,22 +376,6 @@ pub fn update_collision_minigame(
             index = 1;
         }
         if let Some(a) = &mut node.texture_atlas {
-            const COST_PER_ANG: f32 = 0.5;
-            if spinny.angle > 0. {
-                let snapped = (spinny.angle / ANGLE_PER_COLLISION_SPINNY_STATE).floor();
-                for spinny_id in spinny_q {
-                    match spinny_id.id {
-                        0 => {
-                            cost += COST_PER_ANG * snapped
-                        }
-                        1 => {
-                            cost += COST_PER_ANG * snapped * 2.
-                        }
-                        _ => unreachable!()
-                    } 
-                }
-            }
-            // println!("{} {}", a.index, index);
             if *prev == Interaction::Pressed && *interaction != Interaction::Pressed && in_progress {
                 // submitted solution
                 println!("submitted collision sol");
@@ -379,7 +384,7 @@ pub fn update_collision_minigame(
             a.index = index;
         }
         for mut text in text1.iter_mut() {
-            text.0 = format!("Maneuver cost: {:.2} GJ", cost);
+            text.0 = format!("Maneuver cost: {:.2} GJ", *cost);
         }
         *prev = *interaction;
     }
@@ -400,9 +405,10 @@ pub fn update_collision_minigame(
                             resolved_type: MalfunctionType::Collision,
                             failed: intersects,
                         });
-                        energy.increase_consumption = (cost, Duration::from_secs_f32(30.));
+                        energy.increase_consumption = (*cost, Duration::from_secs_f32(30.));
                         *prev = Interaction::default();
                         *submited = false;
+                        *cost = 0.;
                     }
                 }
             }
