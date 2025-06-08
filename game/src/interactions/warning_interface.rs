@@ -78,7 +78,7 @@ pub fn open_warning_interface_display(
 
             let mut children = vec![];
             let mut malf_entities = vec![];
-            for i in 0..4 { // TODO: ADD PIPES
+            for i in 0..5 {
                 let malfunction_type;
                 match i {
                     0 => {
@@ -93,9 +93,9 @@ pub fn open_warning_interface_display(
                     3 => {
                         malfunction_type = MalfunctionType::Waves;
                     }
-                    // 0 => {
-                        
-                    // }
+                    4 => {
+                        malfunction_type = MalfunctionType::Engine;
+                    }
                     _ => {unreachable!()}
                 }
                 let text = TimerText {

@@ -61,7 +61,6 @@ impl Plugin for InteractionsPlugin {
             .run_if(in_state(GlobalAppState::InGame))
             ).chain(),
         ))
-        .add_systems(OnGame, init_grid)
         ;
     }
 }

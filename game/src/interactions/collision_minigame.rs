@@ -219,7 +219,7 @@ pub fn interact_with_spinny_collision(
     if spinny.is_locked {
         if spinny.angle < 0. {
             return;
-        }
+        } // TODO: if engine broke dont allow
         let snapped_state = (spinny.angle / ANGLE_PER_COLLISION_SPINNY_STATE).floor() as usize;
         for (spinny_id, mut spinny_image_node) in spinny_q {
             if spinny_id.id == spinny.locked_id {

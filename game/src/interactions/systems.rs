@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use bevy::{input::mouse::{MouseMotion, MouseWheel}, platform::collections::HashMap, prelude::*};
-use bevy_rapier2d::prelude::CollisionEvent;
+use bevy_rapier2d::{prelude::CollisionEvent, rapier::prelude::CollisionEventFlags};
 use shaders::VelocityEmmiter;
 use utils::{Easings, WrappedDelta};
 
@@ -65,28 +65,34 @@ pub fn interact(
         // println!("{:?}", collision_event);
         match collision_event {
             // interactable - sender; sensor - reciever
-            CollisionEvent::Started(reciever_entity, sender_entity, _) => {
-                let mut interactable_entity = *sender_entity;
-                if *sender_entity == *player_entity {
-                    interactable_entity = *reciever_entity;
+            CollisionEvent::Started(reciever_entity, sender_entity, flags) => {
+                if flags == &CollisionEventFlags::SENSOR {
+                    // println!("{:?}", collision_event);
+                    let mut interactable_entity = *sender_entity;
+                    if *sender_entity == *player_entity {
+                        interactable_entity = *reciever_entity;
+                    }
+                    let Ok((mut in_interaction, _)) = interactable.get_mut(interactable_entity) else {continue;};
+                    scroll_selector.selection_options.push(interactable_entity);
+                    in_interaction.data = true;
                 }
-                let Ok((mut in_interaction, _)) = interactable.get_mut(interactable_entity) else {continue;};
-                scroll_selector.selection_options.push(interactable_entity);
-                in_interaction.data = true;
             }
-            CollisionEvent::Stopped(reciever_entity, sender_entity, _) => {
-                let mut interactable_entity = *sender_entity;
-                if *sender_entity == *player_entity {
-                    interactable_entity = *reciever_entity;
-                }
-                let Ok((mut in_interaction, interactable_transform)) = interactable.get_mut(interactable_entity) else {continue;};
-                in_interaction.data = false;
-                if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == interactable_entity) {
-                    scroll_selector.selection_options.remove(index);
-                    if let Some(current_displayed) = scroll_selector.current_displayed {
-                        commands.entity(current_displayed).despawn();
-                        scroll_selector.current_displayed = None;
-                        scroll_selector.current_selected = 0;
+            CollisionEvent::Stopped(reciever_entity, sender_entity, flags) => {
+                if flags == &CollisionEventFlags::SENSOR {
+                    // println!("{:?}", collision_event);
+                    let mut interactable_entity = *sender_entity;
+                    if *sender_entity == *player_entity {
+                        interactable_entity = *reciever_entity;
+                    }
+                    let Ok((mut in_interaction, interactable_transform)) = interactable.get_mut(interactable_entity) else {continue;};
+                    in_interaction.data = false;
+                    if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == interactable_entity) {
+                        scroll_selector.selection_options.remove(index);
+                        if let Some(current_displayed) = scroll_selector.current_displayed {
+                            commands.entity(current_displayed).despawn();
+                            scroll_selector.current_displayed = None;
+                            scroll_selector.current_selected = 0;
+                        }
                     }
                 }
             }

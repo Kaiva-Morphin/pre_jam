@@ -1,10 +1,10 @@
-use bevy::{asset::LoadState, prelude::*};
+use bevy::{asset::LoadState, audio::{PlaybackMode, Volume}, color::palettes::css::GREEN, prelude::*};
 use bevy_ecs_tiled::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_rapier2d::prelude::{ActiveEvents, CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, Sensor};
 use tiled::{ObjectShape, PropertyValue};
 
-use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, physics::constants::{INTERACTABLE_CG, LADDERS_CG, PLATFORMS_CG, PLAYER_CG, PLAYER_SENSOR_CG}, tilemap::light::LightEmitter, utils::{custom_material_loader::{interactable_bundle, SpriteAssets, SpritePreloadData}, debree::{Malfunction, MalfunctionType}}};
+use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, physics::constants::{INTERACTABLE_CG, LADDERS_CG, PLATFORMS_CG, PLAYER_CG, PLAYER_SENSOR_CG, STRUCTURES_CG}, tilemap::light::LightEmitter, utils::{custom_material_loader::SpriteAssets, debree::{Malfunction, MalfunctionType}, spacial_audio::{AlarmSpeaker, SoundAssets}}};
 
 
 pub struct MapPlugin;
@@ -107,6 +107,7 @@ fn handle_object_spawn(
     sprite_assets: Res<SpriteAssets>,
     // FUCKING FUCK YARO
     mut aboba: ResMut<Aboba>,
+    sound_assets: Res<SoundAssets>,
 ) {
     for e in aboba.data.iter() {
         let Some(object) = e.get_object(&map_asset) else {continue;};
@@ -121,12 +122,99 @@ fn handle_object_spawn(
             }
         }
         if let Some(PropertyValue::BoolValue(true)) = object.properties.get("speaker") {
-
+            cmd.entity(e.entity).with_child(
+                (
+                AlarmSpeaker,
+                Name::new("AlarmSpeaker"),
+                Transform::default(),
+                )
+            );
+        }
+        if let Some(PropertyValue::StringValue(t)) = object.properties.get("ambience") {
+            let handle;
+            let name;
+            match t.as_str() {
+                "EngineAmbience" => {
+                    handle = sound_assets.engine_ambience.clone();
+                    name = t.clone();
+                }
+                "IndustrialAmbience" => {
+                    handle = sound_assets.industrial_ambience.clone();
+                    name = t.clone();
+                }
+                _ => {unreachable!()}
+            }
+            cmd.entity(e.entity).with_child(
+                (
+                    AudioPlayer::new(handle),
+                    PlaybackSettings {
+                        mode: PlaybackMode::Loop,
+                        volume: Volume::Linear(1.),
+                        speed: 1.0,
+                        paused: false,
+                        muted: false,
+                        spatial: true,
+                        spatial_scale: None,
+                    },
+                    Name::new(name),
+                    Transform::default(),
+                )
+            );
         }
         if let Some(interaction) = InteractionTypes::from_properties(&object.properties){
             let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
             for c in object_children_with_collider {
-                // cmd.entity(*c).insert((interactable_bundle(&mut meshes, &mut interactable_materials, &image_assets, &sprite_data), interaction));
+                let handle;
+                match interaction {
+                    InteractionTypes::ChainReactionDisplay => {
+                        handle = sprite_assets.chain_interactable.clone();
+                    },
+                    InteractionTypes::WaveModulator => {
+                        handle = sprite_assets.wave_interactable.clone();
+                    },
+                    InteractionTypes::PipePuzzle => {
+                        handle = sprite_assets.pipe_interactable.clone();
+                    },
+                    InteractionTypes::CollisionMinigame => {
+                        handle = sprite_assets.collision_interactable.clone();
+                    },
+                    InteractionTypes::WarningInterface => {
+                        handle = sprite_assets.warning_interactable.clone();
+                    },
+                    InteractionTypes::HackMinigame => {
+                        handle = sprite_assets.faz.clone();
+                    },
+                    InteractionTypes::WiresMinigame => {
+                        handle = sprite_assets.faz.clone();
+                    },
+                }
+                let image = image_assets.get(&handle).unwrap();
+                let width = image.width();
+                let height = image.height();
+                let material = InteractableMaterial {
+                    time: 0.,
+                    sprite_handle: handle.clone(),
+                    _webgl2_padding_8b: 0,
+                    _webgl2_padding_12b: 0,
+                    _webgl2_padding_16b: 0,
+                };
+                let interactable_material_handle = interactable_materials.add(material);
+                cmd.entity(*c).insert((
+                    Mesh2d(meshes.add(Rectangle::new(width as f32, height as f32))),
+                    MeshMaterial2d(interactable_material_handle.clone()),
+                    Name::new("Interactable"),
+                    Interactable,
+                    Collider::cuboid(width as f32 / 4., height as f32 / 4.),
+                    // ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
+                    CollisionGroups::new(
+                        Group::from_bits(INTERACTABLE_CG).unwrap(),
+                        Group::from_bits(PLAYER_SENSOR_CG).unwrap(),
+                    ),
+                    ActiveEvents::COLLISION_EVENTS,
+                    Sensor,
+                    InInteraction {data: false},
+                    interaction.clone(),
+                ));
                 break
             }
             
@@ -265,6 +353,14 @@ impl TiledPhysicsBackend for CustomRapierPhysicsBackend {
         let colliders = self
             .0
             .spawn_colliders(commands, tiled_map, filter, collider, anchor);
+        for c in colliders.iter() {
+            commands.entity(c.entity).insert(
+                CollisionGroups{
+                    memberships: Group::from_bits(PLATFORMS_CG | STRUCTURES_CG).unwrap(),
+                    filters: Group::from_bits(PLAYER_CG).unwrap(),
+                }
+            );
+        }
         colliders
     }
 }

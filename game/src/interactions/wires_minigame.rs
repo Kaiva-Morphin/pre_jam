@@ -126,6 +126,7 @@ pub fn open_wires_display(
     mut wires: ResMut<WireMinigame>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
 ) {
+    // TODO: add touch and open sfx
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
             commands.entity(entity).despawn();
