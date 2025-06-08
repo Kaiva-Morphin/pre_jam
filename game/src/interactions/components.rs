@@ -82,6 +82,7 @@ impl InteractionTypes {
             "ANTENNA" => Some(Self::WaveModulator),
             "WARNING" => Some(Self::WarningInterface),
             "CHAIN" => Some(Self::ChainReactionDisplay),
+            "PIPE" => Some(Self::PipePuzzle),
             _ => None
         }
     }
