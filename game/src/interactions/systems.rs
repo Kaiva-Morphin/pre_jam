@@ -39,6 +39,7 @@ pub fn interact(
         let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {(1. / event.y).abs()};
         mouse_scroll_delta = v;
     };
+    mouse_scroll_delta = mouse_scroll_delta.clamp(-1., 1.);
     if scroll_selector.selection_options.len() > 0 {
         let new;
         if mouse_scroll_delta < 0. {

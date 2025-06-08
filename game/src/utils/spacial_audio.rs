@@ -46,6 +46,8 @@ pub struct SoundAssets {
     pub concrete_2_sound: Handle<AudioSource>,
     #[asset(path = "sounds/118230__joedeshon__hotel_card_key.wav")]
     pub open_wires_sound: Handle<AudioSource>,
+    #[asset(path = "sounds/wire.wav")]
+    pub wires_sound: Handle<AudioSource>,
 }
 
 #[derive(Component)]
@@ -95,12 +97,12 @@ pub enum PlaySoundEvent {
     HackButtonRelease,
     SubmitButtonPress,
     SubmitButtonRelease,
-    Alarm, //? spacial
     SpinnyClick,
     OpenUi,
     Concrete1,
     Concrete2,
     OpenWires,
+    WireClick,
 }
 
 pub fn play_sounds(
@@ -159,7 +161,9 @@ fn match_sounds(
         PlaySoundEvent::OpenWires => {
             commands.spawn(sound_bundle(sound_assets.open_wires_sound.clone()));
         },
-        PlaySoundEvent::Alarm => {}
+        PlaySoundEvent::WireClick => {
+            commands.spawn(sound_bundle(sound_assets.wires_sound.clone()));
+        },
     }
 }
 
