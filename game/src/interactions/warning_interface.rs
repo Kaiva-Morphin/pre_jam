@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use bevy_tailwind::tw;
 use utils::WrappedDelta;
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpriteAssets, WarningAtlasHandles}, debree::{Malfunction, MalfunctionType, TIME_TO_RESOLVE}, energy::{Energy, ENGINE_THRESHOLD}, spacial_audio::PlaySoundEvent}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}}, ui_atlas_container::ui_atlas_container}, target::LowresUiContainer}, utils::{custom_material_loader::{MalfAtlasHandles, SpriteAssets, WarningAtlasHandles}, debree::{Malfunction, MalfunctionType, TIME_TO_RESOLVE}, energy::{Energy, ENGINE_THRESHOLD}, spacial_audio::PlaySoundEvent}};
 
 pub const WARNING_GRID_COLUMNS: u32 = 2;
 pub const WARNING_GRID_ROWS: u32 = 2;
@@ -31,6 +31,11 @@ pub struct TimerText {
     pub malfunction_type: MalfunctionType,
 }
 
+#[derive(Component, Clone)]
+pub struct MalfMini {
+    pub malfunction_type: MalfunctionType,
+}
+
 pub fn open_warning_interface_display(
     mut commands: Commands,
     in_interaction_array: Res<InInteractionArray>,
@@ -42,6 +47,7 @@ pub fn open_warning_interface_display(
     malfunction: Res<Malfunction>,
     mut event_writer: EventWriter<PlaySoundEvent>,
     energy: Res<Energy>,
+    malf_atlas_handles: Res<MalfAtlasHandles>,
 ) {
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
@@ -72,6 +78,7 @@ pub fn open_warning_interface_display(
             ).id();
 
             let mut children = vec![];
+            let mut malf_entities = vec![];
             for i in 0..4 { // TODO: ADD PIPES
                 let malfunction_type;
                 match i {
@@ -93,33 +100,26 @@ pub fn open_warning_interface_display(
                     _ => {unreachable!()}
                 }
                 let text = TimerText {
-                    malfunction_type,
+                    malfunction_type: malfunction_type.clone(),
                 };
                 children.push(commands.spawn(
                 ui_main_container(&main, children![
                     ui_text_display_green_with_text(&text_bundle, (text.clone(), text), "NaN", &asset_server)
                 ])).id());
+                let mini = MalfMini {
+                    malfunction_type,
+                };
+                malf_entities.push(commands.spawn(
+                ui_main_container(&main, children![
+                    ui_atlas_container(&(malf_atlas_handles.image_handle.clone(), malf_atlas_handles.layout_handle.clone()), mini)
+                    ])
+                ).id());
             }
 
-            // let warning_atlas = commands.spawn()
-            // (
-                    //     // color warning screen
-                    //     WarningScreen,
-                    //     BackgroundColor::from(Color::Srgba(Srgba::new(0., 0., 1., 0.5))),
-                    //     Node {
-                    //         width: Val::Px(100.),
-                    //         height: Val::Px(100.),
-                    //         ..default()
-                    //     },
-                    //     ImageNode::from_atlas_image(
-                    //         waning_atlas_handles.image_handle.clone(),
-                    //         TextureAtlas::from(waning_atlas_handles.layout_handle.clone())
-                    //     ),
-                    // ),
             let entity = commands.spawn(
                 tw!("items-center justify-center w-full h-full"),
             ).with_children(|cmd|{
-                cmd.spawn(ui_main_container(&main, ()))
+                cmd.spawn(ui_main_container(&main, ())).insert(tw!("flex-col items-stretch p-[2px]"))
                 .with_children(|cmd| {
                     cmd.spawn(ui_sub_container(&sub, ()))
                     .with_children(|cmd| {
@@ -135,6 +135,11 @@ pub fn open_warning_interface_display(
                     .with_children(|cmd| {
                         cmd.spawn(tw!("items-center justify-center w-full h-full"),)
                         .add_children(&children);
+                    });
+                    cmd.spawn(ui_sub_container(&sub, ()))
+                    .with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                        .add_children(&malf_entities);
                     });
                 });
             }).id();
@@ -157,7 +162,9 @@ pub fn update_warning_interface_display(
     energy: Res<Energy>,
     text: Query<&mut Text, With<SurplusText>>,
     timer_text: Query<(&mut Text, &TimerText), Without<SurplusText>>,
+    mut mini_image_nodes: Query<(&mut ImageNode, &MalfMini)>,
 ) {
+    warning_timer.timer.tick(Duration::from_secs_f32(time.dt()));
     for mut text in text {
         text.0 = format!("Power Surplus : {} GW", energy.surplus - ENGINE_THRESHOLD);
     }
@@ -167,6 +174,35 @@ pub fn update_warning_interface_display(
             time = format!("{:.1}", TIME_TO_RESOLVE - malfunction.malfunction_timers[index].elapsed_secs());
         }
         text.0 = time;
+    }
+    for (mut node, mini) in mini_image_nodes {
+        if let Some(atlas) = &mut node.texture_atlas {
+            let mut node_index = 0;
+            match mini.malfunction_type {
+                MalfunctionType::NoMalfunction => {
+                    unreachable!()
+                },
+                MalfunctionType::Reactor => {
+                    node_index = 2;
+                },
+                MalfunctionType::Collision => {
+                    node_index = 4;
+                },
+                MalfunctionType::Hack => {
+                    node_index = 1;
+                },
+                MalfunctionType::Waves => {
+                    node_index = 3;
+                },
+            }
+            if malfunction.malfunction_types.contains(&mini.malfunction_type) {
+                node_index += 6;
+                if warning_timer.timer.elapsed_secs() < warning_timer.timer.duration().as_secs_f32() / 2. {
+                    node_index = 0;
+                }
+            }
+            atlas.index = node_index;
+        }
     }
     if malfunction.in_progress {
     //     if let Some(atlas) = &mut image_node.texture_atlas {
