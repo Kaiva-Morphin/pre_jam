@@ -1,52 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="28" nextobjectid="97">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="28" nextobjectid="98">
  <tileset firstgid="1" source="main.tsx"/>
- <layer id="18" name="SRC" width="30" height="20" visible="0" locked="1">
-  <data encoding="base64" compression="zlib">
-   <chunk x="-32" y="-48" width="16" height="16">
-   eJztyscNwkAURdGvmaUJJnQBGBvcBRm7a0xw6AIwsQDuZla/AiRf6Uhv8USamv6/gxHJcMQJZ1yQo0CJyuif68q+4Y4aDzzxwhsffI3+uTwr0kIbHXTho4c+Bhha/XON2GNMEGCKEBFmmCO2+udasJdYYY0NtthhjwSp1b8fSRwguA==
-  </chunk>
-   <chunk x="-16" y="-48" width="16" height="16">
-   eJztysUNAlEAQMEf9ohLF7h0gUvXuHSBSwFMA+ydZF8ytxdCUtL/tk2FsGPPgSMnlqxYs0n9/u48ePLizYczF67cYr58FEKBIiXKVEiTIUsu+v01adGmQ5ceVWrUacR8YyZMmTFnQZ8BQ0Yx3xfwGiXl
-  </chunk>
-   <chunk x="0" y="-48" width="16" height="16">
-   eJztysUNAlEAQMEf9ohLF7h0gUvXuHSBSwFMA+ydZF8ytxdCUtL/tkyFsGLNhi079hw4ckr9/s5cuHLjzoMnL958Yr50FEKGLDnyFChSokwl+v1VqVGnQZMWbTp06cV8fQYMGTFmwpQZcxYx3xekKiVt
-  </chunk>
-   <chunk x="16" y="-48" width="16" height="16">
-   eJztysUNAlEAQMEf9ohLF7h0gUvXuHSBSwFMA+ydZF8ytxdCUtL/tk+FcODIiSUr1mzYskv9/p68ePPhzIUrN+48Yr5iFEKJMhXSZMiSI08h+v216dClR5UadRo0acV8U2bMWdBnwJARYyYx3xfdCiW9
-  </chunk>
-   <chunk x="32" y="-48" width="16" height="16">
-   eJztysUNAlEAQMEf9ohLF7h0gUvXuHSBSwFMA+ydZF8ytxdCUtL/tk6FsGHLjj0HjpxYskr9/q7cuPPgyYs3H85cYr5sFEKOPAWKlChTIU0m+v3VadCkRZsOXXpUqcV8Q0aMmTBlxpwFfQYx3xfLsiWp
-  </chunk>
-   <chunk x="48" y="-48" width="16" height="16">
-   eJztysUNAlEAQMEf9ohLF7h0gUvXuHSBSwFMA+ydZF8ytxdCUtL/dkyFcGLJijUbtuzYc0j9/t58OHPhyo07D568Yr5yFEKFNBmy5MhToEgp+v116VGlRp0GTVq06cR8cxb0GTBkxJgJU2Yx3xfDuiWV
-  </chunk>
-   <chunk x="64" y="-48" width="16" height="16">
-   eJzty0cNwDAQRNGVDSCVRyqPVN6pPFIB5EPwHiN5pHebL+Ln999NRmTGghUbduPeH3xPXLjx4FX0gRUJESFGgtS69xnfHAVKVKgVfcO3RYceA0ZF/wHTOg5c
-  </chunk>
-   <chunk x="-32" y="-32" width="16" height="16">
-   eJztytdtQkEARNEnbbmAiV3YJndBsA10QQ5dkEMBHAnt11ZgiSsdaT4my17lQpblKfBBkRJlKlSphfQX+7S/+KZOgyYt2nTohvQX69l9Bgz54Zc/RoyZhPQXm9oz5ixYsmLNhi27kP5ie/vAkRNnLly5cecR0t+7d/+5JzlTMJQ=
-  </chunk>
-   <chunk x="-16" y="-32" width="16" height="16">
-   eJztysUNAlEAQMFNKBdZrAtcusBhu8ClC1wKYBrg30n2JXN7cSaKipQoU6FKlhx5CsQ/vhZtOnTp0adGnQbNwDdhyow5CxIGDBkxDnxbduw5cOTEkhVrNoHvzoMnL958OHPhyi3wpaX9c1+IQDgF
-  </chunk>
-   <chunk x="0" y="-32" width="16" height="16">
-   eJztysUNAlEAQMFNKHdx6AKXLnDYLnDpApcCmAb4d5J9ydxenImiLDnyFChSokyFKvGPr0adBk1atOnQpUc/8A0YMmLMhCkz5ixIAt+SFWs2bNmx58CRU+A7c+HKjTsPnrx48wl8aWn/3BfyMjeN
-  </chunk>
-   <chunk x="16" y="-32" width="16" height="16">
-   eJztysUNAlEAQMFNKBddoAtcusBhu8ClC1wKYBrg30n2JXN7cSaKylSokiVHngJFSsQ/vg5devSpUadBkxbtwDdjzoKEAUNGjJkwDXx7Dhw5sWTFmg1bdoHvyYs3H85cuHLjziPwpaX9c18HMDfd
-  </chunk>
-   <chunk x="32" y="-32" width="16" height="16">
-   eJztysUNAlEAQMFNKBcW7wKXLnDYLnDpApcCmAb4d5J9ydxenImiPAWKlChToUqWHPGPr0GTFm06dOnRp0Y98I0YM2HKjDkLEgYMA9+aDVt27Dlw5MSSVeC7cuPOgycv3nw4cwl8aWn/3Be+yTfJ
-  </chunk>
-   <chunk x="48" y="-32" width="16" height="16">
-   eJyt0rdRQ0EUBVCNFOJNF3jTBd50gUd0gTdd4E0XQl5dCHkVwEkId+cH3JkTvft2NnjZTCp1xh77HHDIEceccEo20LvngXMuuOSKa2645S7S++SLR5545oVX3njnI9KrUiPHN3kKFClRphLp9ehT54cGTVq06dCN9P6SS3uXPAWKlChToUotnQqmbvZDgyYt2nTo0qMf2R/wl0GGGGaEUcYYZ4LJTHh/ymyaGWaZY54FFlliObK/YrbKGutssMkW2+ywG9lPen+hJL2/UJLeXyhJ7y+UpPf33/kFkhZyGw==
-  </chunk>
-   <chunk x="64" y="-32" width="16" height="16">
-   eJzty8kNgCAURVESC0bFPhz7wKkPQe3DsQBvCf4lCS85u3d1olSKDDkMCvxdybdCjQYtOkFv+fYYMGLCLOgXvg4eKzbsgv7ge+LCjQevoI+LC3kfW2sVKA==
-  </chunk>
-  </data>
- </layer>
  <layer id="11" name="WALL" width="30" height="20">
   <data encoding="base64" compression="zlib">
    <chunk x="-32" y="-48" width="16" height="16">
@@ -334,7 +288,7 @@
   </chunk>
   </data>
  </layer>
- <layer id="19" name="PROPS" width="30" height="20">
+ <layer id="19" name="PROPS" width="30" height="20" locked="1">
   <data encoding="base64" compression="zlib">
    <chunk x="-32" y="-48" width="16" height="16">
    eJxjYBgFo2BkgTpGBoZ6IG5gxJSbAxSbi0WcWP17gGJ7KdBPDKCmfgAmjwo3
@@ -396,7 +350,7 @@
   </chunk>
   </data>
  </layer>
- <objectgroup id="22" name="LADDERS" visible="0">
+ <objectgroup id="22" name="LADDERS">
   <object id="11" x="630.5" y="-591.5" width="2.5" height="445">
    <properties>
     <property name="type" propertytype="game::tilemap::plugin::MapObject:::Variant" value="Ladder"/>
@@ -408,13 +362,13 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="24" name="PLATFORMS" visible="0">
+ <objectgroup id="24" name="PLATFORMS">
   <object id="26" x="608" y="-304" width="48" height="16"/>
   <object id="27" x="608" y="-464" width="48" height="16"/>
   <object id="28" x="-304" y="-304" width="48" height="16"/>
   <object id="29" x="-304" y="-464" width="48" height="16"/>
  </objectgroup>
- <objectgroup id="25" name="LIGHTS" visible="0">
+ <objectgroup id="25" name="LIGHTS">
   <object id="40" x="1059.25" y="-344.75">
    <properties>
     <property name="angle" type="float" value="0"/>
@@ -696,7 +650,7 @@
    <point/>
   </object>
  </objectgroup>
- <objectgroup id="27" name="SPEAKERS" visible="0">
+ <objectgroup id="27" name="SPEAKERS">
   <object id="89" x="-236" y="-582.5">
    <properties>
     <property name="speaker" type="bool" value="true"/>
@@ -760,6 +714,11 @@
   <object id="76" x="-403.125" y="-190.25" width="36" height="29.875">
    <properties>
     <property name="type" value="REACTOR"/>
+   </properties>
+  </object>
+  <object id="97" x="-150.458" y="-191.917" width="36" height="29.875">
+   <properties>
+    <property name="type" value="PIPE"/>
    </properties>
   </object>
   <object id="77" x="-528.636" y="-383.182" width="31.1818" height="31.7273">

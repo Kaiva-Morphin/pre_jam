@@ -42,26 +42,26 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-#[derive(Component)]
-pub struct PlayerSpotlight;
+// #[derive(Component)]
+// pub struct PlayerSpotlight;
 
-pub fn update_spotlight(
-    mut q: Query<(&mut GlobalTransform, &mut Transform, &mut LightEmitter), With<PlayerSpotlight>>,
-    c: Res<CursorPosition>,
-) {
-    for (global_transform, mut transform, mut s) in q.iter_mut() {
-        let origin = global_transform.translation().truncate();
-        let direction = c.world_position - origin;
-        // info!("D {:.1}\n{:.1}", c.world_position,c.screen_position );
-        // let global_angle = direction.y.atan2(direction.x);
+// pub fn update_spotlight(
+//     mut q: Query<(&mut GlobalTransform, &mut Transform, &mut LightEmitter), With<PlayerSpotlight>>,
+//     c: Res<CursorPosition>,
+// ) {
+//     for (global_transform, mut transform, mut s) in q.iter_mut() {
+//         let origin = global_transform.translation().truncate();
+//         let direction = c.world_position - origin;
+//         // info!("D {:.1}\n{:.1}", c.world_position,c.screen_position );
+//         // let global_angle = direction.y.atan2(direction.x);
 
-        // let parent_rotation = global_transform.rotation().to_euler(EulerRot::XYZ).2;
+//         // let parent_rotation = global_transform.rotation().to_euler(EulerRot::XYZ).2;
 
-        // let local_angle = global_angle - parent_rotation;
+//         // let local_angle = global_angle - parent_rotation;
 
-        // transform.rotation = Quat::from_rotation_z(local_angle);
-    }
-}
+//         // transform.rotation = Quat::from_rotation_z(local_angle);
+//     }
+// }
 
 #[derive(Component)]
 pub struct PlayerMesh;
@@ -250,17 +250,17 @@ pub fn spawn_player(
                 Visibility::Visible,
                 PlayerMesh
             ),
-            (
-                PlayerSpotlight,
-                Transform::default(),
-                GlobalTransform::IDENTITY,
-                LightEmitter{
-                    radius_px: 200.0,
-                    intensity: 0.3,
-                    spot: 30.,
-                    color_and_rotation: vec4(1.0, 1.0, 1.0, 0.0),
-                }
-            ),
+            // (
+            //     PlayerSpotlight,
+            //     Transform::default(),
+            //     GlobalTransform::IDENTITY,
+            //     LightEmitter{
+            //         radius_px: 200.0,
+            //         intensity: 0.3,
+            //         spot: 30.,
+            //         color_and_rotation: vec4(1.0, 1.0, 1.0, 0.0),
+            //     }
+            // ),
         ]
     ));
     
