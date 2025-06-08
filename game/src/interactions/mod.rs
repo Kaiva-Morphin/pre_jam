@@ -33,7 +33,7 @@ impl Plugin for InteractionsPlugin {
         .insert_resource(Wires::default())
         .insert_resource(WarningTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .add_systems(Update, (
-            (interact, update_interactables, update_graphs_time,
+            (interact, update_interactables,
                 (update_pipes, open_pipe_puzzle_display, 
                 open_warning_interface_display,
                 update_warning_interface_display,

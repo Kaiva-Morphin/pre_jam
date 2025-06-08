@@ -1,6 +1,8 @@
 #![allow(unused)]
 use bevy::prelude::*;
 
+use crate::utils::spacial_audio::{PlaySoundEvent, SoundAssets};
+
 
 
 pub const HACK_BUTTON_SRC: &str = "ui/hack_button.png";
@@ -76,7 +78,9 @@ pub fn ui_hack_button_hover(
         ),
         Changed<Interaction>,
     >,
-    t: Res<Time>
+    t: Res<Time>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
+    mouse_button: Res<ButtonInput<MouseButton>>,
 ) {
     for (entity, interaction, mut node, hack) in
         &mut interaction_query
@@ -85,6 +89,12 @@ pub fn ui_hack_button_hover(
         let p = Interaction::Pressed == *interaction;
         if let Some(a) = &mut node.texture_atlas {
             a.index = hack.get_idx(h, p);
+        }
+        if p && mouse_button.just_pressed(MouseButton::Left) {
+            event_writer.write(PlaySoundEvent::HackButtonPress);
+        }
+        if h && mouse_button.just_released(MouseButton::Left) {
+            event_writer.write(PlaySoundEvent::HackButtonRelease);
         }
     }
 }

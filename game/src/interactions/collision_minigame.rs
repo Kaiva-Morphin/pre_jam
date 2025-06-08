@@ -3,7 +3,7 @@ use std::{f32::consts::PI, time::Duration};
 use bevy::{prelude::*, render::render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDescriptor, TextureUsages}, ui::RelativeCursorPosition};
 use bevy_tailwind::tw;
 
-use crate::{interactions::{components::{InInteractionArray, InteractionTypes}, wave_modulator::{Spinny, SpinnyIds}}, ui::{components::{containers::{base::*, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, spinny::ui_spinny, ui_submit_button::{submit_button_bundle, ui_submit_button}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpinnyAtlasHandles, SpriteAssets}, debree::{Malfunction, MalfunctionType, Resolved}}};
+use crate::{interactions::{components::{InInteractionArray, InteractionTypes}, wave_modulator::{Spinny, SpinnyIds}}, ui::{components::{containers::{base::*, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, spinny::ui_spinny, ui_submit_button::{submit_button_bundle, ui_submit_button}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpinnyAtlasHandles, SpriteAssets}, debree::{Malfunction, MalfunctionType, Resolved}, energy::Energy, spacial_audio::PlaySoundEvent}};
 
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
@@ -47,6 +47,9 @@ pub struct SubmitButton;
 #[derive(Component)]
 pub struct CollisionText;
 
+#[derive(Component)]
+pub struct CollisionCostText;
+
 const TRAJECTORY_SAFE: &str =     "  TRAJECTORY SAFE  ";
 const COLLISION_IMPENDING: &str = "IMPENDING COLLISION";
 const COLLISION_AVOIDED: &str =   " COLLISION AVOIDED ";
@@ -58,12 +61,13 @@ pub fn open_collision_minigame_display(
     spinny_atlas_handles: Res<SpinnyAtlasHandles>,
     lowres_container: Single<Entity, With<LowresUiContainer>>,
     mut collision_graph_material: ResMut<Assets<CollisionGraphMaterial>>,
-    mut collision_consts: ResMut<CollisionMinigameConsts>,
+    collision_consts: ResMut<CollisionMinigameConsts>,
     images: Res<Assets<Image>>,
     sprite_assets: Res<SpriteAssets>,
     asset_server: Res<AssetServer>,
     malfunction: Res<Malfunction>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
@@ -72,6 +76,7 @@ pub fn open_collision_minigame_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::CollisionMinigame && in_interaction_array.in_any_interaction {
+            event_writer.write(PlaySoundEvent::OpenUi);
             let t = images.get(&sprite_assets.wave_graph_sprite).unwrap();
             let data = t.data.clone();
             let size = t.size();
@@ -151,6 +156,13 @@ pub fn open_collision_minigame_display(
                 ])
             ).id();
 
+            let collision_text = "Maneuver cost: 0 GJ";
+            let text_entity1 = commands.spawn(
+            ui_main_container(&main, children![
+                ui_text_display_green_with_text(&text_bundle, (CollisionCostText, CollisionCostText), collision_text, &asset_server)
+                ])
+            ).id();
+            
             let entity = commands.spawn(
                 tw!("items-center justify-center w-full h-full"),
             ).with_children(|cmd|{
@@ -176,6 +188,11 @@ pub fn open_collision_minigame_display(
                         cmd.spawn(tw!("items-center justify-center w-full h-full"),)
                         .add_child(text_entity);
                     });
+                    cmd.spawn(ui_sub_container(&sub, ()))
+                    .with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                        .add_child(text_entity1);
+                    });
                 });
             }).id();
             *already_spawned = Some(entity);
@@ -192,6 +209,7 @@ pub fn interact_with_spinny_collision(
     consts: Res<CollisionMinigameConsts>,
     time: Res<Time>,
     malfunction: Res<Malfunction>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     if let Some(material) = material_assets.get_mut(*material_handle) {
         if consts.is_loaded {
@@ -225,7 +243,10 @@ pub fn interact_with_spinny_collision(
                     }
                 }
                 if let Some(texture_atlas) = &mut spinny_image_node.texture_atlas {
-                    texture_atlas.index = snapped_state;
+                    if texture_atlas.index != snapped_state {
+                        event_writer.write(PlaySoundEvent::SpinnyClick);
+                        texture_atlas.index = snapped_state;
+                    }
                 }
             }
         }
@@ -278,7 +299,7 @@ pub fn generate_collision_minigame_consts(
 }
 
 fn gen_collision_rng(mi: f32, ma: f32) -> (f32, Vec<f32>) {
-    let a = mi as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma + 1. - mi) as f32);
+    let a = mi as f32 + ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) * (ma - mi) as f32);
     let mut t = (0..NUM_COLLISION_STATES as i32 / 2)
     .map(|i| mi + ((a - mi) / (NUM_COLLISION_STATES / 2.) * i as f32)).collect::<Vec<f32>>();
     t.extend((0..NUM_COLLISION_STATES as i32 / 2).map(|i| a + ((ma - a) / (NUM_COLLISION_STATES / 2.) * i as f32)));
@@ -286,7 +307,7 @@ fn gen_collision_rng(mi: f32, ma: f32) -> (f32, Vec<f32>) {
 }
 
 fn find_intersection(a: f32, b: f32, u: f32, r: f32, time: f32) -> bool {
-    let x_min = 0.0;
+    let x_min = 1.0;
     let x_max = 10.0;
     let step = 0.01;
 
@@ -311,16 +332,21 @@ fn find_intersection(a: f32, b: f32, u: f32, r: f32, time: f32) -> bool {
 pub fn update_collision_minigame(
     mut interaction_query: Query<(&Interaction, &mut ImageNode), With<SubmitButton>>,
     text: Query<&mut Text, With<CollisionText>>,
+    mut text1: Query<&mut Text, (With<CollisionCostText>, Without<CollisionText>)>,
     material_assets: Res<Assets<CollisionGraphMaterial>>,
     material_handle: Single<&MaterialNode<CollisionGraphMaterial>>,
     mut malfunction: ResMut<Malfunction>,
     mut submited: Local<bool>,
     mut prev: Local<Interaction>,
+    spinny: Res<Spinny>,
+    spinny_q: Query<&SpinnyIds>,
+    mut energy: ResMut<Energy>,
 ) {
     let mut in_progress = false;
     if malfunction.malfunction_types.contains(&MalfunctionType::Collision) {
         in_progress = true;
     }
+    let mut cost = 0.;
     for (interaction, mut node) in
         &mut interaction_query
     {
@@ -329,6 +355,21 @@ pub fn update_collision_minigame(
             index = 1;
         }
         if let Some(a) = &mut node.texture_atlas {
+            const COST_PER_ANG: f32 = 0.5;
+            if spinny.angle > 0. {
+                let snapped = (spinny.angle / ANGLE_PER_COLLISION_SPINNY_STATE).floor();
+                for spinny_id in spinny_q {
+                    match spinny_id.id {
+                        0 => {
+                            cost += COST_PER_ANG * snapped
+                        }
+                        1 => {
+                            cost += COST_PER_ANG * snapped * 2.
+                        }
+                        _ => unreachable!()
+                    } 
+                }
+            }
             // println!("{} {}", a.index, index);
             if *prev == Interaction::Pressed && *interaction != Interaction::Pressed && in_progress {
                 // submitted solution
@@ -336,6 +377,9 @@ pub fn update_collision_minigame(
                 *submited = true;
             }
             a.index = index;
+        }
+        for mut text in text1.iter_mut() {
+            text.0 = format!("Maneuver cost: {:.2} GJ", cost);
         }
         *prev = *interaction;
     }
@@ -356,6 +400,7 @@ pub fn update_collision_minigame(
                             resolved_type: MalfunctionType::Collision,
                             failed: intersects,
                         });
+                        energy.increase_consumption = (cost, Duration::from_secs_f32(30.));
                         *prev = Interaction::default();
                         *submited = false;
                     }

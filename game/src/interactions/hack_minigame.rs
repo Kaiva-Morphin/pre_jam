@@ -1,7 +1,7 @@
 use bevy::{platform::collections::HashSet, prelude::*};
 use bevy_tailwind::tw;
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::*}, hack_button::*}, target::LowresUiContainer}, utils::debree::{get_random_range, Malfunction, MalfunctionType, Resolved}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::base::*, hack_button::*}, target::LowresUiContainer}, utils::{debree::{get_random_range, Malfunction, MalfunctionType, Resolved}, spacial_audio::PlaySoundEvent}};
 
 pub const HACK_GRID_SIZE: u32 = 6;
 pub const HACK_PIXEL_GRID_SIZE: u32 = 50;
@@ -14,7 +14,7 @@ pub struct HackButtonBase {
     pub pos: UVec2,
 }
 
-pub fn open_hack_display(
+pub fn open_hack_display( // TODO: breaks on the second solving try
     mut commands: Commands,
     in_interaction_array: Res<InInteractionArray>,
     mut already_spawned: Local<Option<Entity>>,
@@ -23,6 +23,7 @@ pub fn open_hack_display(
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
     hack_grid: Res<HackGrid>,
     malfunction: Res<Malfunction>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
@@ -31,6 +32,7 @@ pub fn open_hack_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::HackMinigame && in_interaction_array.in_any_interaction {
+            event_writer.write(PlaySoundEvent::OpenUi);
             let mut is_active = false;
             if malfunction.malfunction_types.contains(&MalfunctionType::Hack) {
                 is_active = true;

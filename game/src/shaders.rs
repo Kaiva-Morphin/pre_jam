@@ -1,3 +1,4 @@
+use bevy::audio::{PlaybackMode, SpatialScale, Volume};
 use bevy::color::palettes::css::{BLUE, GREEN, RED};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, Sensor};
@@ -13,6 +14,7 @@ use crate::physics::constants::{INTERACTABLE_CG, PLAYER_SENSOR_CG};
 use crate::physics::player::{spawn_player, Player, PlayerPlugin};
 use crate::tilemap::plugin::MapPlugin;
 use crate::utils::background::StarBackgroundPlugin;
+use crate::utils::energy::EnergyPlugin;
 use crate::utils::spacial_audio::SpacialAudioPlugin;
 
 mod core;
@@ -35,6 +37,7 @@ fn main() {
             SwitchableRapierDebugPlugin::default(),
             DebugOverlayPlugin::enabled(),
             SpacialAudioPlugin,
+            EnergyPlugin,
         ))
         .add_systems(OnGame, spawn.after(spawn_player))  //.before(shaders::compute::setup)
         .run();
@@ -46,6 +49,7 @@ pub fn spawn(
     p: Single<Entity, With<Player>>,
 ) {
     const GAP: f32 = 50.;
+    commands.entity(*p).insert(SpatialListener::new(GAP));
     commands.entity(*p).with_children(|cmd|{
         cmd.spawn((
             Name::new("Player sensor"),
@@ -68,12 +72,20 @@ pub fn spawn(
             Transform::from_xyz(GAP / 2., 0.0, 0.0),
         ));
     });
-    
+
     commands.spawn((
         AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
-        PlaybackSettings::LOOP.with_spatial(true),
-        Transform::from_xyz(50., 0., 0.),
+        PlaybackSettings {
+            mode: PlaybackMode::Loop,
+            volume: Volume::Linear(1.),
+            speed: 1.0,
+            paused: false,
+            muted: false,
+            spatial: true,
+            spatial_scale: None,
+        },
+        Transform::from_xyz(50., 100., 0.),
         Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
+        Name::new("Ambience 1"),
     ));
-
 }
