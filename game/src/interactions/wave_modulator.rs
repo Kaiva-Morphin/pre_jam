@@ -3,7 +3,7 @@ use std::f32::consts::{PI, TAU};
 use bevy::{color::palettes::css::{BLUE, RED}, prelude::*, render::render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDescriptor, TextureUsages}, sprite::{AlphaMode2d, Material2d}, ui::RelativeCursorPosition};
 use bevy_tailwind::tw;
 
-use crate::{ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, spinny::ui_spinny, ui_submit_button::{submit_button_bundle, ui_submit_button}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpinnyAtlasHandles, SpriteAssets}, debree::{Malfunction, MalfunctionType, Resolved}, mouse::CursorPosition}};
+use crate::{ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, spinny::ui_spinny, ui_submit_button::{submit_button_bundle, ui_submit_button}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpinnyAtlasHandles, SpriteAssets}, debree::{Malfunction, MalfunctionType, Resolved}, mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
 
 use super::components::{InInteractionArray, InteractionTypes};
 
@@ -74,6 +74,7 @@ pub fn open_wave_modulator_display(
     asset_server: Res<AssetServer>,
     mut malfunction: ResMut<Malfunction>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
@@ -82,6 +83,7 @@ pub fn open_wave_modulator_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::WaveModulator && in_interaction_array.in_any_interaction {
+            event_writer.write(PlaySoundEvent::OpenUi);
             let t = images.get(&sprite_assets.wave_graph_sprite).unwrap();
             let data = t.data.clone();
             let size = t.size();
@@ -249,6 +251,7 @@ pub fn interact_with_wavemod_spinny(
     modulator_consts: Res<WaveModulatorConsts>,
     malfunction: Res<Malfunction>,
     time: Res<Time>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     if let Some(material) = material_assets.get_mut(*material_handle) {
         if modulator_consts.is_loaded {
@@ -287,7 +290,10 @@ pub fn interact_with_wavemod_spinny(
                     }
                 }
                 if let Some(texture_atlas) = &mut spinny_image_node.texture_atlas {
-                    texture_atlas.index = snapped_state;
+                    if texture_atlas.index != snapped_state {
+                        event_writer.write(PlaySoundEvent::SpinnyClick);
+                        texture_atlas.index = snapped_state;
+                    }
                 }
             }
         }

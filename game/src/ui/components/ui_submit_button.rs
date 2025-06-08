@@ -1,6 +1,6 @@
 use bevy::{prelude::*, ui::RelativeCursorPosition};
 
-use crate::interactions::{collision_minigame::SubmitButton, wave_modulator::SpinnyIds};
+use crate::{interactions::{collision_minigame::SubmitButton, wave_modulator::SpinnyIds}, utils::spacial_audio::PlaySoundEvent};
 
 pub const SUBMIT_BUTTON_SRC: &str = "atlases/E.png";
 pub fn submit_button_bundle(a: &Res<AssetServer>, t: &mut ResMut<Assets<TextureAtlasLayout>>) -> (Handle<Image>, Handle<TextureAtlasLayout>) {
@@ -24,17 +24,11 @@ pub fn ui_submit_button(
 }
 
 pub fn ui_submit_button_hover(
-    mut interaction_query: Query<
-        (
-            Entity,
-            &Interaction,
-            &mut ImageNode,
-            &SubmitButton,
-        ),
-    >,
-    t: Res<Time>
+    mut interaction_query: Query<(&Interaction, &mut ImageNode), With<SubmitButton>>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
+    mouse_button: Res<ButtonInput<MouseButton>>,
 ) {
-    for (entity, interaction, mut node, hack) in
+    for (interaction, mut node) in
         &mut interaction_query
     {
         let mut index = 0;
@@ -43,6 +37,12 @@ pub fn ui_submit_button_hover(
         }
         if let Some(a) = &mut node.texture_atlas {
             a.index = index;
+        }
+        if *interaction == Interaction::Pressed && mouse_button.just_pressed(MouseButton::Left) {
+            event_writer.write(PlaySoundEvent::SubmitButtonPress);
+        }
+        if *interaction == Interaction::Hovered && mouse_button.just_released(MouseButton::Left) {
+            event_writer.write(PlaySoundEvent::SubmitButtonRelease);
         }
     }
 }

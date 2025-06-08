@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::VecDeque, time::Duration};
 
 use bevy::prelude::*;
 use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use tiled::PropertyValue;
 use utils::WrappedDelta;
 
-use crate::{core::states::GlobalAppState, interactions::warning_interface::WarningData, utils::custom_material_loader::SpriteAssets};
+use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, warning_interface::WarningData}, utils::{custom_material_loader::SpriteAssets, energy::Energy}};
 
 pub struct DebreePlugin;
 
@@ -14,6 +14,7 @@ impl Plugin for DebreePlugin {
         app
         .insert_resource(DebreeLevel::default())
         .insert_resource(Malfunction::default())
+        .insert_resource(DebreeTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions).run_if(in_state(GlobalAppState::InGame)));
     }
 }
@@ -25,12 +26,18 @@ pub struct DebreeLevel {
     pub level: f32,
     pub chain_reaction: f32,
     pub malfunction_probability: f32,
+    pub chain_reaction_graph: VecDeque<f32>,
 }
 
+#[derive(Resource)]
+pub struct DebreeTimer {
+    pub timer: Timer,
+}
 pub fn debree_level_management(
     time: Res<Time>,
     mut debree_level: ResMut<DebreeLevel>,
     mut overlay_events: EventWriter<DebugOverlayEvent>,
+    mut timer: ResMut<DebreeTimer>,
 ) {
     // debree level 0..inf -> chain reaction 0..100% & malfunction probability per frame
     // causes player to manage chain reaction via hack+deorbit, antennas level and condition
@@ -53,7 +60,14 @@ pub fn debree_level_management(
             Malfunction probability {:.2} %
             ",
             debree_level.base_level, debree_level.malfunction_probability * 100.),(255, 255, 255);
-        );
+    );
+    timer.timer.tick(Duration::from_secs_f32(time.dt()));
+    if timer.timer.finished() {
+        if debree_level.chain_reaction_graph.len() >= CHAIN_GRAPH_LENGTH * 4 {
+            debree_level.chain_reaction_graph.pop_front();
+        }
+        debree_level.chain_reaction_graph.push_back(t);
+    }
 }
 
 #[derive(Clone)]
@@ -129,7 +143,7 @@ pub fn manage_malfunctions(
             MalfunctionType::Reactor => {
                 malfunction.malfunction_types.push(malfunc_type);
                 malfunction.warning_data.push(WarningData {
-                    color: false,
+                    color: true,
                     text: "Reactor malfunctioned!".to_string(),
                     handle: sprite_assets.reactor_mini.clone(),
                 });
@@ -172,6 +186,7 @@ pub fn get_random_range(mi: f32, ma: f32) -> f32 {
 pub fn resolve_malfunctions(
     mut malfunction: ResMut<Malfunction>,
     mut debree_level: ResMut<DebreeLevel>,
+    mut energy: ResMut<Energy>,
 ) {
     if !malfunction.resolved.is_empty() {
         for resolved in malfunction.resolved.clone() {
@@ -180,20 +195,21 @@ pub fn resolve_malfunctions(
             match to_be_resolved {
                 MalfunctionType::Hack => {
                     if resolved.failed {
-                        println!("failed hack");
+                        println!("failed hack"); // inc debree level
                     } else {
-                        println!("resolved hack");
+                        println!("resolved hack"); // rev
                     }
                 },
                 MalfunctionType::Collision => {
                     if resolved.failed {
-                        println!("failed collision");
+                        println!("failed collision"); // end
                     } else {
-                        println!("resolved collision");
+                        println!("resolved collision"); // go on
                     }
                 },
                 MalfunctionType::Reactor => {
                     if resolved.failed {
+                        energy.generated *= 0.9;
                         println!("failed reactor");
                     } else {
                         println!("resolved reactor");
@@ -201,9 +217,9 @@ pub fn resolve_malfunctions(
                 },
                 MalfunctionType::Waves => {
                     if resolved.failed {
-                        println!("failed waves");
+                        println!("failed waves"); // inc debree level
                     } else {
-                        println!("resolved waves");
+                        println!("resolved waves"); // rev
                     }
                 },
                 MalfunctionType::NoMalfunction => {unreachable!()}

@@ -1,22 +1,20 @@
+use std::collections::VecDeque;
+
 use bevy::{color::palettes::css::RED, prelude::*, render::{camera::RenderTarget, render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDescriptor, TextureUsages}}, sprite::{AlphaMode2d, Material2d}};
 use bevy_tailwind::tw;
 use pixel_utils::camera::PixelCamera;
 
-use crate::{ui::{components::containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::DebreeLevel}};
+use crate::{ui::{components::containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::DebreeLevel, spacial_audio::PlaySoundEvent}};
 
 use super::{components::{InInteractionArray, InteractionTypes}, wave_modulator::WaveGraphMaterial};
+
+pub const CHAIN_GRAPH_LENGTH: usize = 10;
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]
 #[repr(align(16))]
 pub struct ChainGraphMaterial {
     #[uniform(0)]
-    pub chain: f32,
-    #[uniform(0)]
-    pub _webgl2_padding_8b: u32,
-    #[uniform(0)]
-    pub _webgl2_padding_12b: u32,
-    #[uniform(0)]
-    pub _webgl2_padding_16b: u32,
+    pub chain: [Vec4; CHAIN_GRAPH_LENGTH],
     #[texture(1)]
     #[sampler(2)]
     pub sprite_handle: Handle<Image>,
@@ -45,6 +43,7 @@ pub fn open_chain_graph_display(
     sprite_assets: Res<SpriteAssets>,
     asset_server: Res<AssetServer>,
     lowres_container: Single<Entity, With<LowresUiContainer>>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     // println!("{:?} {:?}", in_interaction_array, already_spawned);
     if let Some(entity) = *already_spawned {
@@ -54,6 +53,7 @@ pub fn open_chain_graph_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::ChainReactionDisplay && in_interaction_array.in_any_interaction {
+            event_writer.write(PlaySoundEvent::OpenUi);
             let t = images.get(&sprite_assets.chain_graph_sprite).unwrap();
             let data = t.data.clone();
             let size = t.size();
@@ -83,12 +83,9 @@ pub fn open_chain_graph_display(
             let text_bundle = text_display_green_handle(&asset_server);
             let material = MaterialNode(chain_graph_material.add(
                 ChainGraphMaterial {
-                    chain: 0.,
+                    chain: [Vec4::ZERO; CHAIN_GRAPH_LENGTH],
                     sprite_handle,
                     base_sprite_handle: sprite_assets.chain_graph_sprite.clone(),
-                    _webgl2_padding_8b: 0,
-                    _webgl2_padding_12b: 0,
-                    _webgl2_padding_16b: 0,
                 })
             );
             let ui_entity = commands.spawn(
@@ -132,9 +129,23 @@ pub fn open_chain_graph_display(
 pub fn update_chain_graph_display(
     text: Query<&mut Text, With<ChainDisplayText>>,
     debree_level: Res<DebreeLevel>,
+    chain_material_handle: Query<&MaterialNode<ChainGraphMaterial>>,
+    mut chain_material_assets: ResMut<Assets<ChainGraphMaterial>>,
+
 ) {
     for mut text in text {
         let len = (debree_level.chain_reaction as i32).to_string().len();
         text.0 = format!("Chain Reaction Progress {}{} %", "0".repeat(3 - len), debree_level.chain_reaction as i32);
+    }
+    if let Ok(chain_material_handle) = chain_material_handle.single() {
+        if let Some(material) = chain_material_assets.get_mut(chain_material_handle) {
+            let mut new = [Vec4::ZERO; 10];
+            for (idx, val) in debree_level.chain_reaction_graph.iter().enumerate() {
+                let vec_idx = idx / 4;
+                let elem_idx = idx % 4;
+                new[vec_idx][elem_idx] = *val;
+            }
+            material.chain = new;
+        }
     }
 }

@@ -144,18 +144,3 @@ pub fn update_interactables(
         }
     }
 }
-
-pub fn update_graphs_time( // TODO: REMOVE
-    debree_level: Res<DebreeLevel>,
-    chain_material_handle: Query<&MaterialNode<ChainGraphMaterial>>,
-    wave_material_handle: Query<&MaterialNode<WaveGraphMaterial>>,
-    mut chain_material_assets: ResMut<Assets<ChainGraphMaterial>>,
-    mut wave_material_assets: ResMut<Assets<WaveGraphMaterial>>,
-    time: Res<Time>,
-) {
-    if let Ok(chain_material_handle) = chain_material_handle.single() {
-        if let Some(material) = chain_material_assets.get_mut(chain_material_handle) {
-            material.chain = time.elapsed_secs();
-        }
-    }
-}
