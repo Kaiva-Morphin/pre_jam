@@ -142,6 +142,10 @@ fn handle_object_spawn(
                     handle = sound_assets.industrial_ambience.clone();
                     name = t.clone();
                 }
+                "VentAmbience" => {
+                    handle = sound_assets.vent_ambience.clone();
+                    name = t.clone();
+                }
                 _ => {unreachable!()}
             }
             cmd.entity(e.entity).with_child(
