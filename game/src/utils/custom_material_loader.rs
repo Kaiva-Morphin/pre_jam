@@ -12,9 +12,6 @@ use crate::{core::states::{AppLoadingAssetsSubState, GameUpdate, GlobalAppState,
 
 #[derive(AssetCollection, Resource)]
 pub struct SpriteAssets {
-    #[asset(path = "pixel/grass.png")]
-    pub grass_sprite: Handle<Image>,
-
     #[asset(path = "atlases/E.png")]
     pub key_f_atlas: Handle<Image>,
     #[asset(path = "ui/pipes.png")]
@@ -48,9 +45,6 @@ pub struct SpriteAssets {
 
     #[asset(path = "interactables/ururur.png")]
     pub faz: Handle<Image>,
-
-    #[asset(path = "interactables/reactor_mini.png")]
-    pub reactor_mini: Handle<Image>,
 }
 
 
@@ -77,9 +71,8 @@ impl Plugin for SpritePreloadPlugin {
         .insert_resource(PipesAtlasHandles::default())
         .insert_resource(WarningAtlasHandles::default())
         .insert_resource(MalfAtlasHandles::default())
-        .add_event::<SpritePreloadEvent>()
-        .add_systems(OnGame, (preload_sprites, create_atlases, spawn_faz))
-        .add_systems(Update, (spawn_sprites, click_faz).run_if(in_state(GlobalAppState::InGame)));
+        .add_systems(OnGame, (create_atlases, spawn_faz))
+        .add_systems(Update, (click_faz).run_if(in_state(GlobalAppState::InGame)));
     }
 }
 
@@ -199,115 +192,8 @@ pub fn create_atlases(
     malf_atlas_handles.layout_handle = malf_handle;
 }
 
-pub struct SpritePreloadData {
-    pub handle: Handle<Image>,
-    pub pos: Vec2,
-    pub interaction_type: InteractionTypes,
-}
-
-#[derive(Event)]
-pub enum SpritePreloadEvent {
-    Grass(SpritePreloadData),
-    Interactable(SpritePreloadData),
-}
-
-pub fn preload_sprites(
-    mut writer: EventWriter<SpritePreloadEvent>,
-    sprite_assets: Res<SpriteAssets>,
-) {
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
-        handle: sprite_assets.chain_interactable.clone(),
-        pos: Vec2::new(150., 100.),
-        interaction_type: InteractionTypes::ChainReactionDisplay,
-    }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
-        handle: sprite_assets.wave_interactable.clone(),
-        pos: Vec2::new(80., 100.),
-        interaction_type: InteractionTypes::WaveModulator,
-    }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
-        handle: sprite_assets.pipe_interactable.clone(),
-        pos: Vec2::new(200., 100.),
-        interaction_type: InteractionTypes::PipePuzzle,
-    }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
-        handle: sprite_assets.collision_interactable.clone(),
-        pos: Vec2::new(40., 100.),
-        interaction_type: InteractionTypes::CollisionMinigame,
-    }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
-        handle: sprite_assets.warning_interactable.clone(),
-        pos: Vec2::new(-80., 100.),
-        interaction_type: InteractionTypes::WarningInterface,
-    }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
-        handle: sprite_assets.warning_interactable.clone(),
-        pos: Vec2::new(-40., 100.),
-        interaction_type: InteractionTypes::HackMinigame,
-    }));
-    writer.write(SpritePreloadEvent::Interactable(SpritePreloadData {
-        handle: sprite_assets.faz.clone(),
-        pos: Vec2::new(0., 100.),
-        interaction_type: InteractionTypes::WiresMinigame,
-    }));
-}
-
 #[derive(Component)]
 pub struct Faz;
-
-pub fn spawn_sprites(
-    mut commands: Commands,
-    image_assets: Res<Assets<Image>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut interactable_materials: ResMut<Assets<InteractableMaterial>>,
-    mut reader: EventReader<SpritePreloadEvent>,
-) {
-    for event in reader.read() {
-        match event {
-            SpritePreloadEvent::Grass(_) => {
-            }
-            SpritePreloadEvent::Interactable(sprite_data) => {
-                commands.spawn(interactable_bundle(&mut meshes, &mut interactable_materials, &image_assets, sprite_data));
-            }
-        }
-    }
-}
-
-pub fn interactable_bundle(
-    meshes: &mut ResMut<Assets<Mesh>>,
-    interactable_materials: &mut ResMut<Assets<InteractableMaterial>>,
-    image_assets: &Res<Assets<Image>>,
-    sprite_data: &SpritePreloadData,
-) -> impl Bundle {
-    let image = image_assets.get(&sprite_data.handle).unwrap();
-    let width = image.width();
-    let height = image.height();
-    let material = InteractableMaterial {
-        time: 0.,
-        sprite_handle: sprite_data.handle.clone(),
-        _webgl2_padding_8b: 0,
-        _webgl2_padding_12b: 0,
-        _webgl2_padding_16b: 0,
-    };
-    let interactable_material_handle = interactable_materials.add(material);
-    (
-        Mesh2d(meshes.add(Rectangle::new(width as f32 / 2., height as f32 / 2.))),
-        MeshMaterial2d(interactable_material_handle.clone()),
-        Transform::from_translation(sprite_data.pos.extend(0.)),
-        Name::new("Interactable"),
-        Interactable,
-        // Collider::cuboid(width as f32 / 4., height as f32 / 4.),
-        // ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
-        CollisionGroups::new(
-            Group::from_bits(INTERACTABLE_CG).unwrap(),
-            Group::from_bits(PLAYER_SENSOR_CG).unwrap(),
-        ),
-        ActiveEvents::COLLISION_EVENTS,
-        Sensor,
-        InInteraction {data: false},
-        sprite_data.interaction_type.clone(),
-    )
-}
 
 fn spawn_faz(
     mut commands: Commands,
