@@ -74,12 +74,15 @@ impl LightEmitter {
 
 #[derive(Component, Debug, Default, Reflect)]
 #[derive(ShaderType, Clone, Copy)]
+#[reflect(Component, Default)]
 pub struct LightEmitter {
     pub radius_px: f32,
     pub spot: f32,
     pub color_and_rotation: Vec4,
     pub intensity: f32,
 }
+
+
 
 #[derive(ShaderType, Debug, Clone, Copy)]
 #[repr(C)]
@@ -153,7 +156,16 @@ struct CompositorMaterial {
     #[uniform(0)]
     height: u32,
     #[uniform(0)]
-    _b: u32,
+    rotation_z: f32,
+    #[uniform(0)]
+    position_x: f32,
+    #[uniform(0)]
+    position_y: f32,
+    #[uniform(0)]
+    debree_inf: f32,
+    #[uniform(0)]
+    _pad: u32,
+    
     #[sampler(1)]
     #[texture(2)]
     light_texture: Handle<Image>,
@@ -216,7 +228,8 @@ fn setup(
     let size = Extent3d {
         width: (TARGET_WIDTH as f32 * LIGHT_RESOLUTION) as u32,
         height: (TARGET_HEIGHT as f32 * LIGHT_RESOLUTION) as u32,
-        depth_or_array_layers: 1,
+        ..default()
+        // depth_or_array_layers: 1,
     };
 
     let mut scene_texture = Image {
@@ -235,6 +248,7 @@ fn setup(
         ..default()
     };
     scene_texture.resize(size);
+    let occluders_texture_handle: Handle<Image> = images.add(scene_texture);
 
     let retarget_size = Extent3d {
         width: TARGET_WIDTH,
@@ -288,7 +302,6 @@ fn setup(
     }
 
 
-    let occluders_texture_handle: Handle<Image> = images.add(scene_texture);
     cmd.spawn((
         Name::new("Scene Occluder Camera"),
         SyncCamera,
@@ -305,6 +318,8 @@ fn setup(
 
     let (_e, pc3d) = &mut *pixel_camera3d;
     pc3d.target = RenderTarget::Image(retarget_handle.clone().into());
+    // pc3d.target = RenderTarget::Image(occluders_texture_handle.clone().into());
+    // cmd.entity(*_e).insert(Msaa::Off);
 
     let (pixel_camera_e, pixel_camera) = &mut *pixel_camera;
     pixel_camera.target = RenderTarget::Image(retarget_handle.clone().into());
@@ -399,7 +414,11 @@ fn setup(
             time: 0.0,
             width: TARGET_WIDTH,
             height: TARGET_HEIGHT,
-            _b: 0,
+            rotation_z: 0.,
+            position_x: 0.,
+            position_y: 0.,
+            debree_inf: 0.,
+            _pad: 0,
             light_texture: light_handle.clone(),
             occluders_texture: occluders_texture_handle.clone(),
             scene_texture: retarget_handle.clone(),

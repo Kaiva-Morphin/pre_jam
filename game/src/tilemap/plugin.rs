@@ -2,7 +2,7 @@ use bevy::{asset::LoadState, prelude::*};
 use bevy_ecs_tiled::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_rapier2d::prelude::{ActiveEvents, CoefficientCombineRule, Collider, CollisionGroups, Friction, Group, Sensor};
-use tiled::ObjectShape;
+use tiled::{ObjectShape, PropertyValue};
 
 use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::components::{InInteraction, Interactable, InteractableMaterial, InteractionTypes}, physics::constants::{INTERACTABLE_CG, LADDERS_CG, PLATFORMS_CG, PLAYER_CG, PLAYER_SENSOR_CG}, tilemap::light::LightEmitter, utils::{custom_material_loader::SpriteAssets, debree::{Malfunction, MalfunctionType}}};
 
@@ -27,6 +27,7 @@ impl Plugin for MapPlugin {
             ))
             .insert_resource(Aboba::default())
             .register_type::<MapObject>()
+            .register_type::<LightEmitter>()
             .add_systems(Startup, spawn_map)
             .add_systems(Update, ((handle_layer_spawn, hihihaha), handle_object_spawn.run_if(in_state(GlobalAppState::InGame))))
             // .add_observer(handle_layer_spawn)
@@ -75,6 +76,9 @@ pub fn spawn_map(
 #[derive(Component)]
 pub struct LadderCollider;
 
+#[derive(Component)]
+pub struct SpacewalkCollider;
+
 #[derive(Resource, Default)]
 pub struct Aboba {
     pub data: Vec<TiledObjectCreated>,
@@ -103,67 +107,48 @@ fn handle_object_spawn(
 ) {
     for e in aboba.data.iter() {
         let Some(object) = e.get_object(&map_asset) else {continue;};
-        let ObjectShape::Point(_, _)= object.shape else {continue;};
 
         if let Some(l) = LightEmitter::from_properties(&object.properties) {
             cmd.entity(e.entity).with_child((l, GlobalTransform::IDENTITY, Transform::default()));
         }
-        if let Some(interaction_type) = InteractionTypes::from_properties(&object.properties) {
-            let handle;
-            match interaction_type {
-                InteractionTypes::ChainReactionDisplay => {
-                    handle = sprite_assets.chain_interactable.clone();
-                },
-                InteractionTypes::WaveModulator => {
-                    handle = sprite_assets.wave_interactable.clone();
-                },
-                InteractionTypes::PipePuzzle => {
-                    handle = sprite_assets.pipe_interactable.clone();
-                },
-                InteractionTypes::CollisionMinigame => {
-                    handle = sprite_assets.collision_interactable.clone();
-                },
-                InteractionTypes::WarningInterface => {
-                    handle = sprite_assets.warning_interactable.clone();
-                },
-                InteractionTypes::HackMinigame => {
-                    handle = sprite_assets.warning_interactable.clone();
-                },
-                InteractionTypes::WiresMinigame => {
-                    handle = sprite_assets.faz.clone();
-                },
+        if let Some(PropertyValue::BoolValue(true)) = object.properties.get("spacewalk") {
+            let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
+            for c in object_children_with_collider {
+                cmd.entity(*c).insert((
+                    Sensor,
+                    SpacewalkCollider
+                ));
             }
-                
-            let image = image_assets.get(&handle).unwrap();
-            let width = image.width();
-            let height = image.height();
-            let material = InteractableMaterial {
-                time: 0.,
-                sprite_handle: handle.clone(),
-                _webgl2_padding_8b: 0,
-                _webgl2_padding_12b: 0,
-                _webgl2_padding_16b: 0,
-            };
-            let interactable_material_handle = interactable_materials.add(material);
-            cmd.entity(e.entity).with_child((
-                Mesh2d(meshes.add(Rectangle::new(width as f32 / 2., height as f32 / 2.))),
-                MeshMaterial2d(interactable_material_handle.clone()),
-                Name::new("Interactable"),
-                Interactable,
-                Collider::cuboid(width as f32 / 4., height as f32 / 4.),
-                // ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
-                CollisionGroups::new(
-                    Group::from_bits(INTERACTABLE_CG).unwrap(),
-                    Group::from_bits(PLAYER_SENSOR_CG).unwrap(),
-                ),
-                ActiveEvents::COLLISION_EVENTS,
-                Sensor,
-                InInteraction {data: false},
-                interaction_type.clone(),
-            ));
         }
+        // if let Some(m) = MalfunctionType::from_properties(&object.properties) {
+        //     info!("MALF: {:?}", object.properties);
+        //     let Ok((_e, object_children_with_collider)) = q_c.get(e.entity) else {return;};
+        //     info!("MALF CHILD");
+        //     /*
+        //     EXISTS:
+        //         WARNING
+        //         ANTENNA
+        //         ENGINE
+        //         REACTOR
+        //         HACK
+        //         WAVE
+        //     */
+        //     info!("INSERTING SENSOR");
+        //     for c in object_children_with_collider {
+        //         cmd.entity(*c).insert((
+        //             // LIKE THAT:
+        //             Name::new("INSERTED"),
+        //             Sensor,
+        //             // LadderCollider,
+        //             // ActiveEvents::COLLISION_EVENTS,
+        //             // CollisionGroups{
+        //             //     memberships: Group::from_bits(LADDERS_CG).unwrap(),
+        //             //     filters: Group::from_bits(PLAYER_CG).unwrap(),
+        //             // }
+        //         ));
+        //     }
+        // }
     }
-    aboba.data = vec![];
 }
 
 

@@ -33,6 +33,7 @@ pub struct DebreeLevel {
 pub struct DebreeTimer {
     pub timer: Timer,
 }
+
 pub fn debree_level_management(
     time: Res<Time>,
     mut debree_level: ResMut<DebreeLevel>,

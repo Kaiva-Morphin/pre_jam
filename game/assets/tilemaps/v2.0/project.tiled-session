@@ -40,11 +40,11 @@
             "expandedObjectLayers": [
                 16
             ],
-            "scale": 2,
-            "selectedLayer": 1,
+            "scale": 4,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": -330.25,
-                "y": -341
+                "x": 560.75,
+                "y": -315
             }
         },
         "main.tsx": {
@@ -54,7 +54,7 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 239.25,
+                "x": 344.5,
                 "y": 172.5
             }
         }
@@ -71,6 +71,7 @@
     "project": "project.tiled-project",
     "property.type": "game::tilemap::light::LightOccluderLayer",
     "recentFiles": [
+        "main.tmx",
         "autobg.tmx",
         "main.tsx"
     ],
