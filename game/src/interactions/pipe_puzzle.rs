@@ -1,6 +1,7 @@
 use bevy::{platform::collections::HashSet, prelude::*};
+use bevy_tailwind::tw;
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::target::LowresUiContainer, utils::custom_material_loader::PipesAtlasHandles};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::containers::base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, target::LowresUiContainer}, utils::{custom_material_loader::PipesAtlasHandles, debree::{Malfunction, MalfunctionType, Resolved}, spacial_audio::PlaySoundEvent}};
 
 // WIBECODE RULES 🤘🧑‍🎤
 
@@ -13,11 +14,11 @@ pub fn open_pipe_puzzle_display(
     mut already_spawned: Local<Option<Entity>>,
     lowres_container: Single<Entity, With<LowresUiContainer>>,
     pipes_atlas_handles: Res<PipesAtlasHandles>,
-
+    asset_server: Res<AssetServer>,
     pipes: Res<PipeMinigame>,
-
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
-
+    // TODO: add pipe sounds
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
             commands.entity(entity).despawn();
@@ -25,20 +26,15 @@ pub fn open_pipe_puzzle_display(
         }
     } else {
         if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction {
+            let main = main_container_handle(&asset_server);
+            let sub = sub_container_handle(&asset_server);
+            
             let mut children = vec![];
             for y in 0..ROWS {
                 for x in 0..COLS {
                     let pipe = pipes.get_pipe(x, y);
                     info!("Pipe added: {x} {y} {:?}", pipe);
                     children.push(commands.spawn((
-                        Node {
-                            width: Val::Px(50.),
-                            height: Val::Px(50.),
-                            left: Val::Px(PIPE_GRID_SIZE * x as f32),
-                            bottom: Val::Px(PIPE_GRID_SIZE * y as f32),
-                            position_type: PositionType::Absolute,
-                            ..default()
-                        },
                         ImageNode::from_atlas_image(
                             pipes_atlas_handles.image_handle.clone(),
                             TextureAtlas{
@@ -54,37 +50,27 @@ pub fn open_pipe_puzzle_display(
                     )).id());
                 }
             }
-            let entity = commands.spawn((
-                BackgroundColor::from(Color::Srgba(Srgba::new(0., 1., 0., 0.5))),
-                Node {
-                    width: Val::Percent(100.),
-                    height: Val::Percent(100.),
-                    align_self: AlignSelf::Center,
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
-                    position_type: PositionType::Absolute,
-                    flex_direction: FlexDirection::Row,
-                    ..default()
-                },
-            )).add_children(&children).id();
+            let entity = commands.spawn(
+                tw!("items-center justify-center w-full h-full"),
+            ).with_children(|cmd|{
+                cmd.spawn(ui_main_container(&main, ())).with_children(|cmd| {
+                    cmd.spawn(ui_sub_container(&sub, ())).with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full grid grid-cols-6 grid-rows-6 gap-x-px gap-y-px"),)
+                        .add_children(&children);
+                    });
+                });
+            }).id();
+            
             *already_spawned = Some(entity);
             commands.entity(*lowres_container).add_child(entity);
         }
     }
 }
 
-
-
-
-pub fn init_grid(
-    
-) {
-    
-}
-
 pub fn update_pipes(
     mut pipe_image_nodes: Query<(&mut PipeEntity, &mut ImageNode, &Interaction), Changed<Interaction>>,
     mut pipes: ResMut<PipeMinigame>,
+    mut malfunction: ResMut<Malfunction>,
 ){
     for (mut pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes.iter_mut() {
         if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
@@ -93,7 +79,12 @@ pub fn update_pipes(
                 if let Some(p) = pipes.get_pipe(pipe.position.x as usize, pipe.position.y as usize) {
                     texture_atlas.index = p.get_index();
                 }
-                info!("Pipes solved! {}", pipes.is_solved())
+                if pipes.is_solved() {
+                    malfunction.resolved.push(Resolved {
+                        resolved_type: MalfunctionType::Engine,
+                        failed: false,
+                    });
+                }
             }
         }
     }
@@ -247,8 +238,8 @@ fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
     None
 }
 
-const ROWS: usize = 5;
-const COLS: usize = 5;
+const ROWS: usize = 4;
+const COLS: usize = 4;
 
 impl Pipe {
     fn get_index(&self) -> usize {

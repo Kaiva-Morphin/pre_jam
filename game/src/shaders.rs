@@ -62,31 +62,5 @@ pub fn spawn(
             Sensor,
             PlayerSensor,
         ));
-        // left ear
-        cmd.spawn((
-            Sprite::from_color(Color::Srgba(RED), Vec2::splat(20.0)),
-            Transform::from_xyz(-GAP / 2., 0.0, 0.0),
-        ));
-        // right ear
-        cmd.spawn((
-            Sprite::from_color(Color::Srgba(BLUE), Vec2::splat(20.0)),
-            Transform::from_xyz(GAP / 2., 0.0, 0.0),
-        ));
     });
-
-    commands.spawn((
-        AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
-        PlaybackSettings {
-            mode: PlaybackMode::Loop,
-            volume: Volume::Linear(1.),
-            speed: 1.0,
-            paused: false,
-            muted: false,
-            spatial: true,
-            spatial_scale: None,
-        },
-        Transform::from_xyz(50., 100., 0.),
-        Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
-        Name::new("Ambience 1"),
-    ));
 }

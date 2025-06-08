@@ -16,7 +16,7 @@ impl Plugin for SpacialAudioPlugin {
                 .load_collection::<SoundAssets>(),
         )
         .add_event::<PlaySoundEvent>()
-        .add_systems(OnGame, (spawn_alarm_speakers, play_main_theme))
+        .add_systems(OnGame, play_main_theme)
         .add_systems(Update, (play_sounds, play_alarm_speakers).run_if(in_state(GlobalAppState::InGame)))
         ;
     }
@@ -52,23 +52,16 @@ pub struct SoundAssets {
     pub main_theme: Handle<AudioSource>,
     #[asset(path = "sounds/Retro Beeep 06.wav")]
     pub beep_sound: Handle<AudioSource>,
+    #[asset(path = "sounds/Retro Ambience 02.wav")]
+    pub engine_ambience: Handle<AudioSource>,
+    #[asset(path = "sounds/173273__tomlija__janitors-bedroom-ambience.wav")]
+    pub industrial_ambience: Handle<AudioSource>,
+    #[asset(path = "sounds/vent_ambience.wav")]
+    pub vent_ambience: Handle<AudioSource>,
 }
 
 #[derive(Component)]
 pub struct AlarmSpeaker;
-
-fn spawn_alarm_speakers(
-    mut commands: Commands,
-) {
-    commands.spawn(
-        (
-        Transform::from_xyz(200., 200., 0.),
-        Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
-        AlarmSpeaker,
-        Name::new("AlarmSpeaker"),
-        )
-    );
-}
 
 fn play_alarm_speakers(
     mut commands: Commands,
