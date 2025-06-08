@@ -98,14 +98,16 @@ pub enum MalfunctionType {
     Collision,
     Hack,
     Waves,
+    Engine,
 }
 
-const MALFUNCTION_TYPES_NUM: usize = 5;
+const MALFUNCTION_TYPES_NUM: usize = 6;
 const ALL_MALFUNCTION_TYPES: [MalfunctionType; MALFUNCTION_TYPES_NUM - 1] = [
     MalfunctionType::Reactor,
     MalfunctionType::Collision,
     MalfunctionType::Hack,
     MalfunctionType::Waves,
+    MalfunctionType::Engine,
 ];
 
 pub fn manage_malfunctions(
@@ -136,7 +138,6 @@ pub fn manage_malfunctions(
                 malfunction.warning_data.push(WarningData {
                     color: true,
                     text: "Reactor malfunctioned!".to_string(),
-                    handle: sprite_assets.reactor_mini.clone(),
                 });
                 malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
@@ -145,7 +146,6 @@ pub fn manage_malfunctions(
                 malfunction.warning_data.push(WarningData {
                     color: false,
                     text: "The ship is on a trajectory to collide with debree!".to_string(),
-                    handle: sprite_assets.reactor_mini.clone(),
                 });
                 malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
@@ -154,7 +154,6 @@ pub fn manage_malfunctions(
                 malfunction.warning_data.push(WarningData {
                     color: true,
                     text: "A sattelite is on a collision trajectory!".to_string(),
-                    handle: sprite_assets.reactor_mini.clone(),
                 });
                 malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
@@ -163,7 +162,14 @@ pub fn manage_malfunctions(
                 malfunction.warning_data.push(WarningData {
                     color: true,
                     text: "Antenna malfunctioned!".to_string(),
-                    handle: sprite_assets.reactor_mini.clone(),
+                });
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
+            },
+            MalfunctionType::Engine => {
+                malfunction.malfunction_types.push(malfunc_type);
+                malfunction.warning_data.push(WarningData {
+                    color: false,
+                    text: "Engine malfunctioned!".to_string(),
                 });
                 malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
             },
@@ -224,6 +230,13 @@ pub fn resolve_malfunctions(
                     } else {
                         debree_level.const_add -= WAVE_COST;
                         println!("resolved waves");
+                    }
+                },
+                MalfunctionType::Engine => {
+                    if resolved.failed {
+                        println!("failed engine"); // end
+                    } else {
+                        println!("resolved engine");
                     }
                 },
                 MalfunctionType::NoMalfunction => {unreachable!()}

@@ -17,7 +17,6 @@ pub struct WarningScreen;
 pub struct WarningData {
     pub color: bool, // 0 - red; 1 - yellow
     pub text: String,
-    pub handle: Handle<Image>,
 }
 
 #[derive(Component)]
@@ -194,6 +193,9 @@ pub fn update_warning_interface_display(
                 },
                 MalfunctionType::Waves => {
                     node_index = 3;
+                },
+                MalfunctionType::Engine => {
+                    node_index = 5;
                 },
             }
             if malfunction.malfunction_types.contains(&mini.malfunction_type) {
