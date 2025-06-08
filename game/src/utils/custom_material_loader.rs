@@ -296,7 +296,7 @@ pub fn interactable_bundle(
         Transform::from_translation(sprite_data.pos.extend(0.)),
         Name::new("Interactable"),
         Interactable,
-        Collider::cuboid(width as f32 / 4., height as f32 / 4.),
+        // Collider::cuboid(width as f32 / 4., height as f32 / 4.),
         // ActiveCollisionTypes::KINEMATIC_STATIC | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
         CollisionGroups::new(
             Group::from_bits(INTERACTABLE_CG).unwrap(),
@@ -390,7 +390,7 @@ pub fn click_faz(
                 },
             ));
             for mut p in p.iter_mut() {
-                p.try_dance(&mut r, crate::physics::animator::PlayerAnimationNode::HeadSpin);
+                p.try_dance(&mut r, crate::physics::animator::PlayerAnimationNode::random_dance());
             }
         }
     }

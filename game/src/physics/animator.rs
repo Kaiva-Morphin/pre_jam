@@ -89,9 +89,20 @@ impl PlayerAnimationNode {
             PlayerAnimationNode::Walk,
         ]
         .iter()
-        .copied()
+        .copied() //hehehaha
     }
-
+    pub fn random_dance() -> PlayerAnimationNode {
+        match getrandom::u32().unwrap() % 7 {
+            0 => PlayerAnimationNode::Breakdance,
+            1 => PlayerAnimationNode::Dance,
+            2 => PlayerAnimationNode::Dance2,
+            3 => PlayerAnimationNode::Dance3,
+            4 => PlayerAnimationNode::Dance4,
+            5 => PlayerAnimationNode::HeadSpin,
+            6 => PlayerAnimationNode::HeadSpin2,
+            _ => {unreachable!()},
+        }
+    }
     pub fn need_interpolation(&self) -> bool {
         matches!(self, PlayerAnimationNode::Idle | PlayerAnimationNode::Walk | 
         PlayerAnimationNode::Run | PlayerAnimationNode::Float)
