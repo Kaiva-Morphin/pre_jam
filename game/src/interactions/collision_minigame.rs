@@ -231,7 +231,7 @@ pub fn interact_with_spinny_collision(
     if spinny.is_locked {
         if spinny.angle < 0. {
             return;
-        } // TODO: if engine broke dont allow
+        } // TODO: if engine broke dont allow DONE check
         let snapped_state = (spinny.angle / ANGLE_PER_COLLISION_SPINNY_STATE).floor() as usize;
         for (spinny_id, mut spinny_image_node) in spinny_q {
             if spinny_id.id == spinny.locked_id {
@@ -327,9 +327,12 @@ fn find_intersection(a: f32, b: f32, u: f32, r: f32, time: f32) -> bool {
 
     for i in 0..=((x_max - x_min) / step) as usize {
         let x = x_min + i as f32 * step;
+        // let fx  = u / (x.max(0.0).powf(r));
+        // let fx1 = ((x - a) * (b + time / 10.0)).max(0.0).sqrt() - x + a;
+        // let diff = fx - fx1;
         let fx  = u / (x.max(0.0).powf(r));
         let fx1 = ((x - a) * (b + time / 10.0)).max(0.0).sqrt() - x + a;
-        let diff = fx - fx1;
+        let diff = fx1 - fx;
 
         if let Some(last) = last_diff {
             if last * diff < 0.0 {
@@ -388,7 +391,8 @@ pub fn update_collision_minigame(
             index = 1;
         }
         if let Some(a) = &mut node.texture_atlas {
-            if *prev == Interaction::Pressed && *interaction != Interaction::Pressed && in_progress {
+            if *prev == Interaction::Pressed && *interaction != Interaction::Pressed && in_progress 
+            && !malfunction.malfunction_types.contains(&MalfunctionType::Engine){
                 // submitted solution
                 println!("submitted collision sol");
                 *submited = true;
@@ -404,6 +408,7 @@ pub fn update_collision_minigame(
         let intersects = find_intersection(material.a, material.b, material.u, material.r, material.time);
         for mut text in text {
             if in_progress {
+                if !malfunction.malfunction_types.contains(&MalfunctionType::Engine) {
                     if intersects {
                         text.0 = COLLISION_IMPENDING.to_string();
                     } else {
@@ -422,7 +427,10 @@ pub fn update_collision_minigame(
                         *submited = false;
                         *cost = 0.;
                     }
+                } else {
+                    text.0 = "Engine malfunctioned!".to_string();
                 }
             }
+        }
     }
 }
