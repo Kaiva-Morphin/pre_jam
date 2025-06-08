@@ -78,11 +78,11 @@ impl InteractionTypes {
             "MAINFRAME" => None,
             "HACK" => Some(Self::HackMinigame),
             "REACTOR" => Some(Self::WiresMinigame),
-            "ENGINE" => Some(Self::CollisionMinigame),
+            "ENGINE" => Some(Self::PipePuzzle),
             "ANTENNA" => Some(Self::WaveModulator),
             "WARNING" => Some(Self::WarningInterface),
             "CHAIN" => Some(Self::ChainReactionDisplay),
-            "PIPE" => Some(Self::PipePuzzle),
+            "COLLISION" => Some(Self::CollisionMinigame),
             _ => None
         }
     }
