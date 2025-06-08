@@ -3,7 +3,7 @@ use std::f32::consts::{PI, TAU};
 use bevy::{color::palettes::css::{BLUE, RED}, prelude::*, render::render_resource::{AsBindGroup, Extent3d, ShaderRef, TextureDescriptor, TextureUsages}, sprite::{AlphaMode2d, Material2d}, ui::RelativeCursorPosition};
 use bevy_tailwind::tw;
 
-use crate::{ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, spinny::ui_spinny, ui_submit_button::{submit_button_bundle, ui_submit_button}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpinnyAtlasHandles, SpriteAssets}, debree::{Malfunction, MalfunctionType, Resolved}, mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
+use crate::{interactions::components::PlayerSensor, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::{text_display_green_handle, ui_text_display_green_with_text}, viewport_container::{ui_viewport_container, viewport_handle}}, spinny::ui_spinny, ui_submit_button::{submit_button_bundle, ui_submit_button}}, target::LowresUiContainer}, utils::{custom_material_loader::{SpinnyAtlasHandles, SpriteAssets}, debree::{Malfunction, MalfunctionType, Resolved}, mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
 
 use super::components::{InInteractionArray, InteractionTypes};
 

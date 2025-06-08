@@ -27,7 +27,6 @@ impl Plugin for InteractionsPlugin {
         .insert_resource(InInteractionArray {
             in_interaction: components::InteractionTypes::ChainReactionDisplay,
             in_any_interaction: false,
-            stop_current_interaction: false,
         })
         .insert_resource(Spinny::default())
         .insert_resource(WaveModulatorConsts::default())

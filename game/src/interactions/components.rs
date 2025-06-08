@@ -91,7 +91,6 @@ impl InteractionTypes {
 pub struct InInteractionArray {
     pub in_interaction: InteractionTypes,
     pub in_any_interaction: bool,
-    pub stop_current_interaction: bool,
 }
 
 #[derive(Component)]
