@@ -160,7 +160,7 @@ pub fn update_warning_interface_display(
     energy: Res<Energy>,
     text: Query<&mut Text, With<SurplusText>>,
     timer_text: Query<(&mut Text, &TimerText), Without<SurplusText>>,
-    warning_text: Query<&mut Text, (Without<SurplusText>, Without<TimerText>)>,
+    warning_text: Query<&mut Text, (Without<SurplusText>, Without<TimerText>, With<WarningText>)>,
     mini_image_nodes: Query<(&mut ImageNode, &MalfMini)>,
     mut event_writer: EventWriter<PlaySoundEvent>,
 ) {

@@ -289,6 +289,8 @@ pub fn interact_with_wavemod_spinny(
                             },
                             _ => {}
                         }
+                        println!("{:?}", [material.a, material.b, material.c, material.d]);
+                        println!("{:?}", [material.ra, material.rb, material.rc, material.rd]);
                     }
                 }
                 if let Some(texture_atlas) = &mut spinny_image_node.texture_atlas {

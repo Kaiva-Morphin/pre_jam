@@ -54,9 +54,9 @@ fn fragment(input: UiVertexOutput) -> @location(0) vec4<f32> {
 
     // Combine: white for guph, guy for axis, additive blend
     let color = vec3<f32>(
-        1.0 * guph_alpha + 0.7 * axis_alpha,
-        1.0 * guph_alpha + 0.7 * axis_alpha,
-        1.0 * guph_alpha + 0.7 * axis_alpha
+    1.0 * guph_alpha + 0.0 * guph_alpha1 + 0.7 * axis_alpha, // fx: white, fx1: (change to e.g. red or green)
+    1.0 * guph_alpha + 1.0 * guph_alpha1 + 0.7 * axis_alpha, // fx1: green
+    1.0 * guph_alpha + 0.0 * guph_alpha1 + 0.7 * axis_alpha  // fx1: blue
     );
     let alpha = max(max(guph_alpha, guph_alpha1), axis_alpha);
 

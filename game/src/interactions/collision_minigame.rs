@@ -315,9 +315,12 @@ fn find_intersection(a: f32, b: f32, u: f32, r: f32, time: f32) -> bool {
 
     for i in 0..=((x_max - x_min) / step) as usize {
         let x = x_min + i as f32 * step;
+        // let fx  = u / (x.max(0.0).powf(r));
+        // let fx1 = ((x - a) * (b + time / 10.0)).max(0.0).sqrt() - x + a;
+        // let diff = fx - fx1;
         let fx  = u / (x.max(0.0).powf(r));
         let fx1 = ((x - a) * (b + time / 10.0)).max(0.0).sqrt() - x + a;
-        let diff = fx - fx1;
+        let diff = fx1 - fx;
 
         if let Some(last) = last_diff {
             if last * diff < 0.0 {
