@@ -99,7 +99,8 @@ pub fn interact(
         }
     }
     for option_entity in scroll_selector.selection_options.clone() {
-        if scroll_selector.selection_options[scroll_selector.current_selected] == option_entity && scroll_selector.current_displayed.is_none() {
+        if let Some(selection_options) = scroll_selector.selection_options.get(scroll_selector.current_selected) {
+            if *selection_options == option_entity && scroll_selector.current_displayed.is_none() {
             // print!("{:?}", option_entity);
             let interactable_pos = interactable.get_mut(option_entity).unwrap().1.translation;
             let e_key_entity = commands.spawn((
@@ -112,6 +113,7 @@ pub fn interact(
                 Name::new("FKey"),
             )).id();
             scroll_selector.current_displayed = Some(e_key_entity.clone());
+            }
         }
     }
 }

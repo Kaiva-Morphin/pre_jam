@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="25" nextobjectid="23">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="27" nextobjectid="72">
  <tileset firstgid="1" source="main.tsx"/>
  <layer id="18" name="SRC" width="30" height="20" visible="0" locked="1">
   <data encoding="base64" compression="zlib">
@@ -71,22 +71,22 @@
    eJzF0l1uAVEYxvEz557Uxx2aboCUumuJDRDFNohiGxpf29Cg3UZRbINQ7nzEf5KRGScTZG68yS+ZnHmfvOfMHCHMenLAWvfO31o77HFwmA9qQoTwqJlrE56nmOEXQ7yxvlXm7RVL+lb4xxobzLEw8gHtfF5I8SCF8MALH/xwwS3N+Zc80xdFDC+II4yINOdfkqXvHTnkUUAaGWl/flWZvg9UUEUNRZSk/flVPfqaaKGNDur4NPKv+ndEAkkb1v/3TeYHXXwZ+dQVTqph2bOT0s/cx8CSP925Ecb40+zvpPr+CEudUW4=
   </chunk>
    <chunk x="-16" y="-32" width="16" height="16">
-   eJzN0V0OgjAQBODtOdTSg0jDPbgcF0JBuY3aMJtoaJv+PznJlz7Q7VBQRKQqXelIyf6R4mmd+5d8MkxgtXMRaTKwsl9e8PY6cv2M/2EHJ5x19jpK+nleWueZhn6el8JV08/vr4Wr9+jAytT3+w2VUlGW1uBeEyvd/8RdNpjhBndYYIWHOJ7HsgO5PkRi
+   eJzN0VsOQDAQBdDpOlBdCI19WLO33aBxJyGqqUd9ucnJfDC9HoqIVKCMjry5v6TrfN37S5YHxjPtJOKe9Ey2Z4LZ6XjqZ/wPU4hwVux0vOnnfWmdZz70874UZyH9/PxanOUO7ZlMbd+vCPS3DHiXESqooYEWOujFcf0qK73fQko=
   </chunk>
    <chunk x="0" y="-32" width="16" height="16">
    eJxjYBgFQxnEAnEcEMcDcQIQy0MxseK1QFwHxPVA3ADEVUBcQ4L4XCCeB8TzgXgBEM8C4jkkiO8F4n1AvB+IDyC5k1jxUUAZAABkOiAJ
   </chunk>
    <chunk x="16" y="-32" width="16" height="16">
-   eJxjYCAeKGDBpABK9cthwUMFKODA5OqDYXkojgXiOCCOB+IEqJgNEfqrgLgGiGuBuA6I64G4gQEStsTonwXEc4B4LhDPA+L5QLyABP0w9+8F4n1AvB+ID5DgfkJAlgAmFthDsQMaTQn4TaF+aUbS7fsDxH+B+B+UDwCDSBz5
+   eJxjYCAeKGDBpABK9cthwUMFyOPAhIACAQwzJxaI44A4HogToGI2ROivAuIaIK4F4jogrgfiBgZI2BKjfxYQzwHiuUA8D4jnA/ECEvTD3L8XiPcB8X4gPkCC+wkBWQKYWGAPxQ5o9FACv4H4DxD/BeJ/UD4A6wob3A==
   </chunk>
    <chunk x="32" y="-32" width="16" height="16">
-   eJxTYGBgUBhALEchxgWQ7SAHEKtfYRQPKJalEDsAsT0F9G8o/sOACv7hEEcH0owQLMOIKi6HQxwdgMz/i2YfMXwYGwDDmy7D
+   eJxTYGBgUBhALEchxgXkkTA5gFj98hRihVFMEZalEDsAsT0FNC7wD4h/A/EfPGrwATlGBgZpIJZhxK8OZP5fNPuI4cPYADRsK2Y=
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
-   eJxTYGBgUGAgHyhQqF8OiocqUEDD+EAUFvW4MCF7iME2ZOobSvplsWCQODrApd8BiO2RaEIAXf9Ag79A/I8C/QAxhBDx
+   eJxTYGBgUGAgHyhQqF8OiocqkEfD+EAUAyK8CGF0QKw+ZGxDpr6hpF8WCwaJowNc+h2A2B6JJgTQ9Q80+AvE/yjQDwAmnBDt
   </chunk>
    <chunk x="64" y="-32" width="16" height="16">
-   eJxjYBgFlIBoApjW+hVw6FOAYmL048NtQNwOxB1A3EmGfkrtp7V+SsN/qAMAQ9QQzg==
+   eJxjYBgFlIBoApjW+hVw6FOAYmL048PDXT+l4T/UAQBYIA6w
   </chunk>
    <chunk x="-32" y="-16" width="16" height="16">
    eJztybcNAgEQRNG9zfG0gacNPG1gDmgDTxt42sJTAF9CG25Eel960kgj8usaiNxwxwNPvPDGJ/B/K6YicSSQRAppZJBV/7dy7DwKKKKEMiqoqv9bNXYdDTTRQhsddNX/rR67jwGGCDHCGBP1f2vKnmGOBZZYYY2N+r+1Ze+wxwFHnHDGRf0/KuqfvqTzLV4=
@@ -98,7 +98,7 @@
    eJxjYCAeSDMyMMgAsSwQyzFC+KSA30D8B4j/AvE/KJ8UQG37/1FovxyJ9lsD1dsAsS0Q20ExKcABCx4Fo4ASAAAoTA4M
   </chunk>
    <chunk x="32" y="-16" width="16" height="16">
-   eJyTYWRgkAViOSCWBmIZIvkw9h8GBoa/QPwPiH8zEM+HsYm1D5f9/xgow3KMlGE7CrEDA2WYXECJ3lEwfAAAarItcw==
+   eJyTYWRgkAViOSCWBmIZIvkw9h8GBoa/QPwPiH8zEM+HsYm1D5f9/xgow3KMlGE7CrEDA2V4FIwCSgAA6KMtMw==
   </chunk>
    <chunk x="48" y="-16" width="16" height="16">
    eJyTZWRgkANicsFfIP5HvnYG2SFuvy1Qrx0F+h2geBSMgoEAAO7mBas=
@@ -166,7 +166,7 @@
    eJxjYBja4CwzA8M5ID4PxBeA+CIQX2JGVXOGGbe6t0D8DojfA/EHIP4IxJ/Q9L8hUt0oGHlgqKc/AE/kLfU=
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
-   eJzt0tkNgkAUheE70IB2onW5FeJuG+5LFyAu2IUbqAX4G0KCZGaC757kS3g4FxJyRJLUXJE6Gmii5cpPadPvoIse+pb7bC/NmOcJpphZbvO9ECd48LFFYLjX9Z544YwLrrjhjggxHpZeNr7DexFghz0OOCJ0iv/LiuL79CPEqKrit/+IlFSyvwGGGKFc4B9+7tJdzbHAEiussdG8R7c/XUw71e3KFNv+POd7f6bke29Cx08u
+   eJzt0tkNglAQheELNKCdaF1uhbjbhvvSBeCGXbgAagH+hhAJzr2Rd0/yJTzMDIEcpZLUHKXqaKCJlqMKpc18B1300DfsZ+fSjHmeYIqZYTc/F+AEFx58bFG2vneluQeeOOOCK24IESHG3TCXTYV3+jZ3scMeBxwR2L//y/edkPkIMarCt/yjT8lK+jfAECNNH6S9tFdzLLDECmtshDtS/6Toeir1ShdT/1x64tmf/umSn3sB0xVOow==
   </chunk>
    <chunk x="64" y="-32" width="16" height="16">
    eJyl0tcRgkAUQNFVvk2FmAoxNGLowzHbhTl0AZigCwVMBXhRZ/wBXdc3c77gLmGeEP9NWxOigy566GOAhibXT7lvhjkWWGKFIUYSZ2y4Z4sd9rBgQ4cB88sZHtdPOOOCK2444AgHruS3BI0ZFWKNVIR/o9A7tC681xm/Tox3jyOBpMJ3pGkyyCKn0BdoiiihrNBXaKqooa7QN2la2ntPf50xzUR77mk+4P/L7N86pPVHZv/C2sfz2YstdtjDgg0dRvRz688dCEhAMw==
@@ -236,10 +236,10 @@
    eJztklEKgCAQBd/RultZ3iMt71FXqXM0goKIf0EU9GBYcPd9CCN9O73UDWBghAn26maD+G6hvl9ghQAzODir/gGu2Pui98gn/7w2eCA8EG4opNnyD2/ki5l7OBjdlC1my7+8w1/hr0zq3s0FKpMl1w==
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
-   eJztk0FOwkAUhv9x0aVG3HgGMCbABTiAMdG70HUTWiXAJQiIgpcwJAq4cqdrDoDudMk3aZXppLEX4CVfJp28/5+Z916lNA6MWnLCeN9lsdYu/1p6uoKivDaEMIKhsz9X/ry6p69CDc48v1t0XQi8+x47eld74ekf0C7RruC15M1v0IEYErj59UA3hRk8Fnhs4BO+/jMnemj7MIA77jVJ36ZDIx2ZEvE+bP1E/UT9RP1E/f7WDnsxJAV1pH+if6J/on86N4qoe8Rs2fnSO3zA2PrCBO4zH+ZHzI+YHzE/CtFeguv/DT+ZxzM5L7Aw6T9g/W2Pg8zvhHMrwPzmPE7NzqMo5tnaRNeAuqd3PdzYAj4NQME=
+   eJztk09OwkAYxd+wYClBN5xBiQlwgR7AmMBdYE1CKwS4BYJ/uAQhAdSVO1x7AHWnS39DKx0mDb2AX/JL08m8N53ve5XiKhgFcsp473n1rnR/S1o0IWtfGzowgamzvtTheTVPfw4XUPX8+ugGUPS+t+zoXe2Vp79H+4T2GV5y7vwKPQghgps/D3QP8AjzDI8P+ISvY+bUEO0IxkBvgll8N50YqWRyxP9l+yf6J/q3yxb92z97rIUQZfSR+Yn5ifmJ+enSqEvfu2TL5ktbeINb6wszuEt8yI/Ij8iPyI86aK/B9f+Gn8RjxZ41bEz8D1h/O+Ni4nfGuadAfg88Kib1yKpl8mygq0PN07sebv0CTB1AxQ==
   </chunk>
    <chunk x="64" y="-32" width="16" height="16">
-   eJxjYKAMLALixUC8BIiXAvEyIF4OxNlA3EuCOYsZUfndQNxDohnYzCFkRjsQdwBxMxC3AHErELdBxUFibIwQM4pIdAcMHEJyx2Qy9DNB/QPy12Yy9CshhcdDMvQ7IelnZMStDhdIQtKjSIZ+ZPc7kqHfiQw9yADk/i9A+isQf8Mij5zuseUDNUbceokBIL2iZPqBGL0Aw2kgTA==
+   eJxjYKAMLAPixUC8BIiXQvnLgTgbiHtJMGcxIyq/G4h7SDQDmzmEzGgH4g4gbgbiFiBuBeI2qDhIjI0RYkYRie6AgUNI7phMhn4mqH9A/tpMhn4lpPB4SIZ+JyT9jIy41eECSUh6FMnQj+x+RzL0I7vfmEz3fwHSX4H4GxZ55HSPLR+oMeLWSwwA6RUlw93E6gUACocghA==
   </chunk>
    <chunk x="-48" y="-16" width="16" height="16">
    eJxjYCAPBAJxEJl6QYCJkQLNQKBEoX4nCvUnUajfBKg/gAIzPgLxJ8qcADZjFIxsAABJXgTK
@@ -306,10 +306,10 @@
    eJxjYBjagAkLZkZTw4hDHQg7YcHOaPodcahzorpvRsFQA0M9/QEAVYUG6Q==
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
-   eJztk1sOgjAQRacmLMQY92HQgq9dKKC4D3XZnGqNZTIY+Pcm54MhdzrcKSJvzaWvhUzTWH8BswTLv4RmwOtV7dMnrWdQjvAG5fB0stL1TM3p41y5IuiC/wot3Ixev74paItnB3s4wBH0OUPev175CfkJ+Qn5Cfn1dhdYU9uAhwJK9/WzP2F/0jp7zxWceHeGCmpool/fP2vPtXq+433EGdMzgqy7a/XQSv+fKT06ZOQZeQ==
+   eJztk1sOgjAQRS8mLMQY92HQgq9dKOBjH+qyOVWMZSwG/r3J+WCSO53OLdJLU3U10zgN9ecwCYj551D3eJ2pvfuE9RSKAV6vDB6JFraemjldO1dm8DrhP8MFrpFev+7ktcazgS3sYA/2nD7vX8/9if2J/Yn9if11svMsqa3AQQ5F8vGTn8hP5Cfy+8q5hAP1I5RQQd367fuL5VyZ7xveeztjeIZX7O3GeliF/8+YHg2Jcxmg
   </chunk>
    <chunk x="64" y="-32" width="16" height="16">
-   eJxjYKAMMOHB7ljUuzPiNisFixw2M4g1jxgznAjgVCLdgQsoEukOYvQrj+ofMP2qQJyORR5f+gdhVzx6iQGU6GUgQi8Ad24JFg==
+   eJxjYKAMMOHB7ljUuzOSZj42M0g1D58ZTgRwKpHuwAUUiXQHMfqVR/UPmH5VIE7HIo8v/YOwKx69xABK9DIQoRcAGpwIsQ==
   </chunk>
    <chunk x="-48" y="-16" width="16" height="16">
    eJxjYCAPKJKpb1Q/dfSnAXEqFcwYBSMbAAAQVwH4
@@ -376,10 +376,10 @@
    eJxjYMAPIpgIKBjh4B4jA8N9RvL1/wPq/U+B/lEwCigBACSfBBk=
   </chunk>
    <chunk x="16" y="-16" width="16" height="16">
-   eJxjYCAN7GFkYNjLSKImKoGvTAwM35hQaVKAKDMDgxgzKk0KMAWqN2NGpUkBoUD1Ycyo9CgYBQMJAIPlCZ8=
+   eJxjYCAN7GFkYNjLSKKmQQK+MjEwfGNCpUkBoswMDGLMqDQpwBSo3owZlSYFhALVhzGj0qNgFFACAHsHCZ8=
   </chunk>
    <chunk x="32" y="-16" width="16" height="16">
-   eJxjYMAO6hgZGOqBuIERhwICgFj935gYGL4yQWhy9IsxMzCIMkNocvSbAfWZMkPoe0C19xlJ0x8G1BfKDKH/AdX+J1E/LkCp/lEwCogBAGXHEyQ=
+   eJxjYMAO6hgZGOqBuIERhwICgF76vzExMHxlgtDk6BdjZmAQZYbQ5Og3A+ozZYbQ94Bq7zOSpj8MqC+UGUL/A6r9T6L+UTAKKAEAPOkTJA==
   </chunk>
    <chunk x="48" y="-16" width="16" height="16">
    eJyLYGIYBaNgFIxQAABsDQBb
@@ -409,22 +409,283 @@
   </object>
  </objectgroup>
  <objectgroup id="24" name="PLATFORMS">
-  <object id="20" x="608" y="-464" width="47.9091" height="4.54545">
+  <object id="26" x="608" y="-304" width="48" height="16"/>
+  <object id="27" x="608" y="-464" width="48" height="16"/>
+  <object id="28" x="-304" y="-304" width="48" height="16"/>
+  <object id="29" x="-304" y="-464" width="48" height="16"/>
+ </objectgroup>
+ <objectgroup id="25" name="LIGHTS">
+  <object id="40" x="1059.25" y="-344.75">
    <properties>
-    <property name="type" propertytype="game::tilemap::plugin::MapObject:::Variant" value="Platform"/>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ff00ff3c"/>
+    <property name="intensity" type="float" value="10"/>
+    <property name="radius" type="float" value="10"/>
+    <property name="rotation" type="float" value="0"/>
    </properties>
+   <point/>
   </object>
-  <object id="21" x="608" y="-464">
+  <object id="42" x="447.333" y="-167.333">
    <properties>
-    <property name="type" propertytype="game::tilemap::plugin::MapObject:::Variant" value="Platform"/>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ffff0000"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="30"/>
+    <property name="rotation" type="float" value="0"/>
    </properties>
-   <polygon points="0,0 16,8 32,8 48,0 48,16 0,16"/>
+   <point/>
   </object>
-  <object id="22" x="608" y="-304">
+  <object id="43" x="480.697" y="-167.061">
    <properties>
-    <property name="type" propertytype="game::tilemap::plugin::MapObject:::Variant" value="Platform"/>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ffff0000"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="30"/>
+    <property name="rotation" type="float" value="0"/>
    </properties>
-   <polygon points="0,0 16,8 32,8 48,0 48,16 0,16"/>
+   <point/>
+  </object>
+  <object id="44" x="511.667" y="-168.333">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ffff0000"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="30"/>
+    <property name="rotation" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="45" x="542.333" y="-166.333">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ffff0000"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="30"/>
+    <property name="rotation" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="46" x="948.333" y="-408.667">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffff00ff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="45"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="66" x="-545.606" y="-375.333">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ff00ff73"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="45"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="67" x="-424.606" y="-232.333">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ff00ff73"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="45"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="68" x="-188.606" y="-323.333">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ff00ffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="100"/>
+    <property name="rotation" type="float" value="45"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="69" x="-223.606" y="-326.333">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ff00ffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="100"/>
+    <property name="rotation" type="float" value="45"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="70" x="-237.606" y="-490.333">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ff00ffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="100"/>
+    <property name="rotation" type="float" value="45"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="54" x="479" y="-422.667">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="60" x="-133" y="-420">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="64" x="-381" y="-256">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="65" x="-134.333" y="-253.333">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="61" x="-447.667" y="-409.333">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="62" x="-411.667" y="-574.667">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="63" x="-154.333" y="-585.333">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="55" x="756" y="-428.667">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="56" x="464" y="-581.667">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="57" x="746" y="-581.667">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="58" x="751.333" y="-268.333">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="71" x="487.333" y="-267.333">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="59" x="1059.33" y="-413.667">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="26" name="INTERACTABLES">
+  <object id="49" x="-385.333" y="-177.667">
+   <properties>
+    <property name="type" value="REACTOR"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="50" x="-512.667" y="-364.667">
+   <properties>
+    <property name="type" value="ENGINE"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="51" x="413.333" y="-629.333">
+   <properties>
+    <property name="type" value="ANTENNA"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="52" x="1059.33" y="-342">
+   <properties>
+    <property name="type" value="MAINFRAME"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="53" x="766" y="-180">
+   <properties>
+    <property name="type" value="HACK"/>
+   </properties>
+   <point/>
   </object>
  </objectgroup>
 </map>

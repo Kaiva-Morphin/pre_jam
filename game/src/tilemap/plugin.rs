@@ -2,8 +2,9 @@ use bevy::{asset::LoadState, prelude::*};
 use bevy_ecs_tiled::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_rapier2d::prelude::{ActiveEvents, CoefficientCombineRule, CollisionGroups, Friction, Group, Sensor};
+use tiled::ObjectShape;
 
-use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::constants::{LADDERS_CG, PLAYER_CG}};
+use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::constants::{LADDERS_CG, PLATFORMS_CG, PLAYER_CG}, tilemap::light::LightEmitter, utils::debree::{Malfunction, MalfunctionType}};
 
 
 pub struct MapPlugin;
@@ -26,7 +27,7 @@ impl Plugin for MapPlugin {
             ))
             .register_type::<MapObject>()
             .add_systems(Startup, spawn_map)
-            .add_systems(Update, handle_layer_spawn)
+            .add_systems(Update, (handle_layer_spawn, handle_object_spawn))
             // .add_observer(handle_layer_spawn)
             .add_systems(Update, (
                 check_map, event_map_created, 
@@ -76,30 +77,45 @@ pub struct LadderCollider;
 
 
 
+fn handle_object_spawn(
+    mut cmd: Commands,
+    q_c: Query<
+        (Entity, &Children)
+    >,
+    mut e: EventReader<TiledObjectCreated>,
+    map_asset: Res<Assets<TiledMap>>,
+) {
+    for e in e.read() {
+        let Some(object) = e.get_object(&map_asset) else {continue;};
+        let ObjectShape::Point(_, _)= object.shape else {continue;};
+
+        if let Some(l) = LightEmitter::from_properties(&object.properties) {
+            cmd.entity(e.entity).with_child((l, GlobalTransform::IDENTITY, Transform::default()));
+        }
+        if let Some(m) = MalfunctionType::from_properties(&object.properties) {
+            
+        }
+    }
+}
 
 
 
-
-#[allow(clippy::type_complexity)]
 fn handle_layer_spawn(
     mut cmd: Commands,
     q_c: Query<
         (Entity, &Children)
     >,
-    // trigger: Trigger<TiledLayerCreated>,
     mut e: EventReader<TiledLayerCreated>,
     map_asset: Res<Assets<TiledMap>>,
 ) {
     for e in e.read(){
         let Some(layer) = e.get_layer(&map_asset) else {continue};
-        info!("Object created: {layer:?}");
-
-        let Ok((e, c)) = q_c.get(e.entity) else {continue;};
-        
+        let Ok((_e, c)) = q_c.get(e.entity) else {continue;};
+        // LEGACY CODE :p
         match layer.name.as_str() {
             "LADDERS" => {
                 for c in c.iter() {
-                    let Ok((e, c)) = q_c.get(c) else {continue;};
+                    let Ok((_e, c)) = q_c.get(c) else {continue;};
                     for c in c.iter() {
                         cmd.entity(c).insert((
                             Sensor,
@@ -114,42 +130,21 @@ fn handle_layer_spawn(
                 }
             }
             "PLATFORMS" => {
-        //     cmd.entity(c).insert((
-        //         Sensor,
-        //         LadderCollider,
-        //         ActiveEvents::COLLISION_EVENTS,
-        //         CollisionGroups{
-        //             memberships: Group::from_bits(LADDERS_CG).unwrap(),
-        //             filters: Group::from_bits(PLAYER_CG).unwrap(),
-        //         }
-        //     ));
+                for c in c.iter() {
+                    let Ok((_e, c)) = q_c.get(c) else {continue;};
+                    for c in c.iter() {
+                        cmd.entity(c).insert(
+                            CollisionGroups{
+                                memberships: Group::from_bits(PLATFORMS_CG).unwrap(),
+                                filters: Group::from_bits(PLAYER_CG).unwrap(),
+                            }
+                        );
+                    }
+                }
             }
             _ => {}
         }
-        // if layer.name == "ladders" {
-        //     for c in layer.objects.iter() {
-        //         cmd.entity(c).insert((
-        //             Sensor,
-        //             LadderCollider,
-        //             ActiveEvents::COLLISION_EVENTS,
-        //             CollisionGroups{
-        //                 memberships: Group::from_bits(LADDERS_CG).unwrap(),
-        //                 filters: Group::from_bits(PLAYER_CG).unwrap(),
-        //             }
-        //         ));
-        //     }
-        // }
-        // for c in c.iter() {
-        //     cmd.entity(c).insert((
-        //         Sensor,
-        //         LadderCollider,
-        //         ActiveEvents::COLLISION_EVENTS,
-        //         CollisionGroups{
-        //             memberships: Group::from_bits(LADDERS_CG).unwrap(),
-        //             filters: Group::from_bits(PLAYER_CG).unwrap(),
-        //         }
-        //     ));
-        // }
+
     }
 }
 
@@ -179,7 +174,7 @@ fn event_map_created(
     mut map_events: EventReader<TiledMapCreated>,
     mut tasks: ResMut<PreGameTasks>,
 ) {
-    for e in map_events.read() {
+    for _e in map_events.read() {
         tasks.done("map_spawn".to_string());
     }
 }

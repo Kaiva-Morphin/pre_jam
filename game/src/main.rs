@@ -11,6 +11,7 @@ use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 use core::plugin::CorePlugin;
 
 use crate::core::states::OnGame;
+use crate::interactions::components::PlayerSensor;
 use crate::physics::constants::{INTERACTABLE_CG, PLAYER_SENSOR_CG};
 use crate::physics::player::{spawn_player, Player, PlayerPlugin};
 use crate::tilemap::light::LightPlugin;
@@ -120,6 +121,7 @@ pub fn spawn(
                 Group::from_bits(INTERACTABLE_CG).unwrap(),
             ),
             Sensor,
+            PlayerSensor,
         ));
         // left ear
         cmd.spawn((

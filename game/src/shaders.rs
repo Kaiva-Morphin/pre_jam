@@ -74,5 +74,4 @@ pub fn spawn(
         Transform::from_xyz(50., 0., 0.),
         Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
     ));
-
 }

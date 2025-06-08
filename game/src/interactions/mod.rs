@@ -30,7 +30,7 @@ impl Plugin for InteractionsPlugin {
         .insert_resource(CollisionMinigameConsts::default())
         .insert_resource(PipeGrid::default())
         .insert_resource(HackGrid::default())
-        .insert_resource(Wires::default())
+        .insert_resource(WireMinigame::default())
         .insert_resource(WarningTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .add_systems(Update, (
             (interact, update_interactables, update_graphs_time,
@@ -52,7 +52,7 @@ impl Plugin for InteractionsPlugin {
                     init_hack_display, open_hack_display, update_hack_display.before(ui_hack_button_hover)
                 ).chain(),
                 (
-                    open_wires_display, touch_wires_inlet, get_pos
+                    open_wires_display, touch_wires_inlet
                 ).chain(),
             )
             .run_if(in_state(GlobalAppState::InGame))

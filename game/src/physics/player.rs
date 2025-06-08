@@ -1,13 +1,12 @@
 use std::{collections::HashMap, f32::consts::PI, sync::{Arc, RwLock}};
 
-use bevy::{asset::{self, LoadState, UntypedAssetId}, prelude::*};
-use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::config::LoadingStateConfig};
-use bevy_inspector_egui::{bevy_egui::{EguiContextPass, EguiContexts}, egui::{self, debug_text}};
+use bevy::{asset::{self, LoadState}, prelude::*};
+use bevy_inspector_egui::{bevy_egui::{EguiContextPass, EguiContexts}, egui};
 use bevy_rapier2d::prelude::*;
 use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use utils::WrappedDelta;
 
-use crate::{camera::plugin::CameraFocus, core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::{animator::{PlayerAnimationNode, PlayerAnimations, PlayerAnimatorPlugin}, constants::*}, tilemap::plugin::LadderCollider};
+use crate::{camera::plugin::CameraFocus, core::states::{GlobalAppState, OnGame, PreGameTasks}, physics::{animator::{PlayerAnimationNode, PlayerAnimations, PlayerAnimatorPlugin}, constants::*}, tilemap::{light::LightEmitter, plugin::LadderCollider}, utils::mouse::CursorPosition};
 use utils::MoveTowards;
 
 
@@ -27,12 +26,13 @@ impl Plugin for PlayerPlugin {
             .insert_resource(PlayerConstants::default())
             .insert_resource(NearestLadders{ladders: HashMap::new()})
             .add_systems(Update, (
-                check_player_assets
+                check_player_assets,
             ).run_if(in_state(GlobalAppState::AssetLoading)))
             .add_systems(Update, (
                 (update_controllers,
                 tick_controllers).chain(),
-                listen_events
+                listen_events,
+                // update_spotlight
             ).run_if(in_state(GlobalAppState::InGame)))
             .add_plugins(
                 // ControllersPlugin,
@@ -42,7 +42,26 @@ impl Plugin for PlayerPlugin {
     }
 }
 
+#[derive(Component)]
+pub struct PlayerSpotlight;
 
+pub fn update_spotlight(
+    mut q: Query<(&mut GlobalTransform, &mut Transform, &mut LightEmitter), With<PlayerSpotlight>>,
+    c: Res<CursorPosition>,
+) {
+    for (global_transform, mut transform, mut s) in q.iter_mut() {
+        let origin = global_transform.translation().truncate();
+        let direction = c.world_position - origin;
+        // info!("D {:.1}\n{:.1}", c.world_position,c.screen_position );
+        // let global_angle = direction.y.atan2(direction.x);
+
+        // let parent_rotation = global_transform.rotation().to_euler(EulerRot::XYZ).2;
+
+        // let local_angle = global_angle - parent_rotation;
+
+        // transform.rotation = Quat::from_rotation_z(local_angle);
+    }
+}
 
 #[derive(Component)]
 pub struct PlayerMesh;
@@ -190,6 +209,7 @@ pub fn spawn_player(
             Collider::capsule(vec2(0.0, 22.0), vec2(0.0, -6.0), 8.0),
             LockedAxes::ROTATION_LOCKED,
             Sleeping::disabled(),
+            ActiveEvents::COLLISION_EVENTS,
             GravityScale(0.0),
             REG_FRICTION,
             CameraFocus{priority: 0},
@@ -199,7 +219,7 @@ pub fn spawn_player(
         ),
         CollisionGroups::new(
         Group::from_bits(PLAYER_CG).unwrap(),
-        Group::from_bits(STRUCTURES_CG | LADDERS_CG).unwrap(),
+        Group::from_bits(PLAYER_DEFAULT_CG).unwrap(),
         ),
         (
             RigidBody::Dynamic,
@@ -226,10 +246,21 @@ pub fn spawn_player(
         children![
             (
                 SceneRoot(assets.player_scene.clone()),
-                Transform::from_xyz(0.0, -12.7, 0.0).with_scale(Vec3::splat(5.0)),
+                Transform::from_xyz(0.0, -13.7, 0.0).with_scale(Vec3::splat(5.0)),
                 Visibility::Visible,
                 PlayerMesh
-            )
+            ),
+            (
+                PlayerSpotlight,
+                Transform::default(),
+                GlobalTransform::IDENTITY,
+                LightEmitter{
+                    radius_px: 200.0,
+                    intensity: 0.3,
+                    spot: 30.,
+                    color_and_rotation: vec4(1.0, 1.0, 1.0, 0.0),
+                }
+            ),
         ]
     ));
     
@@ -238,7 +269,7 @@ pub fn spawn_player(
         assets.graph.clone(),
         PlayerAnimationNode::Float,
     ));
-    cmd.remove_resource::<PlayerAssetCollection>();
+    // cmd.remove_resource::<PlayerAssetCollection>();
 
 }
 
@@ -432,6 +463,7 @@ pub fn update_controllers(
     mut mesh_rotation: Local<f32>,
     ladders: Res<NearestLadders>,
     mut time_since_climb: Local<f32>,
+    mut exiting_spacewalk: Local<bool>,
 ){
     let dt = time.dt();
     let mut raw_dir = Vec2::ZERO;
@@ -457,8 +489,19 @@ pub fn update_controllers(
 
 
 
-
-
+    if !player.is_spacewalking() && *exiting_spacewalk {
+        let current_angle = transform.rotation.to_euler(EulerRot::XYZ).2;
+        let angle_diff = -current_angle; 
+        // info!("Angle: {}", );
+        if angle_diff.abs() < 0.01 {
+            transform.rotation = Quat::IDENTITY;
+            player_vel.angvel = 0.0;
+            cmd.entity(*player_e).insert(LockedAxes::ROTATION_LOCKED);
+            *exiting_spacewalk = false;
+        } else {
+            player_vel.angvel = angle_diff.signum() * 3.0;
+        }
+    }
     if keyboard.just_pressed(KeyCode::KeyC) {
         if !player.is_spacewalking()  {
             player.state = PlayerState::Spacewalk;
@@ -466,15 +509,30 @@ pub fn update_controllers(
             // cmd.entity(*player_e).insert((
             //     Friction::coefficient(1.0),
             // ));
+            *exiting_spacewalk = false;
+            player_vel.angvel = 0.0;
             cmd.entity(*player_e).insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_X);
+            cmd.entity(*player_e).insert(
+                CollisionGroups{
+                    memberships: Group::from_bits(PLAYER_CG).unwrap(),
+                    filters: Group::from_bits(PLAYER_DEFAULT_CG & !PLATFORMS_CG).unwrap(),
+                }
+            );
         } else {
             player.state = PlayerState::Regular { accumulated_vel: 0.0 };
             consts.gravity = PlayerConstants::default().gravity;
+            *exiting_spacewalk = true;
             cmd.entity(*player_e).insert((
-                LockedAxes::ROTATION_LOCKED,
+                // LockedAxes::ROTATION_LOCKED,
                 // REG_FRICTION,
             ));
-            transform.rotation = Quat::IDENTITY;
+            // transform.rotation = Quat::IDENTITY;
+            cmd.entity(*player_e).insert(
+                CollisionGroups{
+                    memberships: Group::from_bits(PLAYER_CG).unwrap(),
+                    filters: Group::from_bits(PLAYER_DEFAULT_CG).unwrap(),
+                }
+            );
         }
     }
     if !player.is_climbing() {
@@ -494,6 +552,12 @@ pub fn update_controllers(
             controller.horisontal_velocity = 0.0;
             if let None = ladders.ladders.get(e) {
                 player.state = PlayerState::Regular{accumulated_vel: 0.0};
+                cmd.entity(*player_e).insert(
+                    CollisionGroups{
+                        memberships: Group::from_bits(PLAYER_CG).unwrap(),
+                        filters: Group::from_bits(PLAYER_DEFAULT_CG).unwrap(),
+                    }
+                );
                 *mesh_turn = if raw_dir.x.abs() < 0.1 { PI } else 
                 if raw_dir.x > 0.0 {PI / 2.0} else {- PI / 2.0};
                 return;
@@ -507,6 +571,12 @@ pub fn update_controllers(
             if raw_dir.x != 0.0 && raw_dir.y == 0.0 {
                 player_vel.linvel.x = raw_dir.x * consts.climb_out_speed  * mult;
                 player.state = PlayerState::Regular{accumulated_vel: 0.0};
+                cmd.entity(*player_e).insert(
+                    CollisionGroups{
+                        memberships: Group::from_bits(PLAYER_CG).unwrap(),
+                        filters: Group::from_bits(PLAYER_DEFAULT_CG).unwrap(),
+                    }
+                );
                 *mesh_turn = if raw_dir.x.abs() < 0.1 { PI } else 
                 if raw_dir.x > 0.0 {PI / 2.0} else {- PI / 2.0};
                 return;
@@ -521,6 +591,12 @@ pub fn update_controllers(
                     //raw_dir.y != 0.0 
                     player.state = PlayerState::Climbing{ladder: l.clone()};
                     anim.target = PlayerAnimationNode::Climb;
+                    cmd.entity(*player_e).insert(
+                        CollisionGroups{
+                            memberships: Group::from_bits(PLAYER_CG).unwrap(),
+                            filters: Group::from_bits(PLAYER_DEFAULT_CG & !PLATFORMS_CG).unwrap(),
+                        }
+                    );
                 }
             }
             
@@ -687,7 +763,7 @@ pub fn tick_controllers(
             ctx.cast_shape(pos, 0.0, v.linvel * vec2(4.0, 0.0) * dt, 
             &col, options, filter) {
             let Some(_d) = hit.details else {break 'a 1.0;};
-            v.linvel.x = 0.0;
+            v.linvel.x *= 0.9;
             0.0
         } else {
             1.0

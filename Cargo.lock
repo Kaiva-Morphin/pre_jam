@@ -2707,6 +2707,7 @@ dependencies = [
  "num_enum",
  "pixel_utils",
  "shaders",
+ "tiled",
  "utils",
 ]
 

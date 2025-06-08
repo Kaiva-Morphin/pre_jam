@@ -98,7 +98,7 @@ pub fn setup_camera(
         Camera {
             order: -20,
             target: RenderTarget::Image(image_handle.clone().into()),
-            clear_color: ClearColorConfig::Custom(Srgba::rgb(0.0, 0.0, 0.0).into()),
+            clear_color: ClearColorConfig::Custom(Color::srgba(0.0, 0.0, 0.0, 0.0)),
             // hdr: true,
             msaa_writeback: false,
             ..default()
