@@ -14,6 +14,10 @@ pub struct HackButtonBase {
     pub pos: UVec2,
 }
 
+
+#[derive(Component)]
+pub struct HackText;
+
 pub fn open_hack_display(
     mut commands: Commands,
     in_interaction_array: Res<InInteractionArray>,
@@ -40,6 +44,7 @@ pub fn open_hack_display(
             let hack = hack_button_bundle(&asset_server, &mut texture_atlases);
             let main = main_container_handle(&asset_server);
             let sub = sub_container_handle(&asset_server);
+
 
             let mut children = vec![];
             for y in 0..HACK_GRID_SIZE {
@@ -69,6 +74,14 @@ pub fn open_hack_display(
                         .add_children(&children);
                     });
                 });
+                // cmd.spawn(ui_main_container(&main, ())).with_children(|cmd| {
+                //     cmd.spawn(ui_sub_container(&sub, ())).with_children(|cmd|{
+                //         cmd.spawn(
+                //             ui_text_display_green_with_text(&text_bundle, (CollisionText, CollisionText), collision_text, &asset_server)
+                //         );
+                //     });
+                // });
+
             }).id();
             *already_spawned = Some(entity);
             commands.entity(*lowres_container).add_child(entity);
