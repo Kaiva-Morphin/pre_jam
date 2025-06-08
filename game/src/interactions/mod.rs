@@ -24,7 +24,11 @@ impl Plugin for InteractionsPlugin {
         .add_event::<InteractGlowEvent>()
         .insert_resource(KeyTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .insert_resource(ScrollSelector::default())
-        .insert_resource(InInteractionArray {in_interaction: components::InteractionTypes::ChainReactionDisplay, in_any_interaction: false})
+        .insert_resource(InInteractionArray {
+            in_interaction: components::InteractionTypes::ChainReactionDisplay,
+            in_any_interaction: false,
+            stop_current_interaction: false,
+        })
         .insert_resource(Spinny::default())
         .insert_resource(WaveModulatorConsts::default())
         .insert_resource(CollisionMinigameConsts::default())

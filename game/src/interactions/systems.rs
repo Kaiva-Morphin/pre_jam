@@ -12,10 +12,7 @@ use super::{chain_reaction_display::ChainGraphMaterial, components::{FKey, InInt
 pub fn interact(
     mut commands: Commands,
     mut mouse_wheel_events: EventReader<MouseWheel>,
-    mouse_button: Res<ButtonInput<MouseButton>>,
-    cursor_position: Res<CursorPosition>,
     mut collision_events: EventReader<CollisionEvent>,
-    mut writer: EventWriter<InteractGlowEvent>,
     mut interactable: Query<(&mut InInteraction, &Transform)>,
     texture_atlas_handles: Res<TextureAtlasHandles>,
     mut scroll_selector: ResMut<ScrollSelector>,
@@ -24,13 +21,9 @@ pub fn interact(
     mut in_interaction_array: ResMut<InInteractionArray>,
     player_entity: Single<Entity, With<PlayerSensor>>,
 ) {
-    // TODO: stop player in interaction
-    // println!("{:?}", in_interaction_array);
     if in_interaction_array.in_any_interaction {
         if keyboard.just_released(KeyCode::KeyF) {
             in_interaction_array.in_any_interaction = false;
-            //exit
-            // TODO: add "press E again to exit sign"
         }
         return;
     }
