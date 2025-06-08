@@ -17,7 +17,7 @@ pub struct SpriteAssets {
 
     #[asset(path = "atlases/E.png")]
     pub key_f_atlas: Handle<Image>,
-    #[asset(path = "atlases/Pipes.png")]
+    #[asset(path = "ui/pipes.png")]
     pub pipes_atlas: Handle<Image>,
     #[asset(path = "ui/spinner.png")]
     pub spinny_atlas: Handle<Image>,
@@ -320,7 +320,7 @@ fn spawn_faz(
         children![(
             FazLight,
             GlobalTransform::default(),
-            Transform::from_translation(vec3(0.0, -50.0, 0.0)),
+            Transform::from_translation(vec3(0.0, 50.0, 0.0)),
             LightEmitter{
                 radius_px: 100.0,
                 spot: 90.0,
