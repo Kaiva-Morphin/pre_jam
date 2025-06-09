@@ -56,7 +56,6 @@ pub fn camera_controller(
     mut mouse_motion: EventReader<MouseMotion>,
     mut target_zoom: Local<ZoomTarget>,
     to_focus: Query<(&GlobalTransform, &CameraFocus)>,
-    mut overlay_events: EventWriter<DebugOverlayEvent>,
     time: Res<Time>,
     state: Single<&Player>,
 ){
@@ -87,7 +86,6 @@ pub fn camera_controller(
     
     let mut m_dt = Vec3::ZERO;
     for event in mouse_wheel_events.read() {
-        overlay_text!(overlay_events;BottomLeft;MOUSE_EVENT:format!("Mouse event {:?}", event),(255, 255, 255););
         let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {1.0 / event.y.abs()};
         m_dt.z += v;
     };

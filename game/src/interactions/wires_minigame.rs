@@ -5,12 +5,12 @@ use bevy_tailwind::tw;
 use debug_utils::overlay_text;
 use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::text_display_green_handle, viewport_container::viewport_handle}, spinny::ui_spinny, ui_submit_button::submit_button_bundle, wire_inlet::{ui_wire_inlet, wire_inlet_bundle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::{get_random_range, Malfunction, Resolved}, mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::text_display_green_handle, viewport_container::viewport_handle}, spinny::ui_spinny, ui_submit_button::submit_button_bundle, wire_inlet::{ui_wire_inlet, wire_inlet_bundle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::{get_random_range, Malfunction, MalfunctionType, Resolved}, mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
 
 
 
 
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct WireMinigame {
     pub locked_id: Option<usize>,
     pub socket_positions: HashMap<usize, Vec2>,
@@ -55,7 +55,7 @@ pub struct Wire {
 #[derive(Component)]
 pub struct WireContainer;
 
-const WIRES : usize = 2;
+const WIRES : usize = 3;
 const WIRE_SOCKETS : usize = WIRES * 2;
 
 pub fn refresh_game(
@@ -210,7 +210,10 @@ pub fn touch_wires_inlet(
     grabbed_wire_size: Query<Entity, With<GrabbedWire>>,
     mut malfunction: ResMut<Malfunction>,
     mut event_writer: EventWriter<PlaySoundEvent>,
+    in_interaction_array: Res<InInteractionArray>,
 ) {
+    if !(in_interaction_array.in_interaction == InteractionTypes::WiresMinigame || in_interaction_array.in_any_interaction ||
+    malfunction.malfunction_types.contains(&MalfunctionType::Reactor)) {return;}
     let prev_locked = wires.locked_id.clone();
     if mouse_button.just_released(MouseButton::Left) {
         wires.locked_id = None;
@@ -259,10 +262,12 @@ pub fn touch_wires_inlet(
             }
         }
     }
+
     for (_e, cursor_rel_pos, wire, global_transform, transform, node) in wires_q {
         if let Some(_rel_pos) = cursor_rel_pos.normalized {
             if cursor_rel_pos.mouse_over() &&
             mouse_button.just_pressed(MouseButton::Left) {
+                if wires.connected.get(&wire.id).is_some() {continue;}
                 wires.locked_id = Some(wire.id);
                 let relative = global_transform.translation().xy() - window.size() * 0.5;
                 wires.socket_positions.insert(wire.id, relative);
@@ -312,12 +317,10 @@ pub fn touch_wires_inlet(
             // handle wire connection
             let Some(locked_id) = prev_locked else {continue;};
             if locked_id == wire.id {continue;};
-            
             if mouse_button.just_released(MouseButton::Left) {
                 if cursor_rel_pos.mouse_over() {
                     if wires.connected.contains_key(&wire.id) || wires.connected.contains_key(&locked_id) {
                         need_remove = true;
-                        info!("ALREADY CONNECTED");
                         continue;
                     };
                     let relative = global_transform.translation().xy() - window.size() * 0.5;
@@ -325,18 +328,11 @@ pub fn touch_wires_inlet(
                     for (_container_entity, _cursor_rel_pos, node) in wires_container {
                         info!("Try connect: {} -> {}", wires.connected.len(), wires.task.len());
                         if wires.task.get(&locked_id) != Some(&wire.id) {
-                            info!("ASASASAASSSSSSSSSSSSSSSSSSSSSSSSS");
                             malfunction.resolved.push(Resolved {
                                 resolved_type: crate::utils::debree::MalfunctionType::Reactor,
                                 failed: true,
                             });
-                        } else if wires.connected.len() == wires.task.len() {
-                            event_writer.write(PlaySoundEvent::Success);
-                            malfunction.resolved.push(Resolved {
-                                resolved_type: crate::utils::debree::MalfunctionType::Reactor,
-                                failed: false,
-                            });
-                        };
+                        } 
                         let Some(start) = wires.socket_positions.get(&locked_id) else {warn!("SOCKET POS NOT FOUND"); continue;};
                         let Some(end) = wires.socket_positions.get(&wire.id) else {warn!("SOCKET POS NOT FOUND"); continue;};
                         let start = start / ui_scale.0 + node.size / 2.0 / ui_scale.0 ;
@@ -356,6 +352,13 @@ pub fn touch_wires_inlet(
                         
                         wires.connected.insert(locked_id, wire.id);
                         wires.connected.insert(wire.id, locked_id);
+                        if wires.connected.len() == wires.task.len() {
+                            event_writer.write(PlaySoundEvent::Success);
+                            malfunction.resolved.push(Resolved {
+                                resolved_type: crate::utils::debree::MalfunctionType::Reactor,
+                                failed: false,
+                            });
+                        };
                         break;
                     }
                 }

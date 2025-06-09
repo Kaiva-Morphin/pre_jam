@@ -52,13 +52,14 @@ pub struct ToWorld;
 
 pub fn update(
     mut cmd: Commands,
-    q: Query<&mut GlobalTransform, Without<PixelCamera>>,
+    q: Query<&mut GlobalTransform, (Without<PixelCamera>, Without<Player>)>,
     e: Option<Single<Entity, With<ToWorld>>>,
     windows: Single<&Window>,
     v: Res<pixel_utils::camera::PixelCameraVars>,
     cq: Single<(&Camera, &GlobalTransform), With<PixelCamera>>,
     asset_server: Res<AssetServer>,
-    mut dbg: EventWriter<DebugOverlayEvent>
+    mut dbg: EventWriter<DebugOverlayEvent>,
+    p: Single<&GlobalTransform, With<Player>>
 ){
     let i = asset_server.load("pixel/arrow.png");
 
@@ -96,9 +97,9 @@ pub fn update(
         // let PU: Vec2 = su * ((window_size - target_size) / target_size);
         // let pu = su * (target_size * 0.5) * vec2(1.0, -1.0) + camera_transform.translation().truncate();
         
-        
+        let rp = (p.translation().truncate() - pos).to_angle();
         cmd.entity(*e).insert((
-            Transform::from_translation(pos.extend(0.)),
+            Transform::from_translation(pos.extend(0.)).with_rotation(Quat::from_rotation_z(rp)),
         ));
         // info!("S: {}", s);
     }

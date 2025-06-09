@@ -3,7 +3,6 @@ use std::{collections::HashMap, f32::consts::PI, sync::{Arc, RwLock}};
 use bevy::{asset::{self, LoadState}, prelude::*};
 use bevy_inspector_egui::{bevy_egui::{EguiContextPass, EguiContexts}, egui};
 use bevy_rapier2d::prelude::*;
-use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use utils::WrappedDelta;
 
 use crate::{camera::plugin::CameraFocus, core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::components::InInteractionArray, physics::{animator::{PlayerAnimationNode, PlayerAnimations, PlayerAnimatorPlugin}, constants::*}, tilemap::{light::LightEmitter, plugin::{LadderCollider, SpacewalkCollider}}, utils::{mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
@@ -505,7 +504,6 @@ pub fn update_controllers(
     mut player: Single<(Entity, &mut Velocity, &mut Player, &mut Controller, &mut Transform), (With<Player>, Without<PlayerMesh>)>,
     mut player_mesh: Single<&mut Transform, (With<PlayerMesh>, Without<Player>)>,
     keyboard: Res<ButtonInput<KeyCode>>,
-    mut overlay_events: EventWriter<DebugOverlayEvent>,
     time: Res<Time>,
     mut cmd: Commands,
     mut anim: ResMut<PlayerAnimations>,
@@ -781,9 +779,6 @@ pub fn update_controllers(
         }
     }
 
-    overlay_text!(overlay_events;TopLeft;CONTROLLER:
-        format!("{:#?}", player),(255, 255, 255);
-    );
 }
 
 
@@ -798,9 +793,7 @@ pub fn tick_controllers(
     ctx: ReadRapierContext,
     mut player: Single<(Entity, &mut Player, &mut Velocity, &mut Controller, &mut Friction, &Collider, &Transform)>,
     consts: Res<PlayerConstants>,
-    mut overlay_events: EventWriter<DebugOverlayEvent>,
 ){
-    overlay_text!(overlay_events;TopLeft;FIXED_DT:format!("Fixed dt: {:.1} ({:.1} fps)", time.delta_secs(), 1.0 / time.delta_secs()),(255, 255, 255););
     let dt = time.dt();
     let Ok(ctx) = ctx.single() else {return};
     let (e, p, v, c, f, co, t) = &mut *player;

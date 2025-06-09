@@ -3,7 +3,9 @@ use bevy_tailwind::tw;
 
 use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::*, text_display::{text_display_green_handle, ui_text_display_green_with_text}}, hack_button::*}, target::LowresUiContainer}, utils::{debree::{get_random_range, Malfunction, MalfunctionType, Resolved}, spacial_audio::PlaySoundEvent}};
 
-pub const HACK_GRID_SIZE: u32 = 6;
+// ALSO CHANGE TW VALUE!
+pub const HACK_GRID_SIZE: u32 = 5;
+
 pub const HACK_PIXEL_GRID_SIZE: u32 = 50;
 pub const HACK_ATLAS_COLUMNS: u32 = 6;
 pub const HACK_ATLAS_ROWS: u32 = 6;
@@ -50,17 +52,23 @@ pub fn open_hack_display(
             
             let goal_text = "Goal: ";
             let goal_text_entity = commands.spawn(
-            ui_main_container(&main, children![
+            ui_main_container(&main, ())
+            ).with_children(|cmd|{
+                cmd.spawn(
                 ui_text_display_green_with_text(&text_bundle, (GoalText, GoalText), goal_text, &asset_server)
-                ])
-            ).id();
+                ).insert(tw!("w-[230px] items-center justify-center p-[5px]"));
+            }).id();
+
+
 
             let buffer_text = "Selected: ";
             let buffer_text_entity = commands.spawn(
-            ui_main_container(&main, children![
+            ui_main_container(&main, ())
+            ).with_children(|cmd|{
+                cmd.spawn(
                 ui_text_display_green_with_text(&text_bundle, (BufferText, BufferText), buffer_text, &asset_server)
-                ])
-            ).id();
+                ).insert(tw!("w-[230px] items-center justify-center p-[5px]"));
+            }).id();
 
             let mut children = vec![];
             for y in 0..HACK_GRID_SIZE {
@@ -86,21 +94,26 @@ pub fn open_hack_display(
             ).with_children(|cmd|{
                 cmd.spawn(ui_main_container(&main, ())).with_children(|cmd| {
                     cmd.spawn(ui_sub_container(&sub, ())).with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full grid grid-cols-6 grid-rows-6 gap-x-px gap-y-px"),)
+                        cmd.spawn(tw!("items-center justify-center w-full h-full grid grid-cols-5 grid-rows-5 gap-x-px gap-y-px"),)
                         .add_children(&children);
                     });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_child(goal_text_entity);
-                    });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_child(buffer_text_entity);
-                    });
                 });
+                cmd.spawn(ui_main_container(&main, ())).insert(
+                        tw!("flex flex-col-reverse")
+                    ).with_children(|cmd|{
+                        cmd.spawn(ui_sub_container(&sub, ()))
+                        .with_children(|cmd| {
+                            cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                            .add_child(goal_text_entity);
+                        });
+                        cmd.spawn(ui_sub_container(&sub, ()))
+                        .with_children(|cmd| {
+                            cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                            .add_child(buffer_text_entity);
+                        });
+                    });
             }).id();
+            
             *already_spawned = Some(entity);
             commands.entity(*lowres_container).add_child(entity);
         }
