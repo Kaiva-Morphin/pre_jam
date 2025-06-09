@@ -13,7 +13,7 @@ impl Plugin for DebreePlugin {
     fn build(&self, app: &mut App) {
         app
         .add_event::<GameEndEvent>()
-        .insert_resource(DebreeLevel::default())
+        .insert_resource(DebreeLevel::new())
         .insert_resource(Malfunction::default())
         .insert_resource(DebreeTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions,
@@ -31,6 +31,14 @@ pub struct DebreeLevel {
     pub chain_reaction_graph: VecDeque<f32>,
 }
 
+impl DebreeLevel {
+    pub fn new() -> Self {
+        Self {
+            const_add: 0.0008,
+            ..default()
+        }
+    }
+}
 #[derive(Resource)]
 pub struct DebreeTimer {
     pub timer: Timer,
@@ -175,7 +183,7 @@ pub fn manage_malfunctions(
                     color: true,
                     text: "Antenna malfunctioned!".to_string(),
                 });
-                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE1), TimerMode::Once));
             },
             MalfunctionType::Engine => {
                 malfunction.malfunction_types.push(malfunc_type);
@@ -185,7 +193,7 @@ pub fn manage_malfunctions(
                     color: false,
                     text: "Engine malfunctioned!".to_string(),
                 });
-                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE1), TimerMode::Once));
             },
             MalfunctionType::NoMalfunction => unreachable!()
         };
@@ -267,6 +275,7 @@ pub fn resolve_malfunctions(
 }
 
 pub const TIME_TO_RESOLVE: f32 = 60.;
+pub const TIME_TO_RESOLVE1: f32 = TIME_TO_RESOLVE * 2.;
 
 pub fn tick_malfunctions(
     mut malfunction: ResMut<Malfunction>,

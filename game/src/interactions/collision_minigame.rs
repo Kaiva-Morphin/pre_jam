@@ -419,6 +419,8 @@ pub fn update_collision_minigame(
                         if !intersects {
                             event_writer.write(PlaySoundEvent::Success);
                             text.0 = TRAJECTORY_SAFE.to_string();
+                        } else {
+                            event_writer.write(PlaySoundEvent::Fail);
                         }
                         malfunction.resolved.push(Resolved {
                             resolved_type: MalfunctionType::Collision,

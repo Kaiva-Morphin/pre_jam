@@ -267,7 +267,9 @@ pub fn update_hack_display(
                 if *selected_seq_index == hack_grid.win_seq {
                     event_writer.write(PlaySoundEvent::Success);
                     failed = false;
-                };
+                } else {
+                    event_writer.write(PlaySoundEvent::Fail);
+                }
                 malfunction.resolved.push(Resolved {resolved_type: curr_type.clone(), failed});
                 *prev_state = Interaction::default();
                 *selected_seq_pos = vec![];

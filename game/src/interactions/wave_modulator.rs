@@ -414,6 +414,8 @@ pub fn update_wave_modulator_display(
                     if in_sync {
                         event_writer.write(PlaySoundEvent::Success);
                         text.0 = ANTENNAS_WORK.to_string();
+                    } else {
+                        event_writer.write(PlaySoundEvent::Fail);
                     }
                     malfunction.resolved.push(Resolved {
                         resolved_type: MalfunctionType::Waves,
