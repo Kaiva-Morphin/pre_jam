@@ -1,10 +1,7 @@
-use bevy::color::palettes::css::{BLUE, GREEN, RED};
-use bevy::ecs::query;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, CollisionGroups, Group, Sensor};
 use debug_utils::debug_overlay::{DebugOverlayEvent, DebugOverlayPlugin};
 use debug_utils::inspector::plugin::SwitchableEguiInspectorPlugin;
-use debug_utils::overlay_text;
 use debug_utils::rapier::plugin::SwitchableRapierDebugPlugin;
 use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 
@@ -82,9 +79,6 @@ pub fn update(
         
         let us = s / window_size - 0.5 ;
         let up = (s - window_size * 0.5) / (target_size * v.scale());
-        overlay_text!(dbg ;BottomLeft;1;PX:format!(
-            "UV screen: {us}\nUV pixel: {up}",
-        ),(255));
 
         let h_scale = window_size.x / TARGET_WIDTH as f32;
         let v_scale = window_size.y / TARGET_HEIGHT as f32;
@@ -111,10 +105,10 @@ pub fn update(
 
 pub fn spawn(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     p: Single<Entity, With<Player>>,
 ) {
     const GAP: f32 = 50.;
+    commands.entity(*p).insert(SpatialListener::new(GAP));
     commands.entity(*p).with_children(|cmd|{
         cmd.spawn((
             Name::new("Player sensor"),
@@ -126,23 +120,5 @@ pub fn spawn(
             Sensor,
             PlayerSensor,
         ));
-        // left ear
-        cmd.spawn((
-            Sprite::from_color(Color::Srgba(RED), Vec2::splat(20.0)),
-            Transform::from_xyz(-GAP / 2., 0.0, 0.0),
-        ));
-        // right ear
-        cmd.spawn((
-            Sprite::from_color(Color::Srgba(BLUE), Vec2::splat(20.0)),
-            Transform::from_xyz(GAP / 2., 0.0, 0.0),
-        ));
     });
-    
-    // commands.spawn((
-    //     AudioPlayer::new(asset_server.load("sounds/173273__tomlija__janitors-bedroom-ambience.wav")),
-    //     PlaybackSettings::LOOP.with_spatial(true),
-    //     Transform::from_xyz(50., 0., 0.),
-    //     Sprite::from_color(Color::Srgba(GREEN), Vec2::splat(20.0)),
-    // ));
-
 }

@@ -5,7 +5,6 @@ use bevy::{prelude::*, render::{camera::RenderTarget, render_resource::{Extent3d
 use bevy_ecs_tiled::prelude::{TiledMapLayer, TiledMapTile};
 use bevy_ecs_tilemap::map::TilemapRenderSettings;
 use bevy_tailwind::tw;
-use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use pixel_utils::camera::{PixelCamera, PixelCamera3d, PixelTarget, PIXEL_PERFECT_LAYERS, TARGET_HEIGHT, TARGET_WIDTH};
 
 use bevy::{
@@ -456,7 +455,6 @@ fn update(
 
     mut light: Query<&mut MeshMaterial2d<LightMaterial>>,
     mut compositor: Query<&mut MeshMaterial2d<CompositorMaterial>>,
-    mut overlay_events: EventWriter<DebugOverlayEvent>,
 ) {
     for m in light.iter_mut() {
         let material = light_mat.get_mut(&m.0).unwrap();
@@ -479,9 +477,6 @@ fn update(
                 break;
             }
         }
-        overlay_text!(overlay_events;TopRight;STRUCT1:format!("0:\n{:#?}", material.lights[0]),(255, 255, 255););
-        overlay_text!(overlay_events;TopRight;STRUCT2:format!("1:\n{:#?}", material.lights[1]),(255, 255, 255););
-
 
         // material.lights[0] = RelativeLightEmitter {
         //     camera_relative_position: Vec2::new(100.0, 200.0),

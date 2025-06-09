@@ -31,9 +31,3 @@ bevy = { workspace = true, features = ["web"] }
 [[bin]]
 name = "game"
 path = "src/main.rs"
-
-[[bin]]
-name = "shaders"
-path = "src/shaders.rs"
-
-
