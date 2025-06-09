@@ -29,6 +29,8 @@ struct Inputs {
 @group(2) @binding(9) var bg_sampler: sampler;
 @group(2) @binding(10) var bg: texture_2d<f32>;
 
+@group(2) @binding(11) var lit_sampler: sampler;
+@group(2) @binding(12) var lit: texture_2d<f32>;
 
 fn white_noise(pos: vec2<f32>) -> f32 {
     let dot_val = dot(pos, vec2<f32>(12.9898, 78.233));
@@ -198,8 +200,9 @@ fn fragment(@location(2) uv: vec2<f32>) -> @location(0) vec4<f32> {
 
 
 
+    let lit = textureSample(lit, lit_sampler, uv);
 
-    return vec4(mix(bg * vignette, (scene + tiles * vignette), scene_color.a + tile_mask), 1.0);
+    return vec4(mix(mix(bg * vignette, (scene + tiles * vignette), scene_color.a + tile_mask), lit.rgb, lit.a), 1.0);
     // let result = mix(lights, occluders_color, clamp(lights, vec3(0.0), vec3(1.0)));
     // mix(0.0, lights.r, 1.0 - clamp(lights.r, 0.0, 1.0)),
     // return vec4(

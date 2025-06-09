@@ -423,6 +423,7 @@ impl PipeMinigame {
         p.rotation = (p.rotation + 1) % 4;
     }
     pub fn fill_solved(&mut self) {
+        self.clear();
         let start_r = random_u32() as usize % ROWS;
         let start_c = random_u32() as usize % COLS;
 
@@ -460,7 +461,11 @@ impl PipeMinigame {
                 queue.push((nr, nc));
             }
         }
+        if !self.is_solved() {
+            self.fill_solved();
+        }
     }
+
     pub fn shuffle(&mut self) {
         for row in self.grid.iter_mut() {
             for cell in row.iter_mut() {

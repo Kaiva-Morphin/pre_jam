@@ -11,7 +11,7 @@ use crate::core::states::OnGame;
 use crate::interactions::components::PlayerSensor;
 use crate::physics::constants::{INTERACTABLE_CG, PLAYER_SENSOR_CG};
 use crate::physics::player::{spawn_player, Player, PlayerPlugin};
-use crate::tilemap::light::LightPlugin;
+use crate::tilemap::light::{LightPlugin, LIT_OVERLAY_LAYER};
 use crate::tilemap::plugin::MapPlugin;
 use crate::utils::background::StarBackgroundPlugin;
 use crate::utils::energy::EnergyPlugin;
@@ -93,6 +93,7 @@ pub fn update(
         
         let rp = (p.translation().truncate() - pos).to_angle();
         cmd.entity(*e).insert((
+            LIT_OVERLAY_LAYER,
             Transform::from_translation(pos.extend(0.)).with_rotation(Quat::from_rotation_z(rp)),
         ));
         // info!("S: {}", s);

@@ -21,7 +21,7 @@ impl Plugin for PlayerPlugin {
         app
             .add_systems(OnGame, spawn_player)
             .add_systems(Startup, load_player_assets)
-            .add_systems(EguiContextPass, debug)
+            // .add_systems(EguiContextPass, debug)
             .insert_resource(PlayerConstants::default())
             .insert_resource(NearestLadders{ladders: HashMap::new()})
             .add_systems(Update, (

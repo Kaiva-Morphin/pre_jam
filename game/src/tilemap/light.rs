@@ -184,6 +184,10 @@ struct CompositorMaterial {
     #[sampler(9)]
     #[texture(10)]
     bg_texture: Handle<Image>,
+
+    #[sampler(11)]
+    #[texture(12)]
+    lit_texture: Handle<Image>,
 }
 
 impl Material2d for CompositorMaterial {
@@ -201,7 +205,7 @@ const COMPOSITOR_LAYER: RenderLayers = RenderLayers::layer(10);
 const SCENE_OCCLUDER_LAYER: RenderLayers = RenderLayers::layer(20);
 const LIGHT_LAYER: RenderLayers = RenderLayers::layer(30);
 const BG_LAYER : RenderLayers = RenderLayers::layer(24);
-const LIT_OVERLAY_LAYER : RenderLayers = RenderLayers::layer(26);
+pub const LIT_OVERLAY_LAYER : RenderLayers = RenderLayers::layer(26);
 const LIGHT_RESOLUTION : f32 = 1.0;
 
 
@@ -230,6 +234,38 @@ fn setup(
         ..default()
         // depth_or_array_layers: 1,
     };
+
+    let mut lit_texture = Image {
+        texture_descriptor: TextureDescriptor {
+            label: Some("lit_scene_texture"),
+            size,
+            dimension: TextureDimension::D2,
+            format: TextureFormat::Rgba8UnormSrgb,
+            mip_level_count: 1,
+            sample_count: 1,
+            usage: TextureUsages::TEXTURE_BINDING
+                | TextureUsages::COPY_DST
+                | TextureUsages::RENDER_ATTACHMENT,
+            view_formats: &[],
+        },
+        ..default()
+    };
+    lit_texture.resize(size);
+    let lit_texture_handle: Handle<Image> = images.add(lit_texture);
+    cmd.spawn((
+        Name::new("Lit Camera"),
+        SyncCamera,
+        Camera2d,
+        Camera {
+            target: RenderTarget::Image(lit_texture_handle.clone().into()),
+            order: -17,
+            msaa_writeback: false,
+            clear_color: ClearColorConfig::Custom(Color::srgba(0.0, 0.0, 0.0, 0.0)),
+            ..default()
+        },
+        LIT_OVERLAY_LAYER
+    ));
+
 
     let mut scene_texture = Image {
         texture_descriptor: TextureDescriptor {
@@ -423,6 +459,7 @@ fn setup(
             scene_texture: retarget_handle.clone(),
             noise_texture: noise_handle.clone(),
             bg_texture: bg_handle.clone(),
+            lit_texture: lit_texture_handle,
         })),
         COMPOSITOR_LAYER,
         Transform::default().with_scale(vec3(TARGET_WIDTH as f32, TARGET_HEIGHT as f32, 1.0)).with_translation(Vec3::Z * 128.0),
