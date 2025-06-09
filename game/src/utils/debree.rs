@@ -117,7 +117,8 @@ pub fn manage_malfunctions(
     sprite_assets: Res<SpriteAssets>,
     mut pipe_minigame: ResMut<PipeMinigame>
 ) {
-    if ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) < debree_level.malfunction_probability) || keyboard.just_released(KeyCode::KeyP) {
+    let rand = getrandom::u32().unwrap() as f32 / u32::MAX as f32;
+    if (rand < debree_level.malfunction_probability) || keyboard.just_released(KeyCode::KeyP) {
         malfunction.in_progress = true;
         let mut available_for_malfunction = vec![];
         for malf_type in ALL_MALFUNCTION_TYPES.iter() {
@@ -126,7 +127,7 @@ pub fn manage_malfunctions(
             }
         }
         if available_for_malfunction.is_empty() {
-            println!("all possible malfunctions are in progress");
+            println!("all possible malfunctions are in progress {} {}", rand, debree_level.malfunction_probability);
             malfunction.added_new_malfunction = false;
             return;
         }
@@ -187,8 +188,8 @@ pub fn get_random_range(mi: f32, ma: f32) -> f32 {
     mi + rand * (ma - mi) // TODO: IS THERE MA + 1????
 }
 
-const WAVE_COST: f32 = 0.05;
-const HACK_COST: f32 = 0.05;
+const WAVE_COST: f32 = 0.0004;
+const HACK_COST: f32 = 0.0004;
 
 pub fn resolve_malfunctions(
     mut malfunction: ResMut<Malfunction>,
@@ -206,7 +207,7 @@ pub fn resolve_malfunctions(
                         debree_level.const_add += HACK_COST;
                         println!("failed hack");
                     } else {
-                        debree_level.const_add -= HACK_COST;
+                        debree_level.const_add -= HACK_COST / 2.;
                         println!("resolved hack");
                     }
                 },
@@ -231,7 +232,7 @@ pub fn resolve_malfunctions(
                         debree_level.const_add += WAVE_COST;
                         println!("failed waves");
                     } else {
-                        debree_level.const_add -= WAVE_COST;
+                        debree_level.const_add -= WAVE_COST / 2.;
                         println!("resolved waves");
                     }
                 },

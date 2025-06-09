@@ -109,7 +109,8 @@ pub fn update_pipes(
     mut event_writer: EventWriter<PlaySoundEvent>,
     in_interaction_array: Res<InInteractionArray>,
 ){
-    if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction {
+    if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction &&
+    malfunction.malfunction_types.contains(&MalfunctionType::Engine) {
         for (mut pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes.iter_mut() {
             if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
                 if *pipe_interaction == Interaction::Pressed {
@@ -119,7 +120,7 @@ pub fn update_pipes(
                     }
                     if pipes.is_solved() {
                         event_writer.write(PlaySoundEvent::Success);
-                    malfunction.resolved.push(Resolved {
+                        malfunction.resolved.push(Resolved {
                             resolved_type: MalfunctionType::Engine,
                             failed: false,
                         });

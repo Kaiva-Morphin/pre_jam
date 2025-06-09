@@ -126,9 +126,10 @@ pub fn init_hack_display(
                 let mut have_different = false;
                 for x in 0..HACK_GRID_SIZE as usize {
                     let flat_id = x + y * HACK_GRID_SIZE as usize;
-                    let index = get_random_range(0., NUM_HACK_BUTTON_TYPES - 1.) as usize;
+                    let index = get_random_range(0., NUM_HACK_BUTTON_TYPES) as usize;
                     hack_grid.grid[flat_id] = index;
                     if hack_grid.grid[y * HACK_GRID_SIZE as usize] != index {
+                        println!("{}", index);
                         have_different = true;
                     }
                 }
@@ -137,12 +138,12 @@ pub fn init_hack_display(
                 }
             }
         }
-        let hor_entry1 = get_random_range(1., HACK_GRID_SIZE as f32 - 1.) as usize;
-        let vert_entry1 = get_random_range(1., HACK_GRID_SIZE as f32 - 1.) as usize;
-        let mut hor_entry2 = get_random_range(-(hor_entry1 as f32), HACK_GRID_SIZE as f32 - 1. - hor_entry1 as f32) as usize;
+        let hor_entry1 = get_random_range(1., HACK_GRID_SIZE as f32) as usize;
+        let vert_entry1 = get_random_range(1., HACK_GRID_SIZE as f32) as usize;
+        let mut hor_entry2 = get_random_range(-(hor_entry1 as f32), HACK_GRID_SIZE as f32 - hor_entry1 as f32) as usize;
         loop {
             if hor_entry2 == 0 {
-                hor_entry2 = get_random_range(-(hor_entry1 as f32), HACK_GRID_SIZE as f32 - 1. - hor_entry1 as f32) as usize;
+                hor_entry2 = get_random_range(-(hor_entry1 as f32), HACK_GRID_SIZE as f32 - hor_entry1 as f32) as usize;
             } else {
                 break;
             }
@@ -211,11 +212,23 @@ pub fn update_hack_display(
                 },
                 _ => {return;}
             };
+            let spec_condition = match selected_seq_pos.len() {
+                0 => {
+                    base.pos.y == 0
+                },
+                1 => {
+                    base.pos.x == selected_seq_pos[0].x && base.pos.y != 0
+                },
+                2 => {
+                    base.pos.y == selected_seq_pos[1].y && base.pos.x != selected_seq_pos[0].x
+                },
+                _ => {return;}
+            };
             if ver_hor_lightup_condition {
                 hack.state = HackButtonState::Active;
                 if let Ok(interaction) = changed_interaction_query.get(entity) {
                     // println!("{:?} {}", prev_state, mouse_button.just_released(MouseButton::Left));
-                    if *prev_state == Interaction::Pressed && mouse_button.just_released(MouseButton::Left) {
+                    if *prev_state == Interaction::Pressed && mouse_button.just_released(MouseButton::Left) && spec_condition{
                         if let Some(a) = &mut node.texture_atlas {
                             a.index = hack.get_idx(false, true);
                             selected_seq_pos.push(base.pos);
