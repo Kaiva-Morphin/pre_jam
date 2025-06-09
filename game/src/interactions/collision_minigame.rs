@@ -345,6 +345,7 @@ pub fn update_collision_minigame(
     mut spinny_q: Query<&mut SpinnyIds>,
     mut energy: ResMut<Energy>,
     mut cost: Local<f32>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     let mut in_progress = false;
     if malfunction.malfunction_types.contains(&MalfunctionType::Collision) {
@@ -404,6 +405,7 @@ pub fn update_collision_minigame(
                     }
                     if *submited {
                         if !intersects {
+                            event_writer.write(PlaySoundEvent::Success);
                             text.0 = TRAJECTORY_SAFE.to_string();
                         }
                         malfunction.resolved.push(Resolved {

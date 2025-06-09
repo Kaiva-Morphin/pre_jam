@@ -58,6 +58,8 @@ pub struct SoundAssets {
     pub industrial_ambience: Handle<AudioSource>,
     #[asset(path = "sounds/vent_ambience.wav")]
     pub vent_ambience: Handle<AudioSource>,
+    #[asset(path = "sounds/Retro PickUp Coin StereoUP 04.wav")]
+    pub success: Handle<AudioSource>,
 }
 
 #[derive(Component)]
@@ -102,6 +104,7 @@ pub enum PlaySoundEvent {
     OpenWires,
     WireClick,
     Beep,
+    Success,
 }
 
 pub fn play_sounds(
@@ -165,6 +168,9 @@ fn match_sounds(
         },
         PlaySoundEvent::Beep => {
             commands.spawn(sound_bundle(sound_assets.beep_sound.clone(), 0.2));
+        },
+        PlaySoundEvent::Success => {
+            commands.spawn(sound_bundle(sound_assets.success.clone(), 0.8));
         },
     }
 }

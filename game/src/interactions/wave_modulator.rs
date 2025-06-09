@@ -364,6 +364,7 @@ pub fn update_wave_modulator_display(
     mut submited: Local<bool>,
     mut prev: Local<Interaction>,
     text: Query<&mut Text, With<WaveModText>>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     let mut in_progress = false;
     if malfunction.malfunction_types.contains(&MalfunctionType::Waves) {
@@ -412,6 +413,7 @@ pub fn update_wave_modulator_display(
                 }
                 if *submited {
                     if in_sync {
+                        event_writer.write(PlaySoundEvent::Success);
                         text.0 = ANTENNAS_WORK.to_string();
                     }
                     malfunction.resolved.push(Resolved {

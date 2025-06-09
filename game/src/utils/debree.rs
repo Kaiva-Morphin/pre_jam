@@ -46,13 +46,13 @@ pub fn debree_level_management(
     // causes player to manage chain reaction via hack+deorbit, antennas level and condition
     // debree level is not linearly prop to chain reaction; strategic deorbit can lower chain reaction
     let t = time.elapsed_secs_wrapped();
-    let start = 0.00019;
-    let growth = 0.003;
+    let start = 0.00035;
+    let growth = 0.004;
     debree_level.base_level = start * (growth * t).exp();
 
     debree_level.level = debree_level.base_level + debree_level.const_add;
     debree_level.malfunction_probability = debree_level.level;
-    debree_level.malfunction_probability = 0.;
+    // debree_level.malfunction_probability = 0.;
     // malfunc prob is perframe
     debree_level.chain_reaction = debree_level.level / 0.7;
     overlay_text!(
@@ -116,7 +116,7 @@ pub fn manage_malfunctions(
     mut malfunction: ResMut<Malfunction>,
     sprite_assets: Res<SpriteAssets>,
 ) {
-    if (getrandom::u32().unwrap() as f32 / u32::MAX as f32) < debree_level.malfunction_probability || keyboard.just_released(KeyCode::KeyP) {
+    if ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) < debree_level.malfunction_probability) || keyboard.just_released(KeyCode::KeyP) {
         malfunction.in_progress = true;
         let mut available_for_malfunction = vec![];
         for malf_type in ALL_MALFUNCTION_TYPES.iter() {
@@ -184,8 +184,8 @@ pub fn get_random_range(mi: f32, ma: f32) -> f32 {
     mi + rand * (ma - mi) // TODO: IS THERE MA + 1????
 }
 
-const WAVE_COST: f32 = 10.;
-const HACK_COST: f32 = 10.;
+const WAVE_COST: f32 = 0.05;
+const HACK_COST: f32 = 0.05;
 
 pub fn resolve_malfunctions(
     mut malfunction: ResMut<Malfunction>,

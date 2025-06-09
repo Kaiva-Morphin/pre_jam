@@ -71,6 +71,7 @@ pub fn update_pipes(
     mut pipe_image_nodes: Query<(&mut PipeEntity, &mut ImageNode, &Interaction), Changed<Interaction>>,
     mut pipes: ResMut<PipeMinigame>,
     mut malfunction: ResMut<Malfunction>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ){
     for (mut pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes.iter_mut() {
         if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
@@ -80,6 +81,7 @@ pub fn update_pipes(
                     texture_atlas.index = p.get_index();
                 }
                 if pipes.is_solved() {
+                    event_writer.write(PlaySoundEvent::Success);
                     malfunction.resolved.push(Resolved {
                         resolved_type: MalfunctionType::Engine,
                         failed: false,

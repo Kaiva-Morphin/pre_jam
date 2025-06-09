@@ -1,18 +1,24 @@
 use bevy::{platform::collections::HashSet, prelude::*};
 use bevy_tailwind::tw;
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::base::*, hack_button::*}, target::LowresUiContainer}, utils::{debree::{get_random_range, Malfunction, MalfunctionType, Resolved}, spacial_audio::PlaySoundEvent}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::*, text_display::{text_display_green_handle, ui_text_display_green_with_text}}, hack_button::*}, target::LowresUiContainer}, utils::{debree::{get_random_range, Malfunction, MalfunctionType, Resolved}, spacial_audio::PlaySoundEvent}};
 
 pub const HACK_GRID_SIZE: u32 = 6;
 pub const HACK_PIXEL_GRID_SIZE: u32 = 50;
 pub const HACK_ATLAS_COLUMNS: u32 = 6;
 pub const HACK_ATLAS_ROWS: u32 = 6;
-pub const NUM_HACK_BUTTON_TYPES: f32 = 5.;
+pub const NUM_HACK_BUTTON_TYPES: f32 = 7.;
 
 #[derive(Component)]
 pub struct HackButtonBase {
     pub pos: UVec2,
 }
+
+#[derive(Component)]
+pub struct GoalText;
+
+#[derive(Component)]
+pub struct BufferText;
 
 pub fn open_hack_display(
     mut commands: Commands,
@@ -40,6 +46,21 @@ pub fn open_hack_display(
             let hack = hack_button_bundle(&asset_server, &mut texture_atlases);
             let main = main_container_handle(&asset_server);
             let sub = sub_container_handle(&asset_server);
+            let text_bundle = text_display_green_handle(&asset_server);
+            
+            let goal_text = "Goal: ";
+            let goal_text_entity = commands.spawn(
+            ui_main_container(&main, children![
+                ui_text_display_green_with_text(&text_bundle, (GoalText, GoalText), goal_text, &asset_server)
+                ])
+            ).id();
+
+            let buffer_text = "Selected: ";
+            let buffer_text_entity = commands.spawn(
+            ui_main_container(&main, children![
+                ui_text_display_green_with_text(&text_bundle, (BufferText, BufferText), buffer_text, &asset_server)
+                ])
+            ).id();
 
             let mut children = vec![];
             for y in 0..HACK_GRID_SIZE {
@@ -67,6 +88,16 @@ pub fn open_hack_display(
                     cmd.spawn(ui_sub_container(&sub, ())).with_children(|cmd| {
                         cmd.spawn(tw!("items-center justify-center w-full h-full grid grid-cols-6 grid-rows-6 gap-x-px gap-y-px"),)
                         .add_children(&children);
+                    });
+                    cmd.spawn(ui_sub_container(&sub, ()))
+                    .with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                        .add_child(goal_text_entity);
+                    });
+                    cmd.spawn(ui_sub_container(&sub, ()))
+                    .with_children(|cmd| {
+                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                        .add_child(buffer_text_entity);
                     });
                 });
             }).id();
@@ -143,7 +174,26 @@ pub fn update_hack_display(
     mut selected_seq_index: Local<Vec<usize>>,
     mouse_button: Res<ButtonInput<MouseButton>>,
     mut prev_state: Local<Interaction>,
+    goal_text: Query<&mut Text, With<GoalText>>,
+    buffer_text: Query<&mut Text, (With<BufferText>, Without<GoalText>)>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
+    for mut text in goal_text {
+        let winseq = hack_grid.win_seq.iter().map(|index| HACK_BUTTON_NAMES[*index]).collect::<Vec<&str>>();
+        let mut seq = String::from("Goal: ");
+        for i in winseq {
+            seq += &format!("{} ", i);
+        }
+        text.0 = seq;
+    }
+    for mut text in buffer_text {
+        let sel_seq = selected_seq_index.iter().map(|index| HACK_BUTTON_NAMES[*index]).collect::<Vec<&str>>();
+        let mut seq = String::from("Selected: ");
+        for i in sel_seq {
+            seq += &format!("{} ", i);
+        }
+        text.0 = seq;
+    }
     let curr_type = MalfunctionType::Hack;
     if malfunction.malfunction_types.contains(&curr_type) && hack_grid.is_loaded {
         for (entity, interaction, mut node, mut hack, base) in
@@ -190,6 +240,7 @@ pub fn update_hack_display(
                 hack_grid.is_loaded = false;
                 let mut failed = true;
                 if *selected_seq_index == hack_grid.win_seq {
+                    event_writer.write(PlaySoundEvent::Success);
                     failed = false;
                 };
                 malfunction.resolved.push(Resolved {resolved_type: curr_type.clone(), failed});

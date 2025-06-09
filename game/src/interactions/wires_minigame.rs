@@ -5,7 +5,7 @@ use bevy_tailwind::tw;
 use debug_utils::overlay_text;
 use pixel_utils::camera::{PixelCamera, TARGET_HEIGHT, TARGET_WIDTH};
 
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::text_display_green_handle, viewport_container::viewport_handle}, spinny::ui_spinny, ui_submit_button::submit_button_bundle, wire_inlet::{ui_wire_inlet, wire_inlet_bundle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::{get_random_range, Malfunction, Resolved}, mouse::CursorPosition}};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::{containers::{base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, text_display::text_display_green_handle, viewport_container::viewport_handle}, spinny::ui_spinny, ui_submit_button::submit_button_bundle, wire_inlet::{ui_wire_inlet, wire_inlet_bundle}}, target::LowresUiContainer}, utils::{custom_material_loader::SpriteAssets, debree::{get_random_range, Malfunction, Resolved}, mouse::CursorPosition, spacial_audio::PlaySoundEvent}};
 
 
 
@@ -55,7 +55,7 @@ pub struct Wire {
 #[derive(Component)]
 pub struct WireContainer;
 
-const WIRES : usize = 7;
+const WIRES : usize = 2;
 const WIRE_SOCKETS : usize = WIRES * 2;
 
 pub fn refresh_game(
@@ -126,7 +126,7 @@ pub fn open_wires_display(
     mut wires: ResMut<WireMinigame>,
     mut texture_atlases: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    // TODO: add touch and open sfx
+    // TODO: add touch and open sfx and success sfx
     if let Some(entity) = *already_spawned {
         if !in_interaction_array.in_any_interaction {
             commands.entity(entity).despawn();
@@ -209,6 +209,7 @@ pub fn touch_wires_inlet(
     grabbed_wire_rot: Query<(Entity, &Children), With<GrabbedWireRot>>,
     grabbed_wire_size: Query<Entity, With<GrabbedWire>>,
     mut malfunction: ResMut<Malfunction>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     let prev_locked = wires.locked_id.clone();
     if mouse_button.just_released(MouseButton::Left) {
@@ -322,13 +323,15 @@ pub fn touch_wires_inlet(
                     let relative = global_transform.translation().xy() - window.size() * 0.5;
                     wires.socket_positions.insert(wire.id, relative);
                     for (_container_entity, _cursor_rel_pos, node) in wires_container {
-                        info!("Try connect: {} -> {}", locked_id, wire.id);
+                        info!("Try connect: {} -> {}", wires.connected.len(), wires.task.len());
                         if wires.task.get(&locked_id) != Some(&wire.id) {
+                            info!("ASASASAASSSSSSSSSSSSSSSSSSSSSSSSS");
                             malfunction.resolved.push(Resolved {
                                 resolved_type: crate::utils::debree::MalfunctionType::Reactor,
                                 failed: true,
                             });
                         } else if wires.connected.len() == wires.task.len() {
+                            event_writer.write(PlaySoundEvent::Success);
                             malfunction.resolved.push(Resolved {
                                 resolved_type: crate::utils::debree::MalfunctionType::Reactor,
                                 failed: false,
