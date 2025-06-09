@@ -142,7 +142,6 @@ pub fn init_hack_display(
                     let index = get_random_range(0., NUM_HACK_BUTTON_TYPES) as usize;
                     hack_grid.grid[flat_id] = index;
                     if hack_grid.grid[y * HACK_GRID_SIZE as usize] != index {
-                        println!("{}", index);
                         have_different = true;
                     }
                 }

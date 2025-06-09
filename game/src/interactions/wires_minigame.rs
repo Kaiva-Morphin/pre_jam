@@ -212,8 +212,7 @@ pub fn touch_wires_inlet(
     mut event_writer: EventWriter<PlaySoundEvent>,
     in_interaction_array: Res<InInteractionArray>,
 ) {
-    if !(in_interaction_array.in_interaction == InteractionTypes::WiresMinigame || in_interaction_array.in_any_interaction ||
-    malfunction.malfunction_types.contains(&MalfunctionType::Reactor)) {return;}
+    if !malfunction.malfunction_types.contains(&MalfunctionType::Reactor) {return;}
     let prev_locked = wires.locked_id.clone();
     if mouse_button.just_released(MouseButton::Left) {
         wires.locked_id = None;

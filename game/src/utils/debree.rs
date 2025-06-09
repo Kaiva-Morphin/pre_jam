@@ -5,7 +5,7 @@ use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use tiled::PropertyValue;
 use utils::WrappedDelta;
 
-use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, pipe_puzzle::PipeMinigame, warning_interface::WarningData}, utils::{custom_material_loader::SpriteAssets, energy::Energy}};
+use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, pipe_puzzle::PipeMinigame, warning_interface::WarningData}, utils::{custom_material_loader::SpriteAssets, energy::Energy, spacial_audio::PlaySoundEvent}};
 
 pub struct DebreePlugin;
 
@@ -115,10 +115,20 @@ pub fn manage_malfunctions(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut malfunction: ResMut<Malfunction>,
     sprite_assets: Res<SpriteAssets>,
-    mut pipe_minigame: ResMut<PipeMinigame>
+    mut pipe_minigame: ResMut<PipeMinigame>,
+    time: Res<Time>,
+    mut minimal_delta: Local<Duration>
 ) {
+    *minimal_delta += Duration::from_secs_f32(time.dt());
     let rand = getrandom::u32().unwrap() as f32 / u32::MAX as f32;
     if (rand < debree_level.malfunction_probability) || keyboard.just_released(KeyCode::KeyP) {
+        println!("{:?}", minimal_delta);
+        if minimal_delta.as_secs_f32() > 10. {
+            println!("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            *minimal_delta = Duration::ZERO
+        } else {
+            return;
+        }
         malfunction.in_progress = true;
         let mut available_for_malfunction = vec![];
         for malf_type in ALL_MALFUNCTION_TYPES.iter() {
@@ -195,6 +205,7 @@ pub fn resolve_malfunctions(
     mut malfunction: ResMut<Malfunction>,
     mut debree_level: ResMut<DebreeLevel>,
     mut energy: ResMut<Energy>,
+    mut event_writer: EventWriter<GameEndEvent>,
 ) {
     if !malfunction.resolved.is_empty() {
         for resolved in malfunction.resolved.clone() {
@@ -214,6 +225,7 @@ pub fn resolve_malfunctions(
                 MalfunctionType::Collision => {
                     if resolved.failed {
                         println!("failed collision"); // end
+                        event_writer.write(GameEndEvent);
                     } else {
                         println!("resolved collision"); // go on
                     }
@@ -238,6 +250,7 @@ pub fn resolve_malfunctions(
                 },
                 MalfunctionType::Engine => {
                     if resolved.failed {
+                        event_writer.write(GameEndEvent);
                         println!("failed engine"); // end
                     } else {
                         println!("resolved engine");
@@ -280,12 +293,19 @@ pub struct GameEndEvent;
 pub fn end_game(
     debree_level: Res<DebreeLevel>,
     time: Res<Time>,
-    mut event_reader: EventReader<GameEndEvent>
+    mut event_reader: EventReader<GameEndEvent>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
+    let mut end = false;
     for _event in event_reader.read() {
+        end = true;
         println!("END {}", time.elapsed_secs());
     }
-    // if debree_level.chain_reaction >= 100. {
-    //     println!("END {}", time.elapsed_secs());
-    // }
+    if debree_level.chain_reaction >= 100. {
+        end = true;
+        println!("END {}", time.elapsed_secs());
+    }
+    if end {
+        event_writer.write(PlaySoundEvent::Boom);
+    }
 }
