@@ -5,7 +5,7 @@ use bevy_rapier2d::{prelude::CollisionEvent, rapier::prelude::CollisionEventFlag
 use shaders::VelocityEmmiter;
 use utils::{Easings, WrappedDelta};
 
-use crate::{interactions::components::PlayerSensor, physics::player::Player, utils::{custom_material_loader::{TextureAtlasHandles, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition}};
+use crate::{interactions::components::PlayerSensor, physics::player::Player, tilemap::light::LIT_OVERLAY_LAYER, utils::{custom_material_loader::{TextureAtlasHandles, KEYS_ATLAS_SIZE}, debree::DebreeLevel, mouse::CursorPosition}};
 
 use super::{chain_reaction_display::ChainGraphMaterial, components::{FKey, InInteraction, InInteractionArray, InteractGlowEvent, InteractableMaterial, InteractionTypes, KeyTimer, ScrollSelector}, wave_modulator::WaveGraphMaterial};
 
@@ -13,7 +13,7 @@ pub fn interact(
     mut commands: Commands,
     mut mouse_wheel_events: EventReader<MouseWheel>,
     mut collision_events: EventReader<CollisionEvent>,
-    mut interactable: Query<(&mut InInteraction, &Transform)>,
+    mut interactable: Query<(&mut InInteraction, &GlobalTransform)>,
     texture_atlas_handles: Res<TextureAtlasHandles>,
     mut scroll_selector: ResMut<ScrollSelector>,
     keyboard: Res<ButtonInput<KeyCode>>,
@@ -83,7 +83,7 @@ pub fn interact(
                     if *sender_entity == *player_entity {
                         interactable_entity = *reciever_entity;
                     }
-                    let Ok((mut in_interaction, interactable_transform)) = interactable.get_mut(interactable_entity) else {continue;};
+                    let Ok((mut in_interaction, _interactable_transform)) = interactable.get_mut(interactable_entity) else {continue;};
                     in_interaction.data = false;
                     if let Some(index) = scroll_selector.selection_options.iter().position(|&e| e == interactable_entity) {
                         scroll_selector.selection_options.remove(index);
@@ -101,7 +101,7 @@ pub fn interact(
         if let Some(selection_options) = scroll_selector.selection_options.get(scroll_selector.current_selected) {
             if *selection_options == option_entity && scroll_selector.current_displayed.is_none() {
             // print!("{:?}", option_entity);
-            let interactable_pos = interactable.get_mut(option_entity).unwrap().1.translation;
+            let interactable_pos = interactable.get_mut(option_entity).unwrap().1.translation();
             let e_key_entity = commands.spawn((
                 Sprite::from_atlas_image(
                     texture_atlas_handles.image_handle.clone(),
@@ -110,6 +110,7 @@ pub fn interact(
                 Transform::from_translation(interactable_pos + Vec3::Y * 50.),
                 FKey,
                 Name::new("FKey"),
+                LIT_OVERLAY_LAYER
             )).id();
             scroll_selector.current_displayed = Some(e_key_entity.clone());
             }

@@ -1,5 +1,4 @@
 use bevy::{input::mouse::{MouseMotion, MouseWheel}, prelude::*};
-use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use utils::{wrap, ExpDecay, WrappedDelta};
 use pixel_utils::camera::{setup_camera, PixelCamera};
 
