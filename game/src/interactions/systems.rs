@@ -21,7 +21,6 @@ pub fn interact(
     mut in_interaction_array: ResMut<InInteractionArray>,
     player_entity: Single<Entity, With<PlayerSensor>>,
 ) {
-    // TODO: STOP PLAYER
     if in_interaction_array.in_any_interaction {
         if keyboard.just_released(KeyCode::KeyF) {
             in_interaction_array.in_any_interaction = false;

@@ -660,11 +660,13 @@ pub fn update_controllers(
             }
             
             let target = raw_dir.x * if keyboard.pressed(KeyCode::ShiftLeft) {consts.run_speed} else {consts.walk_speed};
-
-            if controller.is_on_floor() && !interactions.in_any_interaction {
+            if controller.is_on_floor() {
                 controller.horisontal_velocity = controller.horisontal_velocity.move_towards(target, consts.speed_gain * dt);
             } else {
                 controller.horisontal_velocity = controller.horisontal_velocity.move_towards(target, consts.speed_loss * dt);
+            }
+            if interactions.in_any_interaction {
+                controller.horisontal_velocity = 0.0;
             }
 
             // controller.horisontal_velocity += diff * *speed_gain * dt;
@@ -727,6 +729,8 @@ pub fn update_controllers(
             anim.target = PlayerAnimationNode::Float;
             let ang_dir = keyboard.pressed(KeyCode::KeyQ) as usize as f32 - keyboard.pressed(KeyCode::KeyE) as usize as f32;
             raw_dir.x = keyboard.pressed(KeyCode::KeyD) as usize as f32 - keyboard.pressed(KeyCode::KeyA) as usize as f32;
+            
+
             let target = player_vel.angvel + ang_dir * dt * consts.spacewalk_ang_speed;
             if target.abs() > player_vel.angvel.abs() {
                 player_vel.angvel = target.clamp(-consts.spacewalk_max_angvel, consts.spacewalk_max_angvel);
@@ -763,6 +767,11 @@ pub fn update_controllers(
                     r
                 }
             };
+            if interactions.in_any_interaction {
+                player_vel.angvel = 0.0;
+                player_vel.linvel = vec2(0.0, 0.0);
+                controller.horisontal_velocity = 0.0;
+            }
             *mesh_turn = mesh_turn.move_towards((t).clamp(-PI / 2.0, PI / 2.0), dt * consts.mesh_turn_speed * 0.2);
             
             player_mesh.rotation = Quat::from_axis_angle(Vec3::Y, *mesh_turn);

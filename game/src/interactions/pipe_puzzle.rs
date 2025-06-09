@@ -4,9 +4,11 @@ use bevy_tailwind::tw;
 use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::containers::base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, target::LowresUiContainer}, utils::{custom_material_loader::PipesAtlasHandles, debree::{Malfunction, MalfunctionType, Resolved}, spacial_audio::PlaySoundEvent}};
 
 // WIBECODE RULES 🤘🧑‍🎤
+const ROWS: usize = 6;
+const COLS: usize = 6;
 
 pub const SINGLE_PIPE_TEX_SIZE : f32 = 16.;
-const PIPE_GRID_SIZE : f32 = 50.0;
+const PIPE_GRID_SIZE : f32 = 25.0;
 
 pub fn open_pipe_puzzle_display(
     mut commands: Commands,
@@ -15,7 +17,7 @@ pub fn open_pipe_puzzle_display(
     lowres_container: Single<Entity, With<LowresUiContainer>>,
     pipes_atlas_handles: Res<PipesAtlasHandles>,
     asset_server: Res<AssetServer>,
-    pipes: Res<PipeMinigame>,
+    mut pipes: ResMut<PipeMinigame>,
     mut event_writer: EventWriter<PlaySoundEvent>,
 ) {
     // TODO: add pipe sounds
@@ -25,38 +27,71 @@ pub fn open_pipe_puzzle_display(
             *already_spawned = None;
         }
     } else {
+        // pipes.fill_solved();
         if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction {
             let main = main_container_handle(&asset_server);
             let sub = sub_container_handle(&asset_server);
             
-            let mut children = vec![];
-            for y in 0..ROWS {
-                for x in 0..COLS {
-                    let pipe = pipes.get_pipe(x, y);
-                    info!("Pipe added: {x} {y} {:?}", pipe);
-                    children.push(commands.spawn((
-                        ImageNode::from_atlas_image(
-                            pipes_atlas_handles.image_handle.clone(),
-                            TextureAtlas{
-                                layout: pipes_atlas_handles.layout_handle.clone(),
-                                index: pipe.as_ref().map(|v|v.get_index()).unwrap_or(15)
-                            },
-                        ),
-                        PipeEntity{
-                            pipe: pipe.cloned(),
-                            position: uvec2(x as u32, y as u32), 
-                        },
-                        Button,
-                    )).id());
-                }
-            }
+            
             let entity = commands.spawn(
                 tw!("items-center justify-center w-full h-full"),
             ).with_children(|cmd|{
                 cmd.spawn(ui_main_container(&main, ())).with_children(|cmd| {
                     cmd.spawn(ui_sub_container(&sub, ())).with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full grid grid-cols-6 grid-rows-6 gap-x-px gap-y-px"),)
-                        .add_children(&children);
+                        //info!("{:?}", tw!("items-center justify-center w-full h-full grid grid-cols-6 grid-rows-6"));
+                        /*
+                        Node { display: Grid, box_sizing: BorderBox, position_type: Relative, overflow: Overflow { x: Visible, y: Visible }, overflow_clip_margin: OverflowClipMargin { visual_box: ContentBox, margin: 0.0 }, left: Auto, right: Auto, top: Auto, bottom: Auto, width: Percent(100.0), height: Percent(100.0), min_width: Auto, min_height: Auto, max_width: Auto, max_height: Auto, aspect_ratio: None, align_items: Center, justify_items: Default, align_self: Auto, justify_self: Auto, align_content: Default, justify_content: Center, margin: UiRect { left: Px(0.0), right: Px(0.0), top: Px(0.0), bottom: Px(0.0) }, padding: UiRect { left: Px(0.0), right: Px(0.0), top: Px(0.0), bottom: Px(0.0) }, border: UiRect { left: Px(0.0), right: Px(0.0), top: Px(0.0), bottom: Px(0.0) }, flex_direction: Row, flex_wrap: NoWrap, flex_grow: 0.0, flex_shrink: 1.0, flex_basis: Auto, row_gap: Px(0.0), column_gap: Px(0.0), grid_auto_flow: Row, grid_template_rows: [RepeatedGridTrack { repetition: Count(6), tracks: [GridTrack { min_sizing_function: Px(0.0), max_sizing_function: Fraction(1.0) }] }], grid_template_columns: [RepeatedGridTrack { repetition: Count(6), tracks: [GridTrack { min_sizing_function: Px(0.0), max_sizing_function: Fraction(1.0) }] }], grid_auto_rows: [], grid_auto_columns: [], grid_row: GridPlacement { start: None, span: Some(1), end: None }, grid_column: GridPlacement { start: None, span: Some(1), end: None } }
+                        */
+                        cmd.spawn(Node {
+                            width: Val::Percent(100.),
+                            height: Val::Percent(100.),
+                            // align_self: AlignSelf::Center,
+                            // align_items: AlignItems::Center,
+                            // justify_content: JustifyContent::Center,
+                            // position_type: PositionType::Absolute,
+                            // flex_direction: FlexDirection::Row,
+                            // align_items: AlignItems::Center,
+                            // justify_content: JustifyContent::Center,
+                            // width: Val::Px(PIPE_GRID_SIZE * COLS as f32),
+                            // height: Val::Px(PIPE_GRID_SIZE * ROWS as f32),
+                            // display: Display::Flex,
+                            display: Display::Grid,
+                            row_gap: Val::Px(-0.4),
+                            grid_auto_flow: GridAutoFlow::Column,
+                            column_gap: Val::Px(-0.4),
+                            grid_template_rows: vec![RepeatedGridTrack::flex(ROWS as u16, 1.)],
+                            grid_template_columns: vec![RepeatedGridTrack::flex(COLS as u16, 1.)],
+                            ..Default::default()
+                        })
+                        .with_children(|cmd|{
+                            for x in 0..COLS {
+                                for y in 0..ROWS {
+                                    let pipe = pipes.get_pipe(x, ROWS - y - 1);
+                                    cmd.spawn((
+                                        Node {
+                                            width: Val::Px(PIPE_GRID_SIZE),
+                                            height: Val::Px(PIPE_GRID_SIZE),
+                                            // position_type: PositionType::Absolute,
+                                            // left: Val::Px(PIPE_GRID_SIZE * x as f32),
+                                            // bottom: Val::Px(PIPE_GRID_SIZE * y as f32),
+                                            ..default()
+                                        },
+                                        ImageNode::from_atlas_image(
+                                            pipes_atlas_handles.image_handle.clone(),
+                                            TextureAtlas{
+                                                layout: pipes_atlas_handles.layout_handle.clone(),
+                                                index: pipe.as_ref().map(|v|v.get_index()).unwrap_or(15)
+                                            },
+                                        ),
+                                        PipeEntity{
+                                            pipe: pipe.cloned(),
+                                            position: uvec2(x as u32, (ROWS - y - 1) as u32), 
+                                        },
+                                        Button,
+                                    ));
+                                }
+                            }
+                        });
                     });
                 });
             }).id();
@@ -72,20 +107,23 @@ pub fn update_pipes(
     mut pipes: ResMut<PipeMinigame>,
     mut malfunction: ResMut<Malfunction>,
     mut event_writer: EventWriter<PlaySoundEvent>,
+    in_interaction_array: Res<InInteractionArray>,
 ){
-    for (mut pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes.iter_mut() {
-        if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
-            if *pipe_interaction == Interaction::Pressed {
-                pipes.rotate(pipe.position);
-                if let Some(p) = pipes.get_pipe(pipe.position.x as usize, pipe.position.y as usize) {
-                    texture_atlas.index = p.get_index();
-                }
-                if pipes.is_solved() {
-                    event_writer.write(PlaySoundEvent::Success);
+    if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction {
+        for (mut pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes.iter_mut() {
+            if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
+                if *pipe_interaction == Interaction::Pressed {
+                    pipes.rotate(pipe.position);
+                    if let Some(p) = pipes.get_pipe(pipe.position.x as usize, pipe.position.y as usize) {
+                        texture_atlas.index = p.get_index();
+                    }
+                    if pipes.is_solved() {
+                        event_writer.write(PlaySoundEvent::Success);
                     malfunction.resolved.push(Resolved {
-                        resolved_type: MalfunctionType::Engine,
-                        failed: false,
-                    });
+                            resolved_type: MalfunctionType::Engine,
+                            failed: false,
+                        });
+                    }
                 }
             }
         }
@@ -240,8 +278,6 @@ fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
     None
 }
 
-const ROWS: usize = 4;
-const COLS: usize = 4;
 
 impl Pipe {
     fn get_index(&self) -> usize {
@@ -488,7 +524,7 @@ impl Default for PipeMinigame {
             grid: vec![vec![None; COLS]; ROWS],
         };
         s.fill_solved();
-        s.shuffle();
+        // s.shuffle();
         s
     }
 }

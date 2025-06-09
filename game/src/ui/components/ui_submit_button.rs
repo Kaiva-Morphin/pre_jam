@@ -2,9 +2,9 @@ use bevy::{prelude::*, ui::RelativeCursorPosition};
 
 use crate::{interactions::{collision_minigame::SubmitButton, wave_modulator::SpinnyIds}, utils::spacial_audio::PlaySoundEvent};
 
-pub const SUBMIT_BUTTON_SRC: &str = "atlases/E.png";
+pub const SUBMIT_BUTTON_SRC: &str = "ui/send.png";
 pub fn submit_button_bundle(a: &Res<AssetServer>, t: &mut ResMut<Assets<TextureAtlasLayout>>) -> (Handle<Image>, Handle<TextureAtlasLayout>) {
-    let layout = TextureAtlasLayout::from_grid(UVec2::new(19, 21), 1, 2, None, None);
+    let layout = TextureAtlasLayout::from_grid(UVec2::new(36, 36), 2, 1, None, None);
     (a.load(SUBMIT_BUTTON_SRC),
     t.add(layout))
 }

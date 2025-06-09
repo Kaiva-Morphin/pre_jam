@@ -5,7 +5,7 @@ use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use tiled::PropertyValue;
 use utils::WrappedDelta;
 
-use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, warning_interface::WarningData}, utils::{custom_material_loader::SpriteAssets, energy::Energy}};
+use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, pipe_puzzle::PipeMinigame, warning_interface::WarningData}, utils::{custom_material_loader::SpriteAssets, energy::Energy}};
 
 pub struct DebreePlugin;
 
@@ -115,6 +115,7 @@ pub fn manage_malfunctions(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut malfunction: ResMut<Malfunction>,
     sprite_assets: Res<SpriteAssets>,
+    mut pipe_minigame: ResMut<PipeMinigame>
 ) {
     if ((getrandom::u32().unwrap() as f32 / u32::MAX as f32) < debree_level.malfunction_probability) || keyboard.just_released(KeyCode::KeyP) {
         malfunction.in_progress = true;
@@ -167,6 +168,8 @@ pub fn manage_malfunctions(
             },
             MalfunctionType::Engine => {
                 malfunction.malfunction_types.push(malfunc_type);
+                pipe_minigame.fill_solved();
+                pipe_minigame.shuffle();
                 malfunction.warning_data.push(WarningData {
                     color: false,
                     text: "Engine malfunctioned!".to_string(),
@@ -194,7 +197,7 @@ pub fn resolve_malfunctions(
 ) {
     if !malfunction.resolved.is_empty() {
         for resolved in malfunction.resolved.clone() {
-            let index = malfunction.malfunction_types.iter().position(|r| r == &resolved.resolved_type).unwrap();
+            let index = malfunction.malfunction_types.iter().position(|r: &MalfunctionType| r == &resolved.resolved_type).unwrap();
             let to_be_resolved = malfunction.malfunction_types.remove(index);
             malfunction.malfunction_timers.remove(index);
             match to_be_resolved {

@@ -151,17 +151,29 @@ pub fn open_collision_minigame_display(
             ).id();
             
             let text_entity = commands.spawn(
-            ui_main_container(&main, children![
-                ui_text_display_green_with_text(&text_bundle, (CollisionText, CollisionText), collision_text, &asset_server)
-                ])
-            ).id();
+            ui_main_container(&main, ())
+            )
+            .with_children(|cmd|{
+                cmd.spawn(
+                    ui_text_display_green_with_text(&text_bundle, (CollisionText, CollisionText), collision_text, &asset_server)
+                ).insert(tw!("w-[350px] items-center justify-center p-[5px]"));
+            }).id();
 
             let collision_text = "Maneuver cost: 0 GJ";
             let text_entity1 = commands.spawn(
-            ui_main_container(&main, children![
-                ui_text_display_green_with_text(&text_bundle, (CollisionCostText, CollisionCostText), collision_text, &asset_server)
-                ])
-            ).id();
+            ui_main_container(&main, ())
+            )
+            .with_children(|cmd|{
+                cmd.spawn(
+                    ui_text_display_green_with_text(&text_bundle, (CollisionCostText, CollisionCostText), collision_text, &asset_server)
+                ).insert(tw!("w-[350px] items-center justify-center p-[5px]"));
+            }).id();
+
+            // let text_entity1 = commands.spawn(
+            // ui_main_container(&main, children![
+            //     ui_text_display_green_with_text(&text_bundle, (CollisionCostText, CollisionCostText), collision_text, &asset_server)
+            //     ])
+            // ).insert(tw!("w-[350px]")).id();
             
             let entity = commands.spawn(
                 tw!("items-center justify-center w-full h-full"),
@@ -173,25 +185,25 @@ pub fn open_collision_minigame_display(
                         cmd.spawn(tw!("items-center justify-center w-full h-full"),)
                         .add_child(ui_entity);
                     });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_children(&children);
-                    });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_child(submit_button_entity);
-                    });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_child(text_entity);
-                    });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_child(text_entity1);
+                    cmd.spawn(ui_main_container(&main, ())).insert(
+                        tw!("flex flex-col-reverse")
+                    ).with_children(|cmd|{
+                            cmd.spawn(ui_sub_container(&sub, ()))
+                            .with_children(|cmd| {
+                                cmd.spawn(tw!("items-center justify-center w-full h-full gap-[1px]"),)
+                                .add_children(&children)
+                                .add_child(submit_button_entity);
+                            });
+                            cmd.spawn(ui_sub_container(&sub, ()))
+                            .with_children(|cmd| {
+                                cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                                .add_child(text_entity);
+                            });
+                            cmd.spawn(ui_sub_container(&sub, ()))
+                            .with_children(|cmd| {
+                                cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                                .add_child(text_entity1);
+                            });
                     });
                 });
             }).id();

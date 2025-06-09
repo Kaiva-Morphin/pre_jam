@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="30" nextobjectid="106">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="30" nextobjectid="107">
  <tileset firstgid="1" source="main.tsx"/>
  <layer id="11" name="WALL" width="30" height="20" locked="1">
   <data encoding="base64" compression="zlib">
@@ -309,13 +309,13 @@
    eJwzY2JgMAdickEYUG84BfrLgHrLKdA/mADHQDsAD5jDyMAwl5F8/XuAevfi0C8GjD9xJgRNKjCDpkEzMtMiLA2SmxZhaXAop8X5TAiaA4lPCAAAz/wLRQ==
   </chunk>
    <chunk x="16" y="-32" width="16" height="16">
-   eJxjYCAePGRkYHgExI+B+AkjCRqhgJGJgYEJiJmBmIWJdP2KQD1KQKwMxCpA/I8MNwwWwDHQDhgFDFwU6teiiivoC+YA88xcRkT6AwA+Sgax
+   eJzV0jkOgDAMRFEnUAQ4BUvBcmU4HEvBcgfEL5BoiZvASK8cybIt8j6jEZkwYzEexTvGilhEiK1/P6dToESFUzHDV+JCDxAoKzfbsONQ3M9x9wQpMsUP1XQatOgU/b+nZ+eDef7vAqfACwM=
   </chunk>
    <chunk x="32" y="-32" width="16" height="16">
-   eJzV0lsOwUAUxvEzw0OVTbg8UHZA8IgtEDxiC0RrKTbCTojLg9se+DetpKlGQtKIk/zSzJzzddJ0RETqWqSBJp41VyI2HOWtq/RqOCpxDthjB7fXZ3+AIVbMr9Vrvkuvh6QWJwENhbs7y74NBxvW24j8lN4MBTJ55JDV3vlRFc5/WnHmjR+fH1d+EZgN5088z7jgilvEe5dv8gb/PgUTaWT8u9pCO6ADMyJfZL4EC2VU/PwI44AJrC+/P1j/kHfv4QOSgDac
+   eJzF0ksOQTEUxvHTMhCxCY8BYgcEQ2yBYMjdAnFrKTbCTojH0B74N7eSGyrcxOMkv0HP1y+dVESkqUVaaOM2CyUSwqjoXCdr4KTEHHHAHjYbsh9hjDX3N+qx3ycbIK3FpKChcLF32Ycw2HLeefozsjlKdIooIK+j931z30863+xn/vz+J/vnJ/mr/tLtc9qf+/plVJyV29fe7GfRQTem5696+1VMMI0JEvSTzi/69h9eAexXMpA=
   </chunk>
    <chunk x="48" y="-32" width="16" height="16">
-   eJyzZmJgsAFickE0UG8MBfqrgXprKNA/1MEcRgaGuYzEq49AC6s9QL17SdBPDrgDNP8uBXb8Aer9S2M3jgLyAACrpQj4
+   eJyzZmJgsAFickE0UG8MBfqrgXprKNA/1MEcRgaGuYzEq49AC6s9QL17SdBPDrgDNP8uBXb8Aer9SyM3clGoX4sqrhi6AADiJQks
   </chunk>
    <chunk x="64" y="-32" width="16" height="16">
    eJxjYBgFlAKOgXbAKKAa+MfIwPCfcaBdQT8AAPT9Agg=
@@ -566,6 +566,16 @@
    </properties>
    <point/>
   </object>
+  <object id="106" x="222.167" y="-365.5">
+   <properties>
+    <property name="angle" type="float" value="180"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="0.9"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
   <object id="100" x="487.667" y="-421">
    <properties>
     <property name="angle" type="float" value="180"/>
@@ -606,7 +616,7 @@
    </properties>
    <point/>
   </object>
-  <object id="87" x="566.708" y="-352">
+  <object id="87" x="743.041" y="-352.667">
    <properties>
     <property name="angle" type="float" value="0"/>
     <property name="color" type="color" value="#ffffff00"/>

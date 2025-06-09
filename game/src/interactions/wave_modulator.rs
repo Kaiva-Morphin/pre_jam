@@ -177,20 +177,19 @@ pub fn open_wave_modulator_display(
                         cmd.spawn(tw!("items-center justify-center w-full h-full"),)
                         .add_child(ui_entity);
                     });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_children(&children);
-                    });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_child(submit_button_entity);
-                    });
-                    cmd.spawn(ui_sub_container(&sub, ()))
-                    .with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full"),)
-                        .add_child(text_entity);
+                    cmd.spawn(ui_main_container(&main, ())).insert(
+                        tw!("flex flex-col-reverse")
+                    ).with_children(|cmd|{
+                        cmd.spawn(ui_sub_container(&sub, ()))
+                        .with_children(|cmd| {
+                            cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                            .add_children(&children).add_child(submit_button_entity);
+                        });
+                        cmd.spawn(ui_sub_container(&sub, ()))
+                        .with_children(|cmd| {
+                            cmd.spawn(tw!("items-center justify-center w-full h-full"),)
+                            .add_child(text_entity);
+                        });
                     });
                 });
             }).id();
