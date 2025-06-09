@@ -6,7 +6,7 @@ use bevy_rapier2d::{plugin::{NoUserData, RapierPhysicsPlugin}, prelude::{BevyPhy
 use debug_utils::debug_overlay::DebugOverlayRoot;
 use pixel_utils::camera::{PixelCamera, PixelCameraPlugin};
 
-use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::platforms::PlatformsPlugin, ui::{plugin::UiSystemPlugin, target::UiRetargetPlugin}, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, mouse::CursorPositionPlugin, spacial_audio::SpacialAudioPlugin}};
+use crate::{camera::plugin::CameraControllerPlugin, core::states::GameStatesPlugin, interactions::InteractionsPlugin, physics::platforms::PlatformsPlugin, ui::{plugin::UiSystemPlugin, target::UiRetargetPlugin}, utils::{cursor::CursorPlugin, custom_material_loader::SpritePreloadPlugin, debree::DebreePlugin, malf_guide::MalfunctionGuider, mouse::CursorPositionPlugin, spacial_audio::SpacialAudioPlugin}};
 
 const AUDIO_SCALE: f32 = 1. / 100.0;
 
@@ -47,6 +47,7 @@ impl Plugin for CorePlugin {
                 UiRetargetPlugin,
                 CursorPlugin,
                 SpacialAudioPlugin,
+                MalfunctionGuider,
                 bevy_framepace::FramepacePlugin,
                 InteractionsPlugin,
                 CursorPositionPlugin,
@@ -138,6 +139,7 @@ pub fn init_egui_font(
             interact_cursor: None,
             menu_corner_radius: CornerRadius::ZERO,
             window_corner_radius: CornerRadius::ZERO,
+            
             //menu_rounding: todo!(),
             //panel_fill: todo!(),
             //popup_shadow: todo!(),

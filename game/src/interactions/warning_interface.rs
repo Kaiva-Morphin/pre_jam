@@ -118,7 +118,10 @@ pub fn open_warning_interface_display(
             let entity = commands.spawn(
                 tw!("items-center justify-center w-full h-full"),
             ).with_children(|cmd|{
-                cmd.spawn(ui_main_container(&main, ())).insert(tw!("flex-col items-stretch p-[2px]"))
+                cmd.spawn(
+                //    ui_main_container(&main, ())
+                ()
+                ).insert(tw!("flex-col p-[2px] items-center gap-[1px]")) //items-stretch 
                 .with_children(|cmd| {
                     cmd.spawn(ui_sub_container(&sub, ()))
                     .with_children(|cmd| {

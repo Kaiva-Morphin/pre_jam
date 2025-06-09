@@ -106,7 +106,10 @@ pub fn open_chain_graph_display(
             let entity = commands.spawn(
                 tw!("items-center justify-center w-full h-full"),
             ).with_children(|cmd|{
-                cmd.spawn(ui_main_container(&main, ()))
+                cmd.spawn(
+                    // ui_main_container(&main, ())
+                    tw!("items-center justify-center w-full h-full flex-col")
+                )
                 .with_children(|cmd| {
                     cmd.spawn(ui_sub_container(&sub, ()))
                     .with_children(|cmd| {

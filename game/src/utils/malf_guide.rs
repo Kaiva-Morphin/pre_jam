@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use pixel_utils::camera::PixelCamera;
 use std::collections::HashMap;
-use crate::{interactions::components::{InInteractionArray, InteractionTypes}, utils::debree::MalfunctionType};
+use crate::{interactions::components::{InInteractionArray, InteractionTypes}, physics::player::Player, utils::debree::MalfunctionType};
 
 
 
@@ -20,13 +20,17 @@ impl Plugin for MalfunctionGuider {
     }
 }
 
+#[derive()]
+struct GuideArrow;
 
 pub fn guide(
-    malf: Query<&GlobalTransform, With<InteractionTypes>>,
+    malf: Query<(&InteractionTypes)>, // &GlobalTransform, 
     cam: Single<&GlobalTransform, With<PixelCamera>>,
     in_interaction_array: Res<InInteractionArray>,
-    tracked: Local<HashMap<MalfunctionType, Entity>>,
+    arrows: Local<HashMap<MalfunctionType, Entity>>,
+    player: Single<&GlobalTransform, With<Player>>,
 ){
-    info!("{:?}", malf);
+    // info!("{:?}", malf);
+    // for malf in malf {}
 }
 

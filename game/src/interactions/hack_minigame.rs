@@ -208,6 +208,7 @@ pub fn update_hack_display(
         }
         text.0 = seq;
     }
+    let mut ended = false;
     let curr_type = MalfunctionType::Hack;
     if malfunction.malfunction_types.contains(&curr_type) && hack_grid.is_loaded {
         for (entity, interaction, mut node, mut hack, base) in
@@ -269,11 +270,19 @@ pub fn update_hack_display(
                     event_writer.write(PlaySoundEvent::Success);
                     failed = false;
                 };
+                ended = true;
                 malfunction.resolved.push(Resolved {resolved_type: curr_type.clone(), failed});
+                
                 *prev_state = Interaction::default();
                 *selected_seq_pos = vec![];
                 *selected_seq_index = vec![];
             }
         }
+        if ended {
+            for (_, _, _, mut b, _) in interaction_query.iter_mut() {
+                b.state = HackButtonState::Enabled;
+            }
+        }
     }
+    
 }
