@@ -6,7 +6,7 @@ use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui
 // WIBECODE RULES 🤘🧑‍🎤
 
 pub const SINGLE_PIPE_TEX_SIZE : f32 = 16.;
-const PIPE_GRID_SIZE : f32 = 50.0;
+const PIPE_GRID_SIZE : f32 = 25.0;
 
 pub fn open_pipe_puzzle_display(
     mut commands: Commands,
@@ -35,6 +35,11 @@ pub fn open_pipe_puzzle_display(
                     let pipe = pipes.get_pipe(x, y);
                     info!("Pipe added: {x} {y} {:?}", pipe);
                     children.push(commands.spawn((
+                        Node {
+                            width: Val::Px(PIPE_GRID_SIZE),
+                            height: Val::Px(PIPE_GRID_SIZE),
+                            ..default()
+                        },
                         ImageNode::from_atlas_image(
                             pipes_atlas_handles.image_handle.clone(),
                             TextureAtlas{
@@ -55,7 +60,22 @@ pub fn open_pipe_puzzle_display(
             ).with_children(|cmd|{
                 cmd.spawn(ui_main_container(&main, ())).with_children(|cmd| {
                     cmd.spawn(ui_sub_container(&sub, ())).with_children(|cmd| {
-                        cmd.spawn(tw!("items-center justify-center w-full h-full grid grid-cols-6 grid-rows-6 gap-x-px gap-y-px"),)
+                        //info!("{:?}", tw!("items-center justify-center w-full h-full grid grid-cols-6 grid-rows-6"));
+                        /*
+                        Node { display: Grid, box_sizing: BorderBox, position_type: Relative, overflow: Overflow { x: Visible, y: Visible }, overflow_clip_margin: OverflowClipMargin { visual_box: ContentBox, margin: 0.0 }, left: Auto, right: Auto, top: Auto, bottom: Auto, width: Percent(100.0), height: Percent(100.0), min_width: Auto, min_height: Auto, max_width: Auto, max_height: Auto, aspect_ratio: None, align_items: Center, justify_items: Default, align_self: Auto, justify_self: Auto, align_content: Default, justify_content: Center, margin: UiRect { left: Px(0.0), right: Px(0.0), top: Px(0.0), bottom: Px(0.0) }, padding: UiRect { left: Px(0.0), right: Px(0.0), top: Px(0.0), bottom: Px(0.0) }, border: UiRect { left: Px(0.0), right: Px(0.0), top: Px(0.0), bottom: Px(0.0) }, flex_direction: Row, flex_wrap: NoWrap, flex_grow: 0.0, flex_shrink: 1.0, flex_basis: Auto, row_gap: Px(0.0), column_gap: Px(0.0), grid_auto_flow: Row, grid_template_rows: [RepeatedGridTrack { repetition: Count(6), tracks: [GridTrack { min_sizing_function: Px(0.0), max_sizing_function: Fraction(1.0) }] }], grid_template_columns: [RepeatedGridTrack { repetition: Count(6), tracks: [GridTrack { min_sizing_function: Px(0.0), max_sizing_function: Fraction(1.0) }] }], grid_auto_rows: [], grid_auto_columns: [], grid_row: GridPlacement { start: None, span: Some(1), end: None }, grid_column: GridPlacement { start: None, span: Some(1), end: None } }
+                        */
+                        cmd.spawn(Node {
+                            align_items: AlignItems::Center,
+                            justify_content: JustifyContent::Center,
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
+                            display: Display::Grid,
+                            row_gap: Val::Px(-0.2),
+                            column_gap: Val::Px(-0.2),
+                            grid_template_rows: vec![RepeatedGridTrack::flex(6, 1.)],
+                            grid_template_columns: vec![RepeatedGridTrack::flex(6, 1.)],
+                            ..Default::default()
+                        })
                         .add_children(&children);
                     });
                 });
@@ -238,8 +258,8 @@ fn pick_candidate(candidates: &[Pipe]) -> Option<Pipe> {
     None
 }
 
-const ROWS: usize = 4;
-const COLS: usize = 4;
+const ROWS: usize = 6;
+const COLS: usize = 6;
 
 impl Pipe {
     fn get_index(&self) -> usize {

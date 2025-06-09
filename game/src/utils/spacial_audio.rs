@@ -68,6 +68,7 @@ fn play_alarm_speakers(
     speakers: Query<Entity, With<AlarmSpeaker>>,
     mut malfunction: ResMut<Malfunction>,
     sound_assets: Res<SoundAssets>,
+    
 ) {
     // TODO: IF FLYING => DISABLE
     if malfunction.is_changed() && malfunction.in_progress && malfunction.added_new_malfunction {
