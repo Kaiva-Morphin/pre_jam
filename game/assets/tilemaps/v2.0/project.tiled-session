@@ -3,9 +3,10 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "main.tmx",
     "automapping.whileDrawing": false,
     "expandedProjectPaths": [
+        "."
     ],
     "file.lastUsedOpenFilter": "Все файлы (*)",
     "fileStates": {
@@ -40,14 +41,15 @@
             "expandedObjectLayers": [
                 16
             ],
-            "scale": 4,
-            "selectedLayer": 5,
+            "scale": 1,
+            "selectedLayer": 12,
             "viewCenter": {
-                "x": 560.75,
-                "y": -315
+                "x": 356.5,
+                "y": -411
             }
         },
         "main.tsx": {
+            "scaleInDock": 2,
             "scaleInEditor": 8
         },
         "rules.tmx": {
@@ -67,6 +69,7 @@
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
+        "main.tmx"
     ],
     "project": "project.tiled-project",
     "property.type": "string",

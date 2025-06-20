@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use bevy::{prelude::*, render::render_resource::{AsBindGroup, ShaderRef}, sprite::{AlphaMode2d, Material2d}};
 use tiled::PropertyValue;
 
+use crate::utils::debree::{Malfunction, MalfunctionType};
+
 #[derive(Component)]
 pub struct Interactable;
 
@@ -59,7 +61,7 @@ pub struct ScrollSelector {
     pub selection_options: Vec<Entity>,
 }
 
-#[derive(Component, Clone, Debug, PartialEq, Default)]
+#[derive(Component, Clone, Debug, PartialEq, Default, Hash, Eq)]
 pub enum InteractionTypes {
     #[default]
     ChainReactionDisplay,
@@ -84,6 +86,17 @@ impl InteractionTypes {
             "CHAIN" => Some(Self::ChainReactionDisplay),
             "COLLISION" => Some(Self::CollisionMinigame),
             _ => None
+        }
+    }
+    pub fn as_malfunction(&self) -> MalfunctionType {
+        match self {
+            InteractionTypes::ChainReactionDisplay => {MalfunctionType::NoMalfunction}
+            InteractionTypes::WaveModulator => {MalfunctionType::Waves}
+            InteractionTypes::PipePuzzle => {MalfunctionType::Engine}
+            InteractionTypes::CollisionMinigame => {MalfunctionType::Collision}
+            InteractionTypes::WarningInterface => {MalfunctionType::NoMalfunction}
+            InteractionTypes::HackMinigame => {MalfunctionType::Hack}
+            InteractionTypes::WiresMinigame => {MalfunctionType::Reactor}
         }
     }
 }

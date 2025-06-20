@@ -75,25 +75,26 @@ pub fn camera_controller(
     };
     
     let Projection::Orthographic(projection) = &mut **projection else {return;}; 
-    if keyboard_input.just_pressed(KeyCode::KeyR) {
-        if **mode == CameraMode::Following {
-            **mode = CameraMode::Free;
-        } else {
-            **mode = CameraMode::Following;
-        }
-    }
+    // if keyboard_input.just_pressed(KeyCode::KeyR) {
+    //     if **mode == CameraMode::Following {
+    //         **mode = CameraMode::Free;
+    //     } else {
+    //         **mode = CameraMode::Following;
+    //     }
+    // }
     
     let mut m_dt = Vec3::ZERO;
     for event in mouse_wheel_events.read() {
         let v =  event.y * if let bevy::input::mouse::MouseScrollUnit::Line = event.unit {1.0} else {1.0 / event.y.abs()};
         m_dt.z += v;
     };
-    if mouse.pressed(MouseButton::Middle) {
-        for event in mouse_motion.read() {
-            m_dt.x -= event.delta.x;
-            m_dt.y += event.delta.y;
-        }
-    }
+    m_dt.z = 0.0;
+    // if mouse.pressed(MouseButton::Middle) {
+    //     for event in mouse_motion.read() {
+    //         m_dt.x -= event.delta.x;
+    //         m_dt.y += event.delta.y;
+    //     }
+    // }
     **target_zoom = (**target_zoom + m_dt.z).clamp(-5.0, 40.0);
     let target_scale = (2.0_f32).powf(-**target_zoom * 0.2);
     projection.scale = target_scale;

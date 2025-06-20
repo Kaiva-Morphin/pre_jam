@@ -54,7 +54,7 @@ pub struct Wire {
 #[derive(Component)]
 pub struct WireContainer;
 
-const WIRES : usize = 3;
+const WIRES : usize = 5;
 const WIRE_SOCKETS : usize = WIRES * 2;
 
 pub fn refresh_game(
@@ -330,6 +330,7 @@ pub fn touch_wires_inlet(
                                 resolved_type: crate::utils::debree::MalfunctionType::Reactor,
                                 failed: true,
                             });
+                            event_writer.write(PlaySoundEvent::Fail);
                         } 
                         let Some(start) = wires.socket_positions.get(&locked_id) else {warn!("SOCKET POS NOT FOUND"); continue;};
                         let Some(end) = wires.socket_positions.get(&wire.id) else {warn!("SOCKET POS NOT FOUND"); continue;};

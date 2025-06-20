@@ -60,6 +60,10 @@ pub struct SoundAssets {
     pub vent_ambience: Handle<AudioSource>,
     #[asset(path = "sounds/Retro PickUp Coin StereoUP 04.wav")]
     pub success: Handle<AudioSource>,
+    #[asset(path = "sounds/Retro Negative Short 23.wav")]
+    pub fail: Handle<AudioSource>,
+    #[asset(path = "sounds/144912__thesoundcatcher__metal_creek_-crash_smash.wav")]
+    pub boom: Handle<AudioSource>,
 }
 
 #[derive(Component)]
@@ -105,6 +109,8 @@ pub enum PlaySoundEvent {
     WireClick,
     Beep,
     Success,
+    Fail,
+    Boom,
 }
 
 pub fn play_sounds(
@@ -171,6 +177,12 @@ fn match_sounds(
         },
         PlaySoundEvent::Success => {
             commands.spawn(sound_bundle(sound_assets.success.clone(), 0.8));
+        },
+        PlaySoundEvent::Fail => {
+            commands.spawn(sound_bundle(sound_assets.fail.clone(), 0.8));
+        },
+        PlaySoundEvent::Boom => {
+            commands.spawn(sound_bundle(sound_assets.boom.clone(), 1.));
         },
     }
 }

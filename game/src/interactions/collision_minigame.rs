@@ -251,7 +251,7 @@ pub fn interact_with_spinny_collision(
                             },
                             _ => {}
                         }
-                        println!("u {} r {}", material.u, material.r);
+                        // println!("u {} r {}", material.u, material.r);
                     }
                 }
                 if let Some(texture_atlas) = &mut spinny_image_node.texture_atlas {
@@ -395,7 +395,7 @@ pub fn update_collision_minigame(
             if *prev == Interaction::Pressed && *interaction != Interaction::Pressed && in_progress 
             && !malfunction.malfunction_types.contains(&MalfunctionType::Engine){
                 // submitted solution
-                println!("submitted collision sol");
+                // println!("submitted collision sol");
                 *submited = true;
             }
             a.index = index;
@@ -419,6 +419,8 @@ pub fn update_collision_minigame(
                         if !intersects {
                             event_writer.write(PlaySoundEvent::Success);
                             text.0 = TRAJECTORY_SAFE.to_string();
+                        } else {
+                            event_writer.write(PlaySoundEvent::Fail);
                         }
                         malfunction.resolved.push(Resolved {
                             resolved_type: MalfunctionType::Collision,

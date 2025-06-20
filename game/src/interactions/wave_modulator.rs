@@ -170,7 +170,10 @@ pub fn open_wave_modulator_display(
             let entity = commands.spawn(
                 tw!("items-center justify-center w-full h-full"),
             ).with_children(|cmd|{
-                cmd.spawn(ui_main_container(&main, ()))
+                cmd.spawn(
+                    // ui_main_container(&main, ())
+                    tw!("items-center justify-center w-full h-full flex-col")
+                )
                 .with_children(|cmd| {
                     cmd.spawn(ui_sub_container(&sub, ()))
                     .with_children(|cmd| {
@@ -288,8 +291,8 @@ pub fn interact_with_wavemod_spinny(
                             },
                             _ => {}
                         }
-                        println!("{:?}", [material.a, material.b, material.c, material.d]);
-                        println!("{:?}", [material.ra, material.rb, material.rc, material.rd]);
+                        // println!("{:?}", [material.a, material.b, material.c, material.d]);
+                        // println!("{:?}", [material.ra, material.rb, material.rc, material.rd]);
                     }
                 }
                 if let Some(texture_atlas) = &mut spinny_image_node.texture_atlas {
@@ -379,7 +382,7 @@ pub fn update_wave_modulator_display(
         if let Some(a) = &mut node.texture_atlas {
             if *prev == Interaction::Pressed && *interaction != Interaction::Pressed && in_progress {
                 // submitted solution
-                println!("submitted waves");
+                // println!("submitted waves");
                 *submited = true;
             }
             a.index = index;
@@ -414,6 +417,8 @@ pub fn update_wave_modulator_display(
                     if in_sync {
                         event_writer.write(PlaySoundEvent::Success);
                         text.0 = ANTENNAS_WORK.to_string();
+                    } else {
+                        event_writer.write(PlaySoundEvent::Fail);
                     }
                     malfunction.resolved.push(Resolved {
                         resolved_type: MalfunctionType::Waves,

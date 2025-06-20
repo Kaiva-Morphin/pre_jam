@@ -25,9 +25,9 @@ pub struct SpriteAssets {
     #[asset(path = "ui/malf.png")]
     pub malf_atlas: Handle<Image>,
 
-    #[asset(path = "interactables/ChainGraph.png")]
+    #[asset(path = "interactables/chaingraph.png")]
     pub chain_graph_sprite: Handle<Image>,
-    #[asset(path = "interactables/WaveGraph.png")]
+    #[asset(path = "interactables/wavegraph.png")]
     pub wave_graph_sprite: Handle<Image>,
 
     #[asset(path = "interactables/chain.png")]
@@ -40,11 +40,22 @@ pub struct SpriteAssets {
     pub collision_interactable: Handle<Image>,
     #[asset(path = "interactables/warning.png")]
     pub warning_interactable: Handle<Image>,
+    #[asset(path = "interactables/wires.png")]
+    pub wires: Handle<Image>,
     #[asset(path = "ui/wire.png")]
     pub wire: Handle<Image>,
 
+    #[asset(path = "interactables/hack.png")]
+    pub hack: Handle<Image>,
+
     #[asset(path = "interactables/ururur.png")]
     pub faz: Handle<Image>,
+
+    #[asset(path = "ui/send.png")]
+    pub send: Handle<Image>,
+
+
+
 }
 
 

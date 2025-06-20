@@ -54,7 +54,7 @@ pub fn manage_energy(
     mut overlay_events: EventWriter<DebugOverlayEvent>,
 ) {
     if !energy.increase_consumption.1.is_zero() {
-        energy.increase_consumption.1 = (energy.increase_consumption.1 - time.delta()).clamp(Duration::ZERO, Duration::MAX)
+        energy.increase_consumption.1 = energy.increase_consumption.1.saturating_sub(time.delta());
     } else {
         energy.increase_consumption.0 = 0.;
     }

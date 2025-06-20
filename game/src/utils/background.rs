@@ -40,7 +40,7 @@ fn setup(
         },
     ));
 
-    for i in 0..4 {
+    for i in 0..3 {
         cmd.spawn((Sprite{
             image: assets.load("textures/background/stars.png"),
             image_mode: SpriteImageMode::Tiled {
@@ -61,9 +61,6 @@ fn setup(
             },
         ));
     }   
-
-
-    
 }
 
 

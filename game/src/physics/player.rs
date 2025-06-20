@@ -558,39 +558,39 @@ pub fn update_controllers(
             player_vel.angvel = angle_diff.signum() * 3.0;
         }
     }
-    if keyboard.just_pressed(KeyCode::KeyC) {
-        if !player.is_spacewalking()  {
-            player.state = PlayerState::Spacewalk;
-            consts.gravity = Vec2::ZERO;
-            // cmd.entity(*player_e).insert((
-            //     Friction::coefficient(1.0),
-            // ));
-            player.exiting_spacewalk = false;
-            player_vel.angvel = 0.0;
-            cmd.entity(*player_e).insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_X);
-            cmd.entity(*player_e).insert(
-                CollisionGroups{
-                    memberships: Group::from_bits(PLAYER_CG).unwrap(),
-                    filters: Group::from_bits(PLAYER_DEFAULT_CG & !PLATFORMS_CG).unwrap(),
-                }
-            );
-        } else {
-            player.state = PlayerState::Regular { accumulated_vel: 0.0 };
-            consts.gravity = PlayerConstants::default().gravity;
-            player.exiting_spacewalk = true;
-            // cmd.entity(*player_e).insert((
-            //     // LockedAxes::ROTATION_LOCKED,
-            //     // REG_FRICTION,
-            // ));
-            // transform.rotation = Quat::IDENTITY;
-            cmd.entity(*player_e).insert(
-                CollisionGroups{
-                    memberships: Group::from_bits(PLAYER_CG).unwrap(),
-                    filters: Group::from_bits(PLAYER_DEFAULT_CG).unwrap(),
-                }
-            );
-        }
-    }
+    // if keyboard.just_pressed(KeyCode::KeyC) {
+    //     if !player.is_spacewalking()  {
+    //         player.state = PlayerState::Spacewalk;
+    //         consts.gravity = Vec2::ZERO;
+    //         // cmd.entity(*player_e).insert((
+    //         //     Friction::coefficient(1.0),
+    //         // ));
+    //         player.exiting_spacewalk = false;
+    //         player_vel.angvel = 0.0;
+    //         cmd.entity(*player_e).insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_X);
+    //         cmd.entity(*player_e).insert(
+    //             CollisionGroups{
+    //                 memberships: Group::from_bits(PLAYER_CG).unwrap(),
+    //                 filters: Group::from_bits(PLAYER_DEFAULT_CG & !PLATFORMS_CG).unwrap(),
+    //             }
+    //         );
+    //     } else {
+    //         player.state = PlayerState::Regular { accumulated_vel: 0.0 };
+    //         consts.gravity = PlayerConstants::default().gravity;
+    //         player.exiting_spacewalk = true;
+    //         // cmd.entity(*player_e).insert((
+    //         //     // LockedAxes::ROTATION_LOCKED,
+    //         //     // REG_FRICTION,
+    //         // ));
+    //         // transform.rotation = Quat::IDENTITY;
+    //         cmd.entity(*player_e).insert(
+    //             CollisionGroups{
+    //                 memberships: Group::from_bits(PLAYER_CG).unwrap(),
+    //                 filters: Group::from_bits(PLAYER_DEFAULT_CG).unwrap(),
+    //             }
+    //         );
+    //     }
+    // }
 
     if !player.is_climbing() {
         *time_since_climb += dt;

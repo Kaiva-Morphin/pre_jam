@@ -10,6 +10,7 @@ use crate::{core::states::{GlobalAppState, OnGame, PreGameTasks}, interactions::
 pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
+        #[cfg(not(target_arch = "wasm32"))]
         let path = None;
 
         // #[cfg(not(target_arch = "wasm32"))]
@@ -18,6 +19,7 @@ impl Plugin for MapPlugin {
         // d.push("assets_raw/objects.json");
         // #[cfg(not(target_arch = "wasm32"))]
         // let path = Some(d);
+        
         #[cfg(target_arch = "wasm32")]
         let path = None;
 
@@ -186,10 +188,10 @@ fn handle_object_spawn(
                         handle = sprite_assets.warning_interactable.clone();
                     },
                     InteractionTypes::HackMinigame => {
-                        handle = sprite_assets.faz.clone();
+                        handle = sprite_assets.hack.clone();
                     },
                     InteractionTypes::WiresMinigame => {
-                        handle = sprite_assets.faz.clone();
+                        handle = sprite_assets.wires.clone();
                     },
                 }
                 let image = image_assets.get(&handle).unwrap();

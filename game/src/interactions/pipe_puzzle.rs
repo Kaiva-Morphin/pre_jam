@@ -4,8 +4,8 @@ use bevy_tailwind::tw;
 use crate::{interactions::components::{InInteractionArray, InteractionTypes}, ui::{components::containers::base::{main_container_handle, sub_container_handle, ui_main_container, ui_sub_container}, target::LowresUiContainer}, utils::{custom_material_loader::PipesAtlasHandles, debree::{Malfunction, MalfunctionType, Resolved}, spacial_audio::PlaySoundEvent}};
 
 // WIBECODE RULES 🤘🧑‍🎤
-const ROWS: usize = 6;
-const COLS: usize = 6;
+const ROWS: usize = 5;
+const COLS: usize = 5;
 
 pub const SINGLE_PIPE_TEX_SIZE : f32 = 16.;
 const PIPE_GRID_SIZE : f32 = 25.0;
@@ -109,8 +109,7 @@ pub fn update_pipes(
     mut event_writer: EventWriter<PlaySoundEvent>,
     in_interaction_array: Res<InInteractionArray>,
 ){
-    if in_interaction_array.in_interaction == InteractionTypes::PipePuzzle && in_interaction_array.in_any_interaction &&
-    malfunction.malfunction_types.contains(&MalfunctionType::Engine) {
+    if malfunction.malfunction_types.contains(&MalfunctionType::Engine) {
         for (mut pipe, mut pipe_image_node, pipe_interaction) in pipe_image_nodes.iter_mut() {
             if let Some(texture_atlas) = &mut pipe_image_node.texture_atlas {
                 if *pipe_interaction == Interaction::Pressed {

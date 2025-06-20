@@ -1,11 +1,12 @@
 use std::{collections::{HashMap, VecDeque}, time::Duration};
 
 use bevy::prelude::*;
+use bevy_tailwind::tw;
 use debug_utils::{debug_overlay::DebugOverlayEvent, overlay_text};
 use tiled::PropertyValue;
 use utils::WrappedDelta;
 
-use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, pipe_puzzle::PipeMinigame, warning_interface::WarningData}, utils::{custom_material_loader::SpriteAssets, energy::Energy}};
+use crate::{core::states::GlobalAppState, interactions::{chain_reaction_display::CHAIN_GRAPH_LENGTH, pipe_puzzle::PipeMinigame, warning_interface::WarningData}, ui::target::LowresUiContainer, utils::{custom_material_loader::SpriteAssets, energy::Energy, spacial_audio::PlaySoundEvent}};
 
 pub struct DebreePlugin;
 
@@ -13,7 +14,7 @@ impl Plugin for DebreePlugin {
     fn build(&self, app: &mut App) {
         app
         .add_event::<GameEndEvent>()
-        .insert_resource(DebreeLevel::default())
+        .insert_resource(DebreeLevel::new())
         .insert_resource(Malfunction::default())
         .insert_resource(DebreeTimer {timer: Timer::new(Duration::from_secs_f32(1.), TimerMode::Repeating)})
         .add_systems(Update, (debree_level_management, manage_malfunctions, resolve_malfunctions,
@@ -31,6 +32,14 @@ pub struct DebreeLevel {
     pub chain_reaction_graph: VecDeque<f32>,
 }
 
+impl DebreeLevel {
+    pub fn new() -> Self {
+        Self {
+            const_add: 0.0008,
+            ..default()
+        }
+    }
+}
 #[derive(Resource)]
 pub struct DebreeTimer {
     pub timer: Timer,
@@ -90,7 +99,7 @@ pub struct Malfunction {
     pub added_new_malfunction: bool,
 }
 
-#[derive(Default, PartialEq, Clone, Debug)]
+#[derive(Default, PartialEq, Clone, Debug, Hash, Eq)]
 pub enum MalfunctionType {
     #[default]
     NoMalfunction,
@@ -115,10 +124,20 @@ pub fn manage_malfunctions(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut malfunction: ResMut<Malfunction>,
     sprite_assets: Res<SpriteAssets>,
-    mut pipe_minigame: ResMut<PipeMinigame>
+    mut pipe_minigame: ResMut<PipeMinigame>,
+    time: Res<Time>,
+    mut minimal_delta: Local<Duration>
 ) {
+    *minimal_delta += Duration::from_secs_f32(time.dt());
     let rand = getrandom::u32().unwrap() as f32 / u32::MAX as f32;
-    if (rand < debree_level.malfunction_probability) || keyboard.just_released(KeyCode::KeyP) {
+    if rand < debree_level.malfunction_probability /*|| keyboard.just_released(KeyCode::KeyP)*/ {
+        // println!("{:?}", minimal_delta);
+        if minimal_delta.as_secs_f32() > 10. {
+            // println!("AAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            *minimal_delta = Duration::ZERO
+        } else {
+            return;
+        }
         malfunction.in_progress = true;
         let mut available_for_malfunction = vec![];
         for malf_type in ALL_MALFUNCTION_TYPES.iter() {
@@ -165,7 +184,7 @@ pub fn manage_malfunctions(
                     color: true,
                     text: "Antenna malfunctioned!".to_string(),
                 });
-                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE1), TimerMode::Once));
             },
             MalfunctionType::Engine => {
                 malfunction.malfunction_types.push(malfunc_type);
@@ -175,7 +194,7 @@ pub fn manage_malfunctions(
                     color: false,
                     text: "Engine malfunctioned!".to_string(),
                 });
-                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE), TimerMode::Once));
+                malfunction.malfunction_timers.push(Timer::new(Duration::from_secs_f32(TIME_TO_RESOLVE1), TimerMode::Once));
             },
             MalfunctionType::NoMalfunction => unreachable!()
         };
@@ -195,10 +214,12 @@ pub fn resolve_malfunctions(
     mut malfunction: ResMut<Malfunction>,
     mut debree_level: ResMut<DebreeLevel>,
     mut energy: ResMut<Energy>,
+    mut event_writer: EventWriter<GameEndEvent>,
 ) {
     if !malfunction.resolved.is_empty() {
         for resolved in malfunction.resolved.clone() {
-            let index = malfunction.malfunction_types.iter().position(|r: &MalfunctionType| r == &resolved.resolved_type).unwrap();
+            let index = malfunction.malfunction_types.iter().position(|r: &MalfunctionType| r == &resolved.resolved_type);
+            let Some(index) = index else {warn!("NOTHING TO REMOVE?"); continue};
             let to_be_resolved = malfunction.malfunction_types.remove(index);
             malfunction.malfunction_timers.remove(index);
             match to_be_resolved {
@@ -214,6 +235,7 @@ pub fn resolve_malfunctions(
                 MalfunctionType::Collision => {
                     if resolved.failed {
                         println!("failed collision"); // end
+                        event_writer.write(GameEndEvent);
                     } else {
                         println!("resolved collision"); // go on
                     }
@@ -238,6 +260,7 @@ pub fn resolve_malfunctions(
                 },
                 MalfunctionType::Engine => {
                     if resolved.failed {
+                        event_writer.write(GameEndEvent);
                         println!("failed engine"); // end
                     } else {
                         println!("resolved engine");
@@ -254,6 +277,7 @@ pub fn resolve_malfunctions(
 }
 
 pub const TIME_TO_RESOLVE: f32 = 60.;
+pub const TIME_TO_RESOLVE1: f32 = TIME_TO_RESOLVE * 2.;
 
 pub fn tick_malfunctions(
     mut malfunction: ResMut<Malfunction>,
@@ -280,12 +304,45 @@ pub struct GameEndEvent;
 pub fn end_game(
     debree_level: Res<DebreeLevel>,
     time: Res<Time>,
-    mut event_reader: EventReader<GameEndEvent>
+    mut next_state: ResMut<NextState<GlobalAppState>>,
+    mut event_reader: EventReader<GameEndEvent>,
+    mut event_writer: EventWriter<PlaySoundEvent>,
+    asset_server: Res<AssetServer>,
+    mut cmd: Commands,
+    ui: Single<Entity, With<LowresUiContainer>>,
+    c: Query<&Children, With<LowresUiContainer>>
 ) {
+    let mut end = false;
     for _event in event_reader.read() {
+        end = true;
         println!("END {}", time.elapsed_secs());
     }
-    // if debree_level.chain_reaction >= 100. {
-    //     println!("END {}", time.elapsed_secs());
-    // }
+    if debree_level.chain_reaction >= 100. {
+        end = true;
+        println!("END {}", time.elapsed_secs());
+    }
+    if end {
+        event_writer.write(PlaySoundEvent::Boom);
+        next_state.set(GlobalAppState::Defeat);
+        for c in c {
+            for c in c {
+                cmd.entity(*c).despawn();
+            }
+        }
+        cmd.entity(*ui).insert((
+            tw!("flex w-full h-full bg-black items-center content-center justify-center"),
+            children![(
+                Text::new("YOUR SPACESHIP CRASHED INTO THE DEBRIS..."),
+                TextFont {
+                    font: asset_server.load("fonts/orp_regular.ttf"),
+                    font_size: 24.0,
+                    ..default()
+                },
+                TextColor(Color::srgb_u8(200, 200, 200)),
+                tw!("z-10"),
+            )]
+        ));
+    }
+    
 }
+

@@ -142,7 +142,6 @@ pub fn init_hack_display(
                     let index = get_random_range(0., NUM_HACK_BUTTON_TYPES) as usize;
                     hack_grid.grid[flat_id] = index;
                     if hack_grid.grid[y * HACK_GRID_SIZE as usize] != index {
-                        println!("{}", index);
                         have_different = true;
                     }
                 }
@@ -164,7 +163,7 @@ pub fn init_hack_display(
         hack_grid.win_seq = vec![
             hack_grid.grid[hor_entry1],
             hack_grid.grid[hor_entry1 + vert_entry1 * HACK_GRID_SIZE as usize],
-            hack_grid.grid[hor_entry1 + hor_entry2 + vert_entry1 * HACK_GRID_SIZE as usize]
+            hack_grid.grid[(hor_entry1 + hor_entry2 + vert_entry1 * HACK_GRID_SIZE as usize).clamp(0, 24)]
         ];
         println!("{},0 {},{} {},{} ({}) {:?}", hor_entry1, hor_entry1, vert_entry1, hor_entry1 + hor_entry2, vert_entry1, hor_entry2, hack_grid.win_seq.iter().map(|index| HACK_BUTTON_NAMES[*index]).collect::<Vec<&str>>());
         // println!("{:?}", (0..100).map(|_| get_random_range(1., HACK_GRID_SIZE as f32 - 1.) as usize).collect::<Vec<usize>>());
@@ -266,11 +265,13 @@ pub fn update_hack_display(
                 println!("{:?}", selected_seq_index.iter().map(|index| HACK_BUTTON_NAMES[*index]).collect::<Vec<&str>>());
                 hack_grid.is_loaded = false;
                 let mut failed = true;
+                ended = true;
                 if *selected_seq_index == hack_grid.win_seq {
                     event_writer.write(PlaySoundEvent::Success);
                     failed = false;
-                };
-                ended = true;
+                } else {
+                    event_writer.write(PlaySoundEvent::Fail);
+                }
                 malfunction.resolved.push(Resolved {resolved_type: curr_type.clone(), failed});
                 
                 *prev_state = Interaction::default();
@@ -279,8 +280,11 @@ pub fn update_hack_display(
             }
         }
         if ended {
-            for (_, _, _, mut b, _) in interaction_query.iter_mut() {
+            for (_, interaction, mut node, mut b, _) in interaction_query.iter_mut() {
                 b.state = HackButtonState::Enabled;
+                if let Some(a) = &mut node.texture_atlas {
+                    a.index = b.get_idx(*interaction == Interaction::Hovered, *interaction == Interaction::Pressed);
+                }
             }
         }
     }

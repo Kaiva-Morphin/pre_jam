@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="30" nextobjectid="107">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="1" nextlayerid="30" nextobjectid="128">
  <tileset firstgid="1" source="main.tsx"/>
  <layer id="11" name="WALL" width="30" height="20" locked="1">
   <data encoding="base64" compression="zlib">
@@ -288,7 +288,7 @@
  <layer id="19" name="PROPS" width="30" height="20">
   <data encoding="base64" compression="zlib">
    <chunk x="-32" y="-48" width="16" height="16">
-   eJxjYBgFo2D4AQ48cnWMDAz1QNzAiCk3Byg2F4s4sfr3AMX2UqCfGEBN/QAvzwo/
+   eJxjYBgFo2D4AQ484nWMDAz1QNzAiCk/Byg2F4s4MsCnfw9QbC8F+okB1NQPADhPCkc=
   </chunk>
    <chunk x="-16" y="-48" width="16" height="16">
    eJxjYBgFo2AU4AIRTAPtAvxADOg+cQrcCABelgCM
@@ -301,6 +301,9 @@
   </chunk>
    <chunk x="48" y="-48" width="16" height="16">
    eJxjYBgFo2DkgruMlOn/S6F+SoE0EwODDBP5+gGu0QIY
+  </chunk>
+   <chunk x="-48" y="-32" width="16" height="16">
+   eJxjYBgFIw1IMDMwLGCCYHLBAQr0gsADCvTLA93PAMOjgCIAALJvAyw=
   </chunk>
    <chunk x="-32" y="-32" width="16" height="16">
    eJxjYCAd1DEyMNQDcQMjqvh/EMGITQdx+uWBfAUK9BML6Kmfg472RzBRpp9S+0f1D6z+O0D+XTQxQukPAIz+G2c=
@@ -324,7 +327,7 @@
    eJzty7cRgDAUBNGvEXUDfWD7wPaB7QMJWCJCpIhEN/OyW5F3RolYJZ+L+SRIHb5/9JkWyVGgRIVau/cN3xYdegwYPfqJ74wFKzbsHv3B18DixPW0kXsfFua6G05KHwk=
   </chunk>
    <chunk x="-16" y="-16" width="16" height="16">
-   eJxjYICA/Uyo9H0oHQGlCQFc+okFtswMDHVAbM9Mnn5K7YfpQ3cHseA+E3aaEPjHyMDwH4Sh6tHpUTAKaAkARK4S0Q==
+   eJxjYICA/Uyo9H0oHQGlCQFc+okFtswMDHVAbM9Mnn5K7YfpQ3cHseA+mr0wc+QJmPOPkYHhPwhD9aHTCSS6YxSMAlIAADIPEzY=
   </chunk>
    <chunk x="16" y="-16" width="16" height="16">
    eJxjYCAN7GFkYNjLSKKmQQK+MjEwfGNCpUkBoswMDGLMqDQpwBSo3owZlSYFhALVhzGj0qNgFFACAHsHCZ8=
@@ -366,12 +369,42 @@
   <object id="29" x="-304" y="-464" width="48" height="16"/>
  </objectgroup>
  <objectgroup id="25" name="LIGHTS">
-  <object id="40" x="1059.25" y="-344.75">
+  <object id="109" x="1055.25" y="-346.75">
    <properties>
     <property name="angle" type="float" value="0"/>
     <property name="color" type="color" value="#ff00ff3c"/>
-    <property name="intensity" type="float" value="10"/>
-    <property name="radius" type="float" value="10"/>
+    <property name="intensity" type="float" value="1"/>
+    <property name="radius" type="float" value="50"/>
+    <property name="rotation" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="122" x="412.75" y="-627.75">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ff00ff3c"/>
+    <property name="intensity" type="float" value="1"/>
+    <property name="radius" type="float" value="50"/>
+    <property name="rotation" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="111" x="751.75" y="-182.25">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ffffd500"/>
+    <property name="intensity" type="float" value="3"/>
+    <property name="radius" type="float" value="50"/>
+    <property name="rotation" type="float" value="0"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="110" x="1119.25" y="-347.25">
+   <properties>
+    <property name="angle" type="float" value="0"/>
+    <property name="color" type="color" value="#ff00ff3c"/>
+    <property name="intensity" type="float" value="1"/>
+    <property name="radius" type="float" value="50"/>
     <property name="rotation" type="float" value="0"/>
    </properties>
    <point/>
@@ -466,26 +499,6 @@
    </properties>
    <point/>
   </object>
-  <object id="81" x="-199.599" y="-421.75">
-   <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="color" type="color" value="#ffffffff"/>
-    <property name="intensity" type="float" value="0.9"/>
-    <property name="radius" type="float" value="200"/>
-    <property name="rotation" type="float" value="90"/>
-   </properties>
-   <point/>
-  </object>
-  <object id="82" x="-375.917" y="-422.5">
-   <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="color" type="color" value="#ffffffff"/>
-    <property name="intensity" type="float" value="0.9"/>
-    <property name="radius" type="float" value="200"/>
-    <property name="rotation" type="float" value="90"/>
-   </properties>
-   <point/>
-  </object>
   <object id="64" x="-376.25" y="-261">
    <properties>
     <property name="angle" type="float" value="180"/>
@@ -506,23 +519,23 @@
    </properties>
    <point/>
   </object>
-  <object id="62" x="-407.834" y="-582">
+  <object id="116" x="-311.834" y="-583.5">
    <properties>
     <property name="angle" type="float" value="180"/>
     <property name="color" type="color" value="#ffffffff"/>
-    <property name="intensity" type="float" value="1"/>
+    <property name="intensity" type="float" value="2"/>
     <property name="radius" type="float" value="200"/>
     <property name="rotation" type="float" value="90"/>
    </properties>
    <point/>
   </object>
-  <object id="83" x="-279.667" y="-589.167">
+  <object id="117" x="-406.334" y="-592">
    <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="color" type="color" value="#ffffffff"/>
-    <property name="intensity" type="float" value="1"/>
+    <property name="angle" type="float" value="30"/>
+    <property name="color" type="color" value="#ffff0be7"/>
+    <property name="intensity" type="float" value="5"/>
     <property name="radius" type="float" value="200"/>
-    <property name="rotation" type="float" value="90"/>
+    <property name="rotation" type="float" value="110"/>
    </properties>
    <point/>
   </object>
@@ -556,16 +569,6 @@
    </properties>
    <point/>
   </object>
-  <object id="99" x="727.667" y="-421">
-   <properties>
-    <property name="angle" type="float" value="180"/>
-    <property name="color" type="color" value="#ffffffff"/>
-    <property name="intensity" type="float" value="0.9"/>
-    <property name="radius" type="float" value="200"/>
-    <property name="rotation" type="float" value="90"/>
-   </properties>
-   <point/>
-  </object>
   <object id="106" x="222.167" y="-365.5">
    <properties>
     <property name="angle" type="float" value="180"/>
@@ -576,11 +579,91 @@
    </properties>
    <point/>
   </object>
-  <object id="100" x="487.667" y="-421">
+  <object id="107" x="728.833" y="-423.5">
    <properties>
-    <property name="angle" type="float" value="180"/>
+    <property name="angle" type="float" value="270"/>
     <property name="color" type="color" value="#ffffffff"/>
-    <property name="intensity" type="float" value="0.9"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="115" x="-374.833" y="-421.5">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="113" x="81.1667" y="-393">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="120" x="272.667" y="-434">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="-90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="121" x="177.167" y="-430">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="-90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="118" x="81.1667" y="-393">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="119" x="81.6667" y="-435.5">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="-90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="114" x="272.167" y="-395.5">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="5"/>
+    <property name="radius" type="float" value="200"/>
+    <property name="rotation" type="float" value="90"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="108" x="489.667" y="-425">
+   <properties>
+    <property name="angle" type="float" value="270"/>
+    <property name="color" type="color" value="#ffffffff"/>
+    <property name="intensity" type="float" value="1"/>
     <property name="radius" type="float" value="200"/>
     <property name="rotation" type="float" value="90"/>
    </properties>
@@ -620,8 +703,8 @@
    <properties>
     <property name="angle" type="float" value="0"/>
     <property name="color" type="color" value="#ffffff00"/>
-    <property name="intensity" type="float" value="0.3"/>
-    <property name="radius" type="float" value="1"/>
+    <property name="intensity" type="float" value="1"/>
+    <property name="radius" type="float" value="15"/>
     <property name="rotation" type="float" value="90"/>
    </properties>
    <point/>
@@ -718,17 +801,17 @@
     <property name="type" value="COLLISION"/>
    </properties>
   </object>
-  <object id="75" x="736" y="-208" width="32" height="32">
+  <object id="75" x="736" y="-192" width="32" height="32">
    <properties>
     <property name="type" value="HACK"/>
    </properties>
   </object>
-  <object id="76" x="-400" y="-192" width="32" height="29.875">
+  <object id="76" x="-400" y="-192" width="32" height="32">
    <properties>
     <property name="type" value="REACTOR"/>
    </properties>
   </object>
-  <object id="77" x="-528" y="-384" width="32" height="32">
+  <object id="77" x="-544" y="-384" width="16" height="32">
    <properties>
     <property name="type" value="ENGINE"/>
    </properties>
@@ -738,7 +821,7 @@
     <property name="type" value="ANTENNA"/>
    </properties>
   </object>
-  <object id="80" x="976" y="-368" width="48" height="32">
+  <object id="80" x="976" y="-368" width="48" height="32" visible="0">
    <properties>
     <property name="type" value="CHAIN"/>
    </properties>

@@ -27,6 +27,7 @@ impl Plugin for GameStatesPlugin {
     }
 }
 
+
 #[derive(Resource, Debug)]
 pub struct PreGameTasks {
     tasks: HashSet<String>
@@ -94,6 +95,7 @@ pub enum GlobalAppState {
     #[default]
     AssetLoading,
     InGame,
+    Defeat
 }
 
 #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]

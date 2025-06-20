@@ -29,9 +29,12 @@ pub fn interact(
     }
     if keyboard.just_released(KeyCode::KeyF) && !scroll_selector.current_displayed.is_none() {
         let current_entity = scroll_selector.selection_options[scroll_selector.current_selected];
-        let interaction_type = interaction_types.get(current_entity).unwrap().clone();
-        in_interaction_array.in_any_interaction = true;
-        in_interaction_array.in_interaction = interaction_type;
+        if let Ok(interaction_type) = interaction_types.get(current_entity) {
+            in_interaction_array.in_any_interaction = true;
+            in_interaction_array.in_interaction = interaction_type.clone();
+        } else {
+            warn!("SOMETHING WENT WRONG");
+        }
     }
     let mut mouse_scroll_delta = 0.;
     for event in mouse_wheel_events.read() {
@@ -101,7 +104,8 @@ pub fn interact(
         if let Some(selection_options) = scroll_selector.selection_options.get(scroll_selector.current_selected) {
             if *selection_options == option_entity && scroll_selector.current_displayed.is_none() {
             // print!("{:?}", option_entity);
-            let interactable_pos = interactable.get_mut(option_entity).unwrap().1.translation();
+            let Ok(interactable_pos) = interactable.get_mut(option_entity) else {continue;};
+            let interactable_pos = interactable_pos.1.translation();
             let e_key_entity = commands.spawn((
                 Sprite::from_atlas_image(
                     texture_atlas_handles.image_handle.clone(),
